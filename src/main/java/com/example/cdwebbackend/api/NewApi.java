@@ -25,21 +25,21 @@ public class NewApi {
         return result;
     }
 
-    @PostMapping("/new")
-public NewDTO createNew(@RequestBody NewDTO model){
-    newService.save(model);
-    return model;
-}
-
-@PutMapping(value = "/new/{id}")
-    public NewDTO updateNew(@RequestBody NewDTO model, @PathVariable ("id")long id){
-    model.setId(id);
-
-    return newService.save(model);
-}
-@DeleteMapping(value = "/new")
-    public void deleteNew(@RequestBody long[]ids){
-
-    newService.delete(ids);
-}
+//    @PostMapping("/new")
+//public NewDTO createNew(@RequestBody NewDTO model){
+//    newService.save(model);
+//    return model;
+//}
+//
+//@PutMapping(value = "/new/{id}")
+//    public NewDTO updateNew(@RequestBody NewDTO model, @PathVariable ("id")long id){
+//    model.setId(id);
+//
+//    return newService.save(model);
+//}
+//@DeleteMapping(value = "/new")
+//    public void deleteNew(@RequestBody long[]ids){
+//
+//    newService.delete(ids);
+//}
 }
