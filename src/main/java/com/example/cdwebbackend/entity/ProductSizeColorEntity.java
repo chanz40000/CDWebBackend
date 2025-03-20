@@ -20,6 +20,10 @@ public class ProductSizeColorEntity extends BaseEntity{
 
     @Column(name = "stock")
     private int stock;
+
+    public ProductSizeColorEntity() {
+
+    }
     // Getters, Setters
 
     public ProductEntity getProduct() {
