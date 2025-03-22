@@ -1,6 +1,6 @@
 package com.example.cdwebbackend.api.output;
 
-import com.laptrinhjavaweb.dto.NewDTO;
+import com.example.cdwebbackend.dto.UserDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.List;
 public class NewOutput {
     private int page;
     private int totalPage;
-    private List<NewDTO> listResult = new ArrayList<>();
+    private List<UserDTO> listResult = new ArrayList<>();
 
     public int getPage() {
         return page;
@@ -26,11 +26,11 @@ public class NewOutput {
         this.totalPage = totalPage;
     }
 
-    public List<NewDTO> getListResult() {
+    public List<UserDTO> getListResult() {
         return listResult;
     }
 
-    public void setListResult(List<NewDTO> news) {
+    public void setListResult(List<UserDTO> news) {
         this.listResult = news;
     }
 }

@@ -7,6 +7,7 @@ import com.example.cdwebbackend.entity.ProductEntity;
 import com.example.cdwebbackend.entity.ProductSizeColorEntity;
 import com.example.cdwebbackend.entity.SizeEntity;
 import com.example.cdwebbackend.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Component
 public class ProductConverter {
+
     CategoryRepository categoryRepository;
     BrandRepository brandRepository;
     ProductRepository productRepository;
