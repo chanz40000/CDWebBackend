@@ -1,6 +1,8 @@
 package com.example.cdwebbackend.service;
 
 import com.example.cdwebbackend.dto.UserDTO;
+import com.example.cdwebbackend.entity.UserEntity;
+import org.springframework.boot.context.config.ConfigDataNotFoundException;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -10,6 +12,8 @@ public interface IUserService {
 
     List<UserDTO> findAll(Pageable pageable);
      UserDTO findOneById(Long id);
+     public UserEntity createUser(UserDTO userDTO) throws ConfigDataNotFoundException;
+     public String login(String username, String password) throws Exception;
     UserDTO findOneByUsername(String username);
     public List<UserDTO> getAllUsers() ;
 

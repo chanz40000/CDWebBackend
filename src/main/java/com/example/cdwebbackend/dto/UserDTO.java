@@ -17,6 +17,8 @@ public class UserDTO extends AbstractDTO<UserDTO>{
     String gender;
     LocalDateTime birthday;
     String avatar;
+    String facebookAccountId;
+    String googleAccountId;
 
     public String getUsername() {
         return username;
@@ -96,5 +98,21 @@ public class UserDTO extends AbstractDTO<UserDTO>{
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public String getFacebookAccountId() {
+        return facebookAccountId;
+    }
+
+    public void setFacebookAccountId(String facebookAccountId) {
+        this.facebookAccountId = facebookAccountId;
+    }
+
+    public String getGoogleAccountId() {
+        return googleAccountId;
+    }
+
+    public void setGoogleAccountId(String googleAccountId) {
+        this.googleAccountId = googleAccountId;
     }
 }
