@@ -1,24 +1,65 @@
 package com.example.cdwebbackend.dto;
 
-import com.example.cdwebbackend.entity.RoleEntity;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDTO extends AbstractDTO<UserDTO>{
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserDTO extends AbstractDTO<UserDTO> {
+    @JsonProperty("username")
     private String username;
+
+    @JsonProperty("fullname")
     private String fullname;
+
+    @JsonProperty("password")
     private String password;
+
+    @JsonProperty("phone")
     private String phone;
+
+    @JsonProperty("email")
     private String email;
+
+    @JsonProperty("address")
     private String address;
+
+    @JsonProperty("roles")
     private List<RoleDTO> roles = new ArrayList<>();
-    String gender;
-    LocalDateTime birthday;
-    String avatar;
-    String facebookAccountId;
-    String googleAccountId;
+
+    @JsonProperty("gender")
+    private String gender;
+
+    @JsonProperty("birthday")
+    private LocalDateTime birthday;
+
+    @JsonProperty("avatar")
+    private String avatar;
+
+    @JsonProperty("facebook_account_id")
+    private String facebookAccountId;
+
+    @JsonProperty("google_account_id")
+    private String googleAccountId;
+
+    @JsonProperty("retype_password")
+    private String retypePassword;
+
+    public String getRetypePassword() {
+        return retypePassword;
+    }
+
+    public void setRetypePassword(String retypePassword) {
+        this.retypePassword = retypePassword;
+    }
+    // Getters and Setters
 
     public String getUsername() {
         return username;

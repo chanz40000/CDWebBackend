@@ -23,6 +23,7 @@ public class ProductEntity extends BaseEntity{
     @JoinColumn(name = "brand_id")
     private BrandEntity brand;
 
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductSizeColorEntity> productSizeColors;
 

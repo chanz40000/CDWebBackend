@@ -10,8 +10,8 @@ public class SizeEntity extends BaseEntity{
     @Column(name = "name")
     private String size;
 
-    @ManyToMany(mappedBy = "sizes")
-    List<ProductEntity>products;
+    @OneToMany(mappedBy = "size")
+    List<ProductSizeColorEntity>productSizeColorEntities;
 
     public String getSize() {
         return size;
@@ -21,11 +21,11 @@ public class SizeEntity extends BaseEntity{
         this.size = size;
     }
 
-    public List<ProductEntity> getProducts() {
-        return products;
+    public List<ProductSizeColorEntity> getProductSizeColorEntities() {
+        return productSizeColorEntities;
     }
 
-    public void setProducts(List<ProductEntity> products) {
-        this.products = products;
+    public void setProductSizeColorEntities(List<ProductSizeColorEntity> productSizeColorEntities) {
+        this.productSizeColorEntities = productSizeColorEntities;
     }
 }
