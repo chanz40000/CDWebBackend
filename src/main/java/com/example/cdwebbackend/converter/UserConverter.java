@@ -23,6 +23,8 @@ public class UserConverter {
         entity.setGender(dto.getGender());
         entity.setBirthday(dto.getBirthday());
         entity.setAvatar(dto.getAvatar());
+        entity.setFacebookAccountId(dto.getFacebookAccountId());
+        entity.setGoogleAccountId(dto.getGoogleAccountId());
 
         // Convert RoleDTO -> RoleEntity
         List<RoleEntity> roles = dto.getRoles().stream().map(roleDTO -> {
@@ -48,7 +50,8 @@ public class UserConverter {
         dto.setGender(entity.getGender());
         dto.setBirthday(entity.getBirthday());
         dto.setAvatar(entity.getAvatar());
-
+        dto.setFacebookAccountId(entity.getFacebookAccountId());
+        dto.setGoogleAccountId(entity.getGoogleAccountId());
         // Convert RoleEntity -> RoleDTO
         List<RoleDTO> roles = entity.getRoles().stream().map(roleEntity -> {
             RoleDTO roleDTO = new RoleDTO();
@@ -72,7 +75,8 @@ public class UserConverter {
         entity.setGender(dto.getGender());
         entity.setBirthday(dto.getBirthday());
         entity.setAvatar(dto.getAvatar());
-
+        entity.setFacebookAccountId(dto.getFacebookAccountId());
+        entity.setGoogleAccountId(dto.getGoogleAccountId());
         List<RoleEntity> roles = dto.getRoles().stream().map(roleDTO -> {
             RoleEntity role = new RoleEntity();
             role.setId(roleDTO.getId());

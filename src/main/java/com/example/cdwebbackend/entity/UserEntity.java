@@ -38,6 +38,12 @@ public class UserEntity extends BaseEntity implements UserDetails {
     @Column(name = "avatar")
     String avatar;
 
+    @Column(name = "facebook_account_id")
+    String facebookAccountId;
+
+    @Column(name = "google_account_id")
+    String googleAccountId;
+
     public String getUsername() {
         return username;
     }
@@ -146,5 +152,21 @@ public class UserEntity extends BaseEntity implements UserDetails {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public String getFacebookAccountId() {
+        return facebookAccountId;
+    }
+
+    public void setFacebookAccountId(String facebookAccountId) {
+        this.facebookAccountId = facebookAccountId;
+    }
+
+    public String getGoogleAccountId() {
+        return googleAccountId;
+    }
+
+    public void setGoogleAccountId(String googleAccountId) {
+        this.googleAccountId = googleAccountId;
     }
 }
