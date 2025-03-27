@@ -121,7 +121,7 @@ public class UserService implements IUserService {
             }
         }
 
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password, userEntity.getAuthorities()));
 
         return jwtTokenUtil.generateToken(userEntity);
     }
