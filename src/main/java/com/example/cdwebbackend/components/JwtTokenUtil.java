@@ -29,8 +29,11 @@ import java.util.function.Function;
 @AllArgsConstructor
 @ConfigurationProperties(prefix = "jwt")
 public class JwtTokenUtil {
-    private Long expiration;
-    private String secterKey;
+    //@Value("${jwt.expiration}")
+    //sua lai
+    private long expiration = 36000;
+
+    private String secterKey = "yourverysecuresecretkeymustbelongenough";
 
     public String generateToken(UserEntity user) throws Exception{
         //properties => claims
@@ -51,7 +54,7 @@ public class JwtTokenUtil {
         }
     }
     private Key getSignInKey(){
-           byte[]bytes = Decoders.BASE64.decode(secterKey);
+           byte[]bytes = Decoders.BASE64.decode(generateSecretKey());
            return Keys.hmacShaKeyFor(bytes);
     }
     private String generateSecretKey(){

@@ -3,6 +3,7 @@ package com.example.cdwebbackend.config;
 import com.example.cdwebbackend.entity.UserEntity;
 import com.example.cdwebbackend.repository.UserRepository;
 import com.example.cdwebbackend.service.impl.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,7 +20,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
     private AuthenticationConfiguration configuration;
 
     //user's detail object

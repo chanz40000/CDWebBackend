@@ -1,9 +1,11 @@
 package com.example.cdwebbackend.config;
 
+import com.example.cdwebbackend.entity.RoleEntity;
 import com.example.cdwebbackend.filter.JwtTokenFilter;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,14 +22,13 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class WebSecurityConfig {
+    @Autowired
     private final JwtTokenFilter jwtTokenFilter;
-    @Value(staticConstructor = "${api.prefix}")
+    @Value("${api.prefix}")
     private String apiPrefix;
 
-
-    private WebSecurityConfig(JwtTokenFilter jwtTokenFilter) {
+    public WebSecurityConfig(JwtTokenFilter jwtTokenFilter) {
         this.jwtTokenFilter = jwtTokenFilter;
     }
 
@@ -41,11 +42,31 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(String.format("%s/users/register", apiPrefix)).permitAll()
-                        .requestMatchers(POST, String.format("%s/orders", apiPrefix)).hasRole("USER")
-                        .requestMatchers(GET, String.format("%s/orders", apiPrefix)).hasAnyRole("ADMIN", "USER")
-                        .requestMatchers(DELETE, String.format("%s/orders", apiPrefix)).hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, String.format("%s/orders", apiPrefix)).hasRole("ADMIN")
+                        .requestMatchers(apiPrefix + "/users/register").permitAll()
+                        .requestMatchers(apiPrefix + "/users/login").permitAll()
+                        .requestMatchers(POST, apiPrefix + "/orders").hasRole(RoleEntity.USER)
+                        .requestMatchers(GET, apiPrefix + "/orders").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
+                        .requestMatchers(DELETE, apiPrefix + "/orders").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.PUT, apiPrefix + "/orders").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(GET, apiPrefix + "/v1/categories?**").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
+                        .requestMatchers(POST, apiPrefix + "/v1/categories?**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(DELETE, apiPrefix + "/v1/categories?**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.PUT, apiPrefix + "/categories?**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(GET, apiPrefix + "/categories?**").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
+                        .requestMatchers(POST, apiPrefix + "/categories?**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(DELETE, apiPrefix + "/categories?**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.PUT, apiPrefix + "/categories?**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(GET, apiPrefix + "/products**").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
+                        .requestMatchers(POST, apiPrefix + "/products**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(DELETE, apiPrefix + "/products**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.PUT, apiPrefix + "/products**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(GET, apiPrefix + "/oder_detail**").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
+                        .requestMatchers(POST, apiPrefix + "/oder_detail**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(DELETE, apiPrefix + "/oder_detail**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.PUT, apiPrefix + "/oder_detail**").hasRole(RoleEntity.ADMIN)
+
+
+
                         .anyRequest().authenticated());
         return http.build();
     }

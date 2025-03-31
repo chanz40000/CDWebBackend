@@ -30,10 +30,12 @@ import java.util.function.Function;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
+    //sua lai
     @Value("${api.prefix}")
     private String apiPrefix;
     private final UserDetailsService userDetailsService;
     private final JwtTokenUtil jwtTokenUtil;
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 
@@ -59,7 +61,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 }
             }
         }catch (Exception e){
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+            // Kiểm tra nếu response chưa commit trước khi gửi lỗi
+            if (!response.isCommitted()) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+            }
+            return;
         }
 
         //
@@ -68,11 +74,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     private boolean isByPassToken(@NonNull HttpServletRequest request){
+        if (apiPrefix == null || apiPrefix.isEmpty()) {
+            return false; // Tránh lỗi NullPointerException
+        }
         final List<Pair<String, String>> bypassTokens= Arrays.asList(
                 Pair.of(String.format("%s/products", apiPrefix), "GET"),
                 Pair.of(String.format("%s/categories", apiPrefix), "GET"),
                 Pair.of(String.format("%s/users", apiPrefix), "GET"),
-                Pair.of(String.format("%s/users", apiPrefix), "GET")
+                Pair.of(String.format("%s/users", apiPrefix), "POST")
         );
         for(Pair<String, String>bypassToken: bypassTokens){
             if(request.getServletPath().contains(bypassToken.getFirst())

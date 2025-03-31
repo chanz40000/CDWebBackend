@@ -3,7 +3,11 @@ package com.example.cdwebbackend.service.impl;
 import com.example.cdwebbackend.components.JwtTokenUtil;
 import com.example.cdwebbackend.converter.UserConverter;
 import com.example.cdwebbackend.dto.UserDTO;
+import com.example.cdwebbackend.entity.RoleEntity;
 import com.example.cdwebbackend.entity.UserEntity;
+import com.example.cdwebbackend.exceptions.DataNotFoundException;
+import com.example.cdwebbackend.exceptions.PermissionDenyException;
+import com.example.cdwebbackend.repository.RoleRepository;
 import com.example.cdwebbackend.repository.UserRepository;
 import com.example.cdwebbackend.service.IUserService;
 import lombok.RequiredArgsConstructor;
@@ -19,26 +23,29 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements IUserService {
 
-//    @Autowired
-//    private UserRepository userRepository;
-//
-//    @Autowired
-//    private UserConverter userConverter;
-//
-//    @Autowired
-//    private JwtTokenUtil jwtTokenUtil;
-//
-//    @Autowired
-//    private AuthenticationManager authenticationManager;
-//
-//    @Autowired
-//    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserConverter userConverter;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RoleRepository roleRepository;
     @Override
     public List<UserDTO> findAll(Pageable pageable) {
         return null;
@@ -46,17 +53,25 @@ public class UserService implements IUserService {
 
     @Override
     public UserDTO findOneById(Long id) {
-        UserEntity userEntity = userRepository.findOneById(id);
-        return userConverter.toDTO(userEntity);
+        Optional<UserEntity> userEntity = userRepository.findOneById(id);
+        return userConverter.toDTO(userEntity.get());
     }
 
     @Override
     @Transactional
-    public UserEntity createUser(UserDTO userDTO) throws ConfigDataNotFoundException {
+    public UserEntity createUser(UserDTO userDTO) throws Exception {
         String username = userDTO.getUsername();
         //kiem tra xem username da co  hay chua
         if(userRepository.findOneByUsername(username).isPresent()) {
             throw new DataIntegrityViolationException("Username already exists!");
+        }
+        RoleEntity role = roleRepository.findOneById(userDTO.getId())
+                .orElseThrow(() -> {
+                    return new DataNotFoundException(  "Role not found");
+                });
+
+        if (role.getName().toUpperCase().equals(RoleEntity.ADMIN)){
+            throw new PermissionDenyException("You cannot register a admin account");
         }
 
         UserEntity newUser = userConverter.toEntity(userDTO);
@@ -94,11 +109,6 @@ public class UserService implements IUserService {
 //        return jwtTokenUtil.generateToken(userEntity);
 //    }
 
-    private final UserRepository userRepository;
-    private final UserConverter userConverter;
-    private final JwtTokenUtil jwtTokenUtil;
-    private final AuthenticationManager authenticationManager;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
