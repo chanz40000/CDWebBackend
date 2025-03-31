@@ -154,6 +154,12 @@
             <version>2.17.0</version> <!-- Đảm bảo dùng phiên bản mới nhất -->
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>CDWebBackend</finalName>

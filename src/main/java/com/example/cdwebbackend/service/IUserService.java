@@ -12,7 +12,7 @@ public interface IUserService {
 
     List<UserDTO> findAll(Pageable pageable);
      UserDTO findOneById(Long id);
-     public UserEntity createUser(UserDTO userDTO) throws ConfigDataNotFoundException;
+     public UserEntity createUser(UserDTO userDTO) throws Exception;
      public String login(String username, String password) throws Exception;
     UserDTO findOneByUsername(String username);
     public List<UserDTO> getAllUsers() ;
