@@ -33,28 +33,33 @@ public class JwtTokenUtil {
     //sua lai
     private long expiration = 36000;
 
-    private String secterKey = "yourverysecuresecretkeymustbelongenough";
+    private String secretKey = "laRfGOo4z4/olswnweG9AR3XTyQTaRwnqCbc/pw9LBM=";
 
-    public String generateToken(UserEntity user) throws Exception{
-        //properties => claims
+    public String generateToken(UserEntity user) throws Exception {
+        // properties => claims
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", user.getUsername());
         claims.put("password", user.getPassword());
-        try{
+
+        try {
             String token = Jwts.builder()
                     .setClaims(claims)
                     .setSubject(user.getUsername())
-                    .setExpiration(new Date(System.currentTimeMillis()+expiration*1000L))
-                    .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                    .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000L))
+                    .signWith(getSignInKey(), SignatureAlgorithm.HS256) // sử dụng secretKey để ký
                     .compact();
-          return token;
-        }catch (Exception e){
-            throw new InvalidParameterException("Cannot create jwt token, error: "+ e.getMessage());
 
+            System.out.println("Generated Token: " + token);
+            System.out.println("Secret Key: " + secretKey); // In ra để kiểm tra xem secretKey có đúng không
+
+            return token;
+        } catch (Exception e) {
+            throw new InvalidParameterException("Cannot create jwt token, error: " + e.getMessage());
         }
     }
+
     private Key getSignInKey(){
-           byte[]bytes = Decoders.BASE64.decode(generateSecretKey());
+           byte[]bytes = Decoders.BASE64.decode(secretKey);
            return Keys.hmacShaKeyFor(bytes);
     }
     private String generateSecretKey(){
@@ -62,15 +67,21 @@ public class JwtTokenUtil {
         byte[]keyBytes = new byte[32];
         random.nextBytes(keyBytes);
         String secretKey = Encoders.BASE64.encode(keyBytes);
+        System.out.println("SecretKey: "+ secretKey);
         return secretKey;
     }
 
     private Claims extractAllClaims(String token){
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSignInKey())  // sử dụng đúng secretKey
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            // Xử lý khi chữ ký không khớp hoặc token bị sửa đổi
+            throw new InvalidParameterException("Invalid JWT token or signature mismatch: " + e.getMessage());
+        }
     }
 
     public  <T> T extractClaim(String token, Function<Claims, T> claimsResolver){

@@ -167,4 +167,19 @@ public class UserService implements IUserService {
     public Optional<UserDTO> findByEmail(String email) {
         return Optional.empty();
     }
+
+    @Override
+    public UserEntity getUserDetailsFromToken(String token) throws Exception {
+        if(jwtTokenUtil.isTokenExpired(token)){
+            throw new Exception("Token is expired");
+        }
+        String username = jwtTokenUtil.extractUsername(token);
+        Optional<UserEntity>userEntity = userRepository.findOneByUsername(username);
+
+        if(userEntity.isPresent()){
+            return userEntity.get();
+        }else {
+            throw new Exception("User not found");
+        }
+    }
 }
