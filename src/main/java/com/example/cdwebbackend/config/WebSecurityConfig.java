@@ -44,6 +44,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(apiPrefix + "/users/register").permitAll()
                         .requestMatchers(apiPrefix + "/users/login").permitAll()
+                        .requestMatchers(apiPrefix + "/users/details").permitAll()
                         .requestMatchers(POST, apiPrefix + "/orders").hasRole(RoleEntity.USER)
                         .requestMatchers(GET, apiPrefix + "/orders").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
                         .requestMatchers(DELETE, apiPrefix + "/orders").hasRole(RoleEntity.ADMIN)

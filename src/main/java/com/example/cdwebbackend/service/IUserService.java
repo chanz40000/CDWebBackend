@@ -24,4 +24,5 @@ public interface IUserService {
     public void deleteUser(Long id) ;
 
     public Optional<UserDTO> findByEmail(String email);
+    public UserEntity getUserDetailsFromToken(String token)throws Exception;
 }
