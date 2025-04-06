@@ -1,5 +1,6 @@
 package com.example.cdwebbackend.entity;
 
+import com.example.cdwebbackend.exceptions.DataNotFoundException;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -8,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
+import java.util.function.Supplier;
 
 
 @MappedSuperclass
@@ -72,5 +74,12 @@ public abstract  class BaseEntity {
 
     public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate;
+    }
+
+    public static <T> T orElseThrow(T value, Supplier<? extends RuntimeException> exceptionSupplier) {
+        if (value == null) {
+            throw exceptionSupplier.get();
+        }
+        return value;
     }
 }

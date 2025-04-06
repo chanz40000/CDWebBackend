@@ -71,19 +71,40 @@ public class UserController {
     }
 
     @PostMapping("/details")
-    public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("Authorization") String token){
-        System.out.println("qua toi day roi");
+    public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("Authorization") String authorizationHeader){
+
         try{
-            String extractedToken = token.substring(7); //Loai bo "Bearer " tu chuoi token
-            System.out.println("Loai bo bearer");
+            String extractedToken = authorizationHeader.substring(7); //Loai bo "Bearer " tu chuoi token
             UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
-            System.out.println("Return: "+ UserResponse.fromUser(userEntity));
             return ResponseEntity.ok(UserResponse.fromUser(userEntity));
         }catch (Exception e){
             System.out.println("Lỗi: " + e.getMessage()); // In lỗi ra console
             e.printStackTrace(); // In stacktrace đầy đủ
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @PutMapping("/details/{userId}")
+    public ResponseEntity<UserResponse> updateUserDetails
+            (@PathVariable("userId")  int userId,
+             @RequestBody UserDTO updateUserDTO,
+             @RequestHeader("Authorization") String authorizationHeader){
+        System.out.println("Qua toi day roi");
+        try{
+            String extractedToken = authorizationHeader.substring(7); //Loai bo "Bearer " tu chuoi token
+            UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
+
+            if(userEntity.getId()!=userId){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            UserEntity user = userService.updateUser(updateUserDTO, userId);
+            return ResponseEntity.ok(UserResponse.fromUser(userEntity));
+        }catch (Exception e){
+            System.out.println("Lỗi: " + e.getMessage()); // In lỗi ra console
+            e.printStackTrace(); // In stacktrace đầy đủ
+            return ResponseEntity.badRequest().build();
+        }
+
     }
 
 }

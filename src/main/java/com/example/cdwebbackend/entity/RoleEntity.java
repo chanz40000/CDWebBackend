@@ -1,9 +1,12 @@
 package com.example.cdwebbackend.entity;
 
+import com.example.cdwebbackend.exceptions.DataNotFoundException;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Entity
 @Table(name = "role")
@@ -19,6 +22,7 @@ public class RoleEntity extends BaseEntity {
     public static String USER = "USER";
 
     @ManyToMany(mappedBy = "roles")
+    @JsonBackReference
     private List<UserEntity> users = new ArrayList<>();
 
     public String getCode() {

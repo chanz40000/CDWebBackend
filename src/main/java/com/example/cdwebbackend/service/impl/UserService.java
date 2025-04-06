@@ -12,7 +12,6 @@ import com.example.cdwebbackend.repository.UserRepository;
 import com.example.cdwebbackend.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.config.ConfigDataNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -81,35 +79,6 @@ public class UserService implements IUserService {
         return newUser;
     }
 
-//    @Override
-//    @Transactional
-//    public String login(String username, String password) throws Exception {
-//
-//        System.out.println("DEBUG: Searching for user -> " + username);
-//        Optional<UserEntity> userOpt = userRepository.findOneByUsername(username);
-//        System.out.println("DEBUG: User found -> " + userOpt);
-//
-//        if (userOpt.isEmpty()) {
-//            throw new BadCredentialsException("Invalid username / password");
-//        }
-//
-//        UserEntity userEntity = userOpt.get();
-//
-//        // Kiểm tra mật khẩu chính xác
-//        if (userEntity.getFacebookAccountId() == null && userEntity.getGoogleAccountId() == null) {
-//            if (!passwordEncoder.matches(password, userEntity.getPassword())) {
-//                throw new BadCredentialsException("password not correct");
-//            }
-//        }
-//
-//        // Xác thực với Spring Security
-//        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-//
-//        // Trả về JWT token
-//        return jwtTokenUtil.generateToken(userEntity);
-//    }
-
-
     @Override
     @Transactional
     public String login(String username, String password) throws Exception {
@@ -131,7 +100,7 @@ public class UserService implements IUserService {
             }
         }
 
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password, userEntity.getAuthorities()));
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
         return jwtTokenUtil.generateToken(userEntity);
     }
@@ -181,5 +150,65 @@ public class UserService implements IUserService {
         }else {
             throw new Exception("User not found");
         }
+    }
+
+    @Override
+    public UserEntity updateUser(UserDTO userDTO, Long userId) throws Exception {
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public UserEntity updateUser(UserDTO userDTO, long userId) throws DataNotFoundException {
+        UserEntity existingUser = userRepository.findOneById(userId)
+        .orElseThrow(()-> new DataNotFoundException("User not found"));
+
+        //Check if the user is being changed and if it already exists for another user
+        String username = userDTO.getUsername();
+        if(!existingUser.getUsername().equals(username)&&
+        userRepository.existsByUsername(username)){
+            throw new DataIntegrityViolationException("Phone number already exists");
+        }
+        RoleEntity updateRole = roleRepository.findOneById(existingUser.getRoles().get(0).getId())
+                .orElseThrow(() -> new DataNotFoundException("Role does not exist"));
+
+
+        //check ì the role, admin can do this
+        if(updateRole.getName().equalsIgnoreCase(RoleEntity.ADMIN)){
+            try {
+                throw new PermissionDenyException("You can not update to an admin account");
+            } catch (PermissionDenyException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (userDTO.getFullname() != null) {
+            existingUser.setFullname(userDTO.getFullname());
+        }
+
+        if (userDTO.getPhone() != null) {
+            existingUser.setPhone(userDTO.getPhone());
+        }
+
+        if (userDTO.getUsername() != null) {
+            existingUser.setUsername(userDTO.getUsername());
+        }
+
+        if (userDTO.getAddress() != null) {
+            existingUser.setAddress(userDTO.getAddress());
+        }
+
+        if (userDTO.getBirthday() != null) {
+            existingUser.setBirthday(userDTO.getBirthday());
+        }
+
+        if (userDTO.getGoogleAccountId() != null) {
+            existingUser.setGoogleAccountId(userDTO.getGoogleAccountId());
+        }
+
+        if (userDTO.getFacebookAccountId() != null) {
+            existingUser.setFacebookAccountId(userDTO.getFacebookAccountId());
+        }
+
+        return existingUser;
     }
 }

@@ -2,8 +2,10 @@ package com.example.cdwebbackend.service;
 
 import com.example.cdwebbackend.dto.UserDTO;
 import com.example.cdwebbackend.entity.UserEntity;
+import com.example.cdwebbackend.exceptions.DataNotFoundException;
 import org.springframework.boot.context.config.ConfigDataNotFoundException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +27,8 @@ public interface IUserService {
 
     public Optional<UserDTO> findByEmail(String email);
     public UserEntity getUserDetailsFromToken(String token)throws Exception;
+    public UserEntity updateUser(UserDTO userDTO, Long userId) throws Exception;
+
+    @Transactional
+    UserEntity updateUser(UserDTO userDTO, long userId) throws DataNotFoundException;
 }
