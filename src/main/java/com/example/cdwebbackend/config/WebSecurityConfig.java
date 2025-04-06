@@ -2,6 +2,7 @@ package com.example.cdwebbackend.config;
 
 import com.example.cdwebbackend.entity.RoleEntity;
 import com.example.cdwebbackend.filter.JwtTokenFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,13 +39,15 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        System.out.println("Spring security dang kiem tra quyen truy cap");
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(apiPrefix + "/users/register").permitAll()
                         .requestMatchers(apiPrefix + "/users/login").permitAll()
-                        .requestMatchers(apiPrefix + "/users/details").permitAll()
+                        .requestMatchers(apiPrefix + "/users/details").hasRole(RoleEntity.USER)
+                        .requestMatchers(HttpMethod.PUT, apiPrefix + "/users/details?**").permitAll()
                         .requestMatchers(POST, apiPrefix + "/orders").hasRole(RoleEntity.USER)
                         .requestMatchers(GET, apiPrefix + "/orders").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
                         .requestMatchers(DELETE, apiPrefix + "/orders").hasRole(RoleEntity.ADMIN)
@@ -65,10 +68,14 @@ public class WebSecurityConfig {
                         .requestMatchers(POST, apiPrefix + "/oder_detail**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(DELETE, apiPrefix + "/oder_detail**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/oder_detail**").hasRole(RoleEntity.ADMIN)
-
-
-
-                        .anyRequest().authenticated());
+                        .anyRequest().authenticated())
+                .exceptionHandling(eh -> eh
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    System.out.println("Bị chặn bởi AccessDeniedHandler");
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied: " + accessDeniedException.getMessage());
+                })
+        )
+        ;
         return http.build();
     }
 }

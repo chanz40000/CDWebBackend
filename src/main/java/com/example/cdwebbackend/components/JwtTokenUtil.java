@@ -45,7 +45,7 @@ public class JwtTokenUtil {
             String token = Jwts.builder()
                     .setClaims(claims)
                     .setSubject(user.getUsername())
-                    .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000L))
+                    .setExpiration(new Date(System.currentTimeMillis() + expiration * 10000L))
                     .signWith(getSignInKey(), SignatureAlgorithm.HS256) // sử dụng secretKey để ký
                     .compact();
 
@@ -101,6 +101,11 @@ public class JwtTokenUtil {
 
     public boolean validateToken(String token, UserDetails userDetails){
         String username = extractUsername(token);
+        System.out.println("Validate token:");
+        System.out.println("- Username in token: " + username);
+        System.out.println("- Username in userDetails: " + userDetails.getUsername());
+        System.out.println("- Token expired: " + isTokenExpired(token));
+        System.out.println("Token co true khong?" + (username.equals(userDetails.getUsername())&& !isTokenExpired(token)));
         return(username.equals(userDetails.getUsername())&& !isTokenExpired(token));
     }
 
