@@ -2,6 +2,7 @@ package com.example.cdwebbackend.converter;
 
 import com.example.cdwebbackend.dto.RoleDTO;
 import com.example.cdwebbackend.dto.UserDTO;
+import com.example.cdwebbackend.dto.UserLoginDTO;
 import com.example.cdwebbackend.entity.RoleEntity;
 import com.example.cdwebbackend.entity.UserEntity;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,31 @@ public class UserConverter {
         entity.setUsername(dto.getUsername());
         entity.setFullname(dto.getFullname());
         entity.setPassword(dto.getPassword());
+        entity.setPhone(dto.getPhone());
+        entity.setEmail(dto.getEmail());
+        entity.setAddress(dto.getAddress());
+        entity.setGender(dto.getGender());
+        entity.setBirthday(dto.getBirthday());
+        entity.setAvatar(dto.getAvatar());
+        entity.setFacebookAccountId(dto.getFacebookAccountId());
+        entity.setGoogleAccountId(dto.getGoogleAccountId());
+
+        // Convert RoleDTO -> RoleEntity
+        List<RoleEntity> roles = dto.getRoles().stream().map(roleDTO -> {
+            RoleEntity role = new RoleEntity();
+            role.setId(roleDTO.getId());  // Nếu RoleDTO có ID
+            role.setName(roleDTO.getName());
+            return role;
+        }).collect(Collectors.toList());
+
+        entity.setRoles(roles);
+        return entity;
+    }
+    // Convert từ DTO -> Entity
+    public UserEntity toEntity(UserLoginDTO dto) {
+        UserEntity entity = new UserEntity();
+        entity.setUsername(dto.getUsername());
+        entity.setFullname(dto.getFullname());
         entity.setPhone(dto.getPhone());
         entity.setEmail(dto.getEmail());
         entity.setAddress(dto.getAddress());

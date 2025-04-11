@@ -1,12 +1,19 @@
 package com.example.cdwebbackend.controller;
 
+import com.example.cdwebbackend.components.JwtTokenUtil;
 import com.example.cdwebbackend.converter.UserConverter;
 import com.example.cdwebbackend.dto.UserDTO;
 import com.example.cdwebbackend.dto.UserLoginDTO;
+import com.example.cdwebbackend.entity.RoleEntity;
 import com.example.cdwebbackend.entity.UserEntity;
+import com.example.cdwebbackend.exceptions.DataNotFoundException;
+import com.example.cdwebbackend.payload.ResponseObject;
+import com.example.cdwebbackend.repository.RoleRepository;
 import com.example.cdwebbackend.repository.UserRepository;
 import com.example.cdwebbackend.responses.UserResponse;
+import com.example.cdwebbackend.service.AuthService;
 import com.example.cdwebbackend.service.impl.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +25,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Controller
 @RestController
@@ -32,6 +38,16 @@ public class UserController {
     UserRepository userRepository;
     @Autowired
     UserConverter userConverter;
+
+    @Autowired
+    RoleRepository roleRepository;
+
+    @Autowired
+    AuthService authService;
+
+    @Autowired
+    JwtTokenUtil jwtTokenUtil;
+
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@Validated @RequestBody UserDTO userDTO ,BindingResult result){
 
@@ -57,18 +73,34 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Validated @RequestBody UserLoginDTO userLoginDTO) {
         try {
-            System.out.println("data -> " + userLoginDTO.getUsername());
-            String token = userService.login(userLoginDTO.getUsername(), userLoginDTO.getPassword());
+            String token = userService.login(userLoginDTO);
 
             if (token == null || token.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
             }
-           System.out.println("hellllo");
             return ResponseEntity.ok(token);  // Trả về token nếu đăng nhập thành công
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
     }
+//@PostMapping("/login")
+//public String login(@Validated @RequestBody UserLoginDTO userLoginDTO) throws Exception{
+//    Optional<UserEntity> optionalUser = Optional.empty();
+//    String subject = null;
+//    RoleEntity roleUser = roleRepository.findOneById(1)
+//            .orElseThrow(()->new DataNotFoundException(localizatonUtils.getLocalizedMessage(MessageKeys.ROLE_DOES_NOT_EXISTS)));
+//    if(userLoginDTO.getGoogleAccountId()!=null &&userLoginDTO.isGoogleAccountIdValid()){
+//        subject = "Google:"+userLoginDTO.getGoogleAccountId();
+//        if(optionalUser.isEmpty()){
+//            UserEntity userEntity = userConverter.toEntity(userLoginDTO);
+//            userEntity = userRepository.save(userEntity);
+//            optionalUser=Optional.of(userEntity);
+//        }
+//        Map<String, Object>attributes = new HashMap<>();
+//        attributes.put("email", userLoginDTO.getEmail());
+//        return j
+//    }
+//}
 
     @PostMapping("/details")
     public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("Authorization") String authorizationHeader){
@@ -106,5 +138,44 @@ public class UserController {
         }
 
     }
+    //bam dang nhap google, redirect den trang dang nhap google, dang nhap xong co code
+    //tu code => google token =>lay ra cac thong tin khac
+    @GetMapping("/auth/social-login")
+    public ResponseEntity<String> socialAuth(@RequestParam("login_type")String loginType,
+                                             HttpServletRequest request){
+        System.out.println("login_type: "+ loginType + "-----request: "+ request);
+        loginType =loginType.trim().toLowerCase();
+        String url = authService.generateAuthUrl(loginType, request);
+        return ResponseEntity.ok(url);
+    }
+
+    @GetMapping("/auth/social/callback")
+    public ResponseEntity<ResponseObject> callback(@RequestParam("code") String code,
+                                                   @RequestParam("login_type") String loginType,
+                                                   HttpServletRequest request) throws Exception {
+        System.out.println("da qua toi google callback");
+        Map<String, Object> userInfo = authService.authenticateAndFetchProfile(code, loginType);
+
+        if (userInfo == null) {
+            return ResponseEntity.badRequest().body(new ResponseObject(null, "Failed to authenticate", HttpStatus.BAD_REQUEST));
+        }
+
+        // 👉 Ở đây cần generate JWT và trả về
+        String email = (String) userInfo.get("email");
+        UserEntity userOpt = userRepository.findOneByEmail(email);
+        if (userOpt==null) {
+            return ResponseEntity.badRequest().body(new ResponseObject(null, "User not found", HttpStatus.BAD_REQUEST));
+        }
+
+        String token = jwtTokenUtil.generateToken(userOpt);
+
+        return ResponseEntity.ok(
+                new ResponseObject("success", "Authenticated successfully", Map.of(
+                        "token", token,
+                        "user", userOpt
+                ))
+        );
+    }
+
 
 }

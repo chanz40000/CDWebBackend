@@ -3,6 +3,7 @@ package com.example.cdwebbackend.service.impl;
 import com.example.cdwebbackend.components.JwtTokenUtil;
 import com.example.cdwebbackend.converter.UserConverter;
 import com.example.cdwebbackend.dto.UserDTO;
+import com.example.cdwebbackend.dto.UserLoginDTO;
 import com.example.cdwebbackend.entity.RoleEntity;
 import com.example.cdwebbackend.entity.UserEntity;
 import com.example.cdwebbackend.exceptions.DataNotFoundException;
@@ -12,6 +13,7 @@ import com.example.cdwebbackend.repository.UserRepository;
 import com.example.cdwebbackend.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,7 +23,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -37,6 +41,7 @@ public class UserService implements IUserService {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
+    @Lazy
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -63,14 +68,18 @@ public class UserService implements IUserService {
         if(userRepository.findOneByUsername(username).isPresent()) {
             throw new DataIntegrityViolationException("Username already exists!");
         }
-        RoleEntity role = roleRepository.findOneById(userDTO.getId())
-                .orElseThrow(() -> {
-                    return new DataNotFoundException(  "Role not found");
-                });
 
-        if (role.getName().toUpperCase().equals(RoleEntity.ADMIN)){
-            throw new PermissionDenyException("You cannot register a admin account");
+        for (int i=0; i<userDTO.getRoles().size(); i++){
+            RoleEntity role = roleRepository.findOneById(userDTO.getRoles().get(i).getId())
+                    .orElseThrow(() -> {
+                        return new DataNotFoundException(  "Role not found");
+                    });
+
+            if (role.getName().toUpperCase().equals(RoleEntity.ADMIN)){
+                throw new PermissionDenyException("You cannot register a admin account");
+            }
         }
+
 
         UserEntity newUser = userConverter.toEntity(userDTO);
         String encodedPassword = passwordEncoder.encode(newUser.getPassword());
@@ -81,11 +90,53 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public String login(String username, String password) throws Exception {
+    public String login(UserLoginDTO userLoginDTO) throws Exception {
+//        Optional<UserEntity> optionalUser = Optional.empty();
+//        String subject = null;
+//        RoleEntity roleUser = roleRepository.findOneById(1)
+//            .orElseThrow(()->new DataNotFoundException("localizatonUtils.getLocalizedMessage(MessageKeys.ROLE_DOES_NOT_EXISTS)"));
+//       //check by Google account id
+//     if(userLoginDTO.getGoogleAccountId()!=null &&userLoginDTO.isGoogleAccountIdValid()) {
+//        subject = "Google:" + userLoginDTO.getGoogleAccountId();
+//        if (optionalUser.isEmpty()) {
+//            UserEntity userEntity = userConverter.toEntity(userLoginDTO);
+//            userEntity = userRepository.save(userEntity);
+//            optionalUser = Optional.of(userEntity);
+//        }
+//        Map<String, Object> attributes = new HashMap<>();
+//        attributes.put("email", userLoginDTO.getEmail());
+//        return jwtTokenUtil.generateToken(optionalUser.get());
+        Optional<UserEntity> userOpt = userRepository.findOneByUsername(userLoginDTO.getUsername());
 
-        System.out.println("DEBUG: Searching for user -> " + username);
-        Optional<UserEntity> userOpt = userRepository.findOneByUsername(username);
-        System.out.println("DEBUG: User found -> " + userOpt);
+        String googleAccountId = userLoginDTO.getGoogleAccountId();
+        String facebookAccountId = userLoginDTO.getFacebookAccountId();
+        // Kiểm tra trường hợp nếu người dùng đăng nhập bằng Google hoặc Facebook
+        if (userOpt.isEmpty() && (googleAccountId != null || facebookAccountId != null)) {
+            System.out.println("nguoi dung dang dang nhap bang google hoac facebook");
+            // Trường hợp Google hoặc Facebook, tạo mới người dùng nếu chưa tồn tại
+            if (googleAccountId != null) {
+                userOpt = userRepository.findOneByGoogleAccountId(googleAccountId);
+                System.out.println("dang nhap bang google");
+            } else if (facebookAccountId != null) {
+                userOpt = userRepository.findOneByFacebookAccountId(facebookAccountId);
+            }
+
+            // Nếu người dùng chưa tồn tại, tạo mới người dùng
+            if (userOpt.isEmpty()) {
+                System.out.println("Tao moi nguoi dung");
+                UserEntity userEntity = new UserEntity();
+                userEntity.setGoogleAccountId(googleAccountId);
+                userEntity.setFacebookAccountId(facebookAccountId);
+                userEntity.setEmail(userLoginDTO.getEmail());  // Lấy email từ DTO
+                // Cập nhật các trường cần thiết khác từ userLoginDTO
+                userEntity = userRepository.save(userEntity);
+                userOpt = Optional.of(userEntity);
+            }
+
+            // Tạo và trả về JWT token cho người dùng
+            System.out.println("token tra ve: "+ jwtTokenUtil.generateToken(userOpt.get()));
+            return jwtTokenUtil.generateToken(userOpt.get());
+        }
 
         if (userOpt.isEmpty()) {
             throw new BadCredentialsException("Invalid username / password");
@@ -93,18 +144,24 @@ public class UserService implements IUserService {
 
         UserEntity userEntity = userOpt.get();
 
+        // Kiểm tra trường hợp đăng nhập qua Google hoặc Facebook
+        if (userEntity.getGoogleAccountId() != null || userEntity.getFacebookAccountId() != null) {
+            // Nếu có Google hoặc Facebook Account ID, không cần kiểm tra mật khẩu
+            return jwtTokenUtil.generateToken(userEntity);
+        }
         // Kiểm tra mật khẩu chính xác
         if (userEntity.getFacebookAccountId() == null && userEntity.getGoogleAccountId() == null) {
-            if (!passwordEncoder.matches(password, userEntity.getPassword())) {
+            if (!passwordEncoder.matches(userLoginDTO.getPassword(), userEntity.getPassword())) {
                 throw new BadCredentialsException("password not correct");
             }
         }
 
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-
+        // Thực hiện xác thực thông qua UsernamePasswordAuthenticationToken nếu mật khẩu đúng
+        //authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userLoginDTO.getUsername(), userEntity.getPassword()));
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userLoginDTO.getUsername(), userLoginDTO.getPassword()));
         return jwtTokenUtil.generateToken(userEntity);
     }
-
     @Override
     public UserDTO findOneByUsername(String username) {
         Optional<UserEntity> userEntity = userRepository.findOneByUsername(username);

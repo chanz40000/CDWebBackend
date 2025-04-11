@@ -17,13 +17,15 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig {
+public class WebSecurityConfig implements WebMvcConfigurer {
     @Autowired
     private final JwtTokenFilter jwtTokenFilter;
     @Value("${api.prefix}")
@@ -36,6 +38,14 @@ public class WebSecurityConfig {
     public static WebSecurityConfig createWebSecurityConfig(JwtTokenFilter jwtTokenFilter) {
         return new WebSecurityConfig(jwtTokenFilter);
     }
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**") // Áp dụng cho tất cả endpoint
+                .allowedOrigins("http://localhost:3001") // Cho phép frontend React
+                .allowedMethods("*") // GET, POST, PUT, DELETE, etc
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -47,7 +57,7 @@ public class WebSecurityConfig {
                         .requestMatchers(apiPrefix + "/users/register").permitAll()
                         .requestMatchers(apiPrefix + "/users/login").permitAll()
                         .requestMatchers(apiPrefix + "/users/details").hasRole(RoleEntity.USER)
-                        .requestMatchers(HttpMethod.PUT, apiPrefix + "/users/details?**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, apiPrefix + "/users/details?**").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
                         .requestMatchers(POST, apiPrefix + "/orders").hasRole(RoleEntity.USER)
                         .requestMatchers(GET, apiPrefix + "/orders").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
                         .requestMatchers(DELETE, apiPrefix + "/orders").hasRole(RoleEntity.ADMIN)
@@ -74,7 +84,9 @@ public class WebSecurityConfig {
                     System.out.println("Bị chặn bởi AccessDeniedHandler");
                     response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied: " + accessDeniedException.getMessage());
                 })
+
         )
+
         ;
         return http.build();
     }

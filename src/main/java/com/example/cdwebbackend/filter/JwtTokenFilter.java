@@ -125,7 +125,6 @@ private boolean isByPassToken(@NonNull HttpServletRequest request) {
 
     // Bỏ qua các URL nếu chúng khớp với danh sách bypassTokens
     for (Pair<String, String> bypassToken : bypassTokens) {
-        System.out.println("Checking: " + bypassToken.getFirst() + " | Method: " + bypassToken.getSecond());
         if (request.getServletPath().startsWith(bypassToken.getFirst())
                 && request.getMethod().equals(bypassToken.getSecond())) {
             System.out.println("Bypass Token Matched!");

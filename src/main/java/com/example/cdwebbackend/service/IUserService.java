@@ -1,6 +1,7 @@
 package com.example.cdwebbackend.service;
 
 import com.example.cdwebbackend.dto.UserDTO;
+import com.example.cdwebbackend.dto.UserLoginDTO;
 import com.example.cdwebbackend.entity.UserEntity;
 import com.example.cdwebbackend.exceptions.DataNotFoundException;
 import org.springframework.boot.context.config.ConfigDataNotFoundException;
@@ -15,7 +16,7 @@ public interface IUserService {
     List<UserDTO> findAll(Pageable pageable);
      UserDTO findOneById(Long id);
      public UserEntity createUser(UserDTO userDTO) throws Exception;
-     public String login(String username, String password) throws Exception;
+     public String login(UserLoginDTO userLoginDTO) throws Exception;
     UserDTO findOneByUsername(String username);
     public List<UserDTO> getAllUsers() ;
 
