@@ -18,10 +18,10 @@ public class CdWebBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(CdWebBackendApplication.class, args);
     }
-    @EventListener(ApplicationReadyEvent.class)
-    public void sendMail(){
-        senderService.sendEmail("ntchanz4000@gmail.com",
-                "This is test email",
-                "this is body of email");
-    }
+//    @EventListener(ApplicationReadyEvent.class)
+//    public void sendMail(){
+//        senderService.sendEmail("ntchanz4000@gmail.com",
+//                "This is test email",
+//                "this is body of email");
+//    }
 }

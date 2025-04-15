@@ -23,10 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -84,6 +81,9 @@ public class UserService implements IUserService {
         UserEntity newUser = userConverter.toEntity(userDTO);
         String encodedPassword = passwordEncoder.encode(newUser.getPassword());
         newUser.setPassword(encodedPassword);
+        RoleEntity roleUser = roleRepository.findOneByName("USER")
+                .orElseThrow(() -> new DataNotFoundException("Default user role not found"));
+        newUser.setRoles(List.of(roleUser));
         newUser = userRepository.save(newUser);
         return newUser;
     }
@@ -106,10 +106,20 @@ public class UserService implements IUserService {
 //        Map<String, Object> attributes = new HashMap<>();
 //        attributes.put("email", userLoginDTO.getEmail());
 //        return jwtTokenUtil.generateToken(optionalUser.get());
-        Optional<UserEntity> userOpt = userRepository.findOneByUsername(userLoginDTO.getUsername());
+        Optional<UserEntity> userOpt = Optional.empty();
 
         String googleAccountId = userLoginDTO.getGoogleAccountId();
         String facebookAccountId = userLoginDTO.getFacebookAccountId();
+
+        if (googleAccountId != null) {
+            userOpt = userRepository.findOneByGoogleAccountId(googleAccountId);
+        } else if (facebookAccountId != null) {
+            userOpt = userRepository.findOneByFacebookAccountId(facebookAccountId);
+        } else {
+            userOpt = userRepository.findOneByUsername(userLoginDTO.getUsername());
+        }
+
+
         // Kiểm tra trường hợp nếu người dùng đăng nhập bằng Google hoặc Facebook
         if (userOpt.isEmpty() && (googleAccountId != null || facebookAccountId != null)) {
             System.out.println("nguoi dung dang dang nhap bang google hoac facebook");
@@ -122,13 +132,32 @@ public class UserService implements IUserService {
             }
 
             // Nếu người dùng chưa tồn tại, tạo mới người dùng
+//            if (userOpt.isEmpty()) {
+//                System.out.println("Tao moi nguoi dung");
+//                UserEntity userEntity = new UserEntity();
+//                userEntity.setGoogleAccountId(googleAccountId);
+//                userEntity.setFacebookAccountId(facebookAccountId);
+//                userEntity.setEmail(userLoginDTO.getEmail());  // Lấy email từ DTO
+//                // Cập nhật các trường cần thiết khác từ userLoginDTO
+//                userEntity = userRepository.save(userEntity);
+//
+//                userOpt = Optional.of(userEntity);
+//            }
+            // Nếu người dùng chưa tồn tại, tạo mới người dùng
             if (userOpt.isEmpty()) {
                 System.out.println("Tao moi nguoi dung");
                 UserEntity userEntity = new UserEntity();
                 userEntity.setGoogleAccountId(googleAccountId);
                 userEntity.setFacebookAccountId(facebookAccountId);
                 userEntity.setEmail(userLoginDTO.getEmail());  // Lấy email từ DTO
-                // Cập nhật các trường cần thiết khác từ userLoginDTO
+
+                // ✅ THÊM CÁC DÒNG NÀY:
+                userEntity.setUsername(userLoginDTO.getEmail()); // dùng email làm username
+                RoleEntity roleUser = roleRepository.findOneByName("USER")
+                        .orElseThrow(() -> new DataNotFoundException("Default user role not found"));
+                userEntity.setRoles(List.of(roleUser));
+
+                // Cập nhật các trường cần thiết khác từ userLoginDTO (nếu có)
                 userEntity = userRepository.save(userEntity);
                 userOpt = Optional.of(userEntity);
             }
