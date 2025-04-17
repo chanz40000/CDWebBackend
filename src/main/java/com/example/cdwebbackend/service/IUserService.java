@@ -18,6 +18,8 @@ public interface IUserService {
      public UserEntity createUser(UserDTO userDTO) throws Exception;
      public String login(UserLoginDTO userLoginDTO) throws Exception;
     UserDTO findOneByUsername(String username);
+
+    public boolean checkPassword(String oldPassword, String password);
     public List<UserDTO> getAllUsers() ;
 
     public Optional<UserDTO> getUserById(Long id);
@@ -29,7 +31,11 @@ public interface IUserService {
     public Optional<UserDTO> findByEmail(String email);
     public UserEntity getUserDetailsFromToken(String token)throws Exception;
     public UserEntity updateUser(UserDTO userDTO, Long userId) throws Exception;
+    @Transactional
+    public UserEntity updatePassword(String newPassword, long userId) throws DataNotFoundException;
 
     @Transactional
     UserEntity updateUser(UserDTO userDTO, long userId) throws DataNotFoundException;
+
+
 }

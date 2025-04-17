@@ -91,21 +91,7 @@ public class UserService implements IUserService {
     @Override
     @Transactional
     public String login(UserLoginDTO userLoginDTO) throws Exception {
-//        Optional<UserEntity> optionalUser = Optional.empty();
-//        String subject = null;
-//        RoleEntity roleUser = roleRepository.findOneById(1)
-//            .orElseThrow(()->new DataNotFoundException("localizatonUtils.getLocalizedMessage(MessageKeys.ROLE_DOES_NOT_EXISTS)"));
-//       //check by Google account id
-//     if(userLoginDTO.getGoogleAccountId()!=null &&userLoginDTO.isGoogleAccountIdValid()) {
-//        subject = "Google:" + userLoginDTO.getGoogleAccountId();
-//        if (optionalUser.isEmpty()) {
-//            UserEntity userEntity = userConverter.toEntity(userLoginDTO);
-//            userEntity = userRepository.save(userEntity);
-//            optionalUser = Optional.of(userEntity);
-//        }
-//        Map<String, Object> attributes = new HashMap<>();
-//        attributes.put("email", userLoginDTO.getEmail());
-//        return jwtTokenUtil.generateToken(optionalUser.get());
+//
         Optional<UserEntity> userOpt = Optional.empty();
 
         String googleAccountId = userLoginDTO.getGoogleAccountId();
@@ -197,6 +183,20 @@ public class UserService implements IUserService {
         return userEntity.map(userConverter::toDTO).orElse(null);
     }
 
+    @Override
+    public boolean checkPassword(String oldPassword, String password) {
+        System.out.println("old: "+oldPassword);
+        System.out.println("pw: "+ password);
+        String oldPassEncoder = passwordEncoder.encode(oldPassword);
+        System.out.println("oldEn: "+oldPassEncoder);
+        if(passwordEncoder.matches(oldPassword, password)){
+            System.out.println("trung roi nha");
+            return true;
+        }
+        System.out.println("chua trung");
+        return false;
+    }
+
 
     @Override
     public List<UserDTO> getAllUsers() {
@@ -241,6 +241,19 @@ public class UserService implements IUserService {
     @Override
     public UserEntity updateUser(UserDTO userDTO, Long userId) throws Exception {
         return null;
+    }
+
+    @Override
+    @Transactional
+    public UserEntity updatePassword(String newPassword, long userId) throws DataNotFoundException {
+        UserEntity existingUser = userRepository.findOneById(userId)
+                .orElseThrow(()-> new DataNotFoundException("User not found"));
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        existingUser.setPassword(encodedPassword);
+
+        System.out.println("Da doi pass word");
+        return existingUser;
     }
 
     @Override
@@ -296,5 +309,21 @@ public class UserService implements IUserService {
         }
 
         return existingUser;
+    }
+
+    public static void main(String[] args) {
+        PasswordEncoder passwordEncoder = new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return null;
+            }
+
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                return false;
+            }
+        };
+        String encodedPassword = passwordEncoder.encode("123");
+        System.out.println(encodedPassword);
     }
 }
