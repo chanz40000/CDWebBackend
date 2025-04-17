@@ -25,12 +25,10 @@ public class UserPrincipal implements UserDetails {
 //    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        System.out.println("getAuthorities");
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
         for (RoleEntity roleEntity : user.getRoles()){
             authorityList.add(new SimpleGrantedAuthority("ROLE_"+ roleEntity.getName().toUpperCase()));
         }
-        System.out.println(authorityList);
         return authorityList;
     }
 

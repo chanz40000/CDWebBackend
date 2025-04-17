@@ -48,6 +48,7 @@ public class UserController {
     @Autowired
     JwtTokenUtil jwtTokenUtil;
 
+
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@Validated @RequestBody UserDTO userDTO ,BindingResult result){
 
@@ -78,7 +79,6 @@ public class UserController {
             if (token == null || token.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
             }
-            System.out.println("token tra ve khi dang nhap thong thuong: "+token);
             Map<String, String> response = new HashMap<>();
             response.put("accessToken", token);
             return ResponseEntity.ok(response);  // Trả về token nếu đăng nhập thành công
@@ -124,7 +124,6 @@ public class UserController {
             (@PathVariable("userId")  int userId,
              @RequestBody UserDTO updateUserDTO,
              @RequestHeader("Authorization") String authorizationHeader){
-        System.out.println("Qua toi day roi");
         try{
             String extractedToken = authorizationHeader.substring(7); //Loai bo "Bearer " tu chuoi token
             UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
@@ -141,6 +140,40 @@ public class UserController {
         }
 
     }
+
+    @PutMapping("/changePassword/{userId}")
+    public ResponseEntity<UserResponse> updatePassword(
+            @PathVariable("userId") int userId,
+            @RequestBody Map<String, String> passwords,
+            @RequestHeader("Authorization") String authorizationHeader) {
+        System.out.println("sua mat khau");
+
+        try {
+            String extractedToken = authorizationHeader.substring(7); // "Bearer " bỏ đi
+            UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
+
+            if (userEntity.getId() != userId) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            String oldPassword = passwords.get("oldPassword");
+            String newPassword = passwords.get("newPassword");
+
+
+            if (!userService.checkPassword(oldPassword, userEntity.getPassword())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            UserEntity user = userService.updatePassword(newPassword, userId);
+            userRepository.save(user);
+            return ResponseEntity.ok(UserResponse.fromUser(user));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
     //bam dang nhap google, redirect den trang dang nhap google, dang nhap xong co code
     //tu code => google token =>lay ra cac thong tin khac
     @GetMapping("/auth/social-login")
