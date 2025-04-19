@@ -14,16 +14,6 @@ public class ProductDTO extends AbstractDTO<ProductDTO> {
 
     private List<ProductSizeColorDTO> productSizeColorDTOS; // Chỉ lưu danh sách mã size thay vì đối tượng SizeEntity
 
-    private List<ImageDTO> images;
-
-    public List<ImageDTO> getImages() {
-        return images;
-    }
-
-    public void setImages(List<ImageDTO> images) {
-        this.images = images;
-    }
-
     public String getNameProduct() {
         return nameProduct;
     }
