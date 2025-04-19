@@ -36,6 +36,6 @@ public interface IUserService {
 
     @Transactional
     UserEntity updateUser(UserDTO userDTO, long userId) throws DataNotFoundException;
-
+    public UserEntity updateAvatar(long userId, String imageUrl) throws DataNotFoundException;
 
 }

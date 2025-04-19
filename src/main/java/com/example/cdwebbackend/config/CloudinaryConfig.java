@@ -27,6 +27,12 @@ public class CloudinaryConfig {
         config.put("cloud_name", cloudName);
         config.put("api_key", apiKey);
         config.put("api_secret", apiSecret);
-        return new Cloudinary(config);
+
+        try {
+            return new Cloudinary(config);  // Kiểm tra khởi tạo đúng
+        } catch (Exception e) {
+            e.printStackTrace();  // In lỗi để biết chi tiết
+            throw new RuntimeException("Error initializing Cloudinary", e);
+        }
     }
 }

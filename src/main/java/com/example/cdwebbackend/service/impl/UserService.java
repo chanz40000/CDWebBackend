@@ -311,6 +311,21 @@ public class UserService implements IUserService {
         return existingUser;
     }
 
+    @Override
+    @Transactional
+    public UserEntity updateAvatar(long userId, String imageUrl) throws DataNotFoundException {
+        UserEntity existingUser = userRepository.findOneById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+            throw new IllegalArgumentException("Avatar URL cannot be null or empty");
+        }
+
+        existingUser.setAvatar(imageUrl);
+
+        return userRepository.save(existingUser);
+    }
+
     public static void main(String[] args) {
         PasswordEncoder passwordEncoder = new PasswordEncoder() {
             @Override
