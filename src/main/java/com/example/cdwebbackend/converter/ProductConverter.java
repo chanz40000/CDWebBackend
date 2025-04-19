@@ -1,11 +1,9 @@
 package com.example.cdwebbackend.converter;
 
+import com.example.cdwebbackend.dto.ImageDTO;
 import com.example.cdwebbackend.dto.ProductDTO;
 import com.example.cdwebbackend.dto.ProductSizeColorDTO;
-import com.example.cdwebbackend.entity.ColorEntity;
-import com.example.cdwebbackend.entity.ProductEntity;
-import com.example.cdwebbackend.entity.ProductSizeColorEntity;
-import com.example.cdwebbackend.entity.SizeEntity;
+import com.example.cdwebbackend.entity.*;
 import com.example.cdwebbackend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,6 +19,7 @@ public class ProductConverter {
     ProductRepository productRepository;
     SizeRepository sizeRepository;
     ColorRepository colorRepository;
+    ImageRepository imageRepository;
     public ProductEntity toEntity(ProductDTO dto) {
         ProductEntity entity = new ProductEntity();
         entity.setNameProduct(dto.getNameProduct());
@@ -52,6 +51,21 @@ public class ProductConverter {
             listResult.add(productSizeColorEntity);
         }
         entity.setProductSizeColors(listResult);
+
+        //  image
+        List<ImageEntity> imageEntities = new ArrayList<>();
+        if (dto.getImages() != null) {
+            for (ImageDTO imageDTO : dto.getImages()) {
+                ImageEntity imageEntity = new ImageEntity();
+                imageEntity.setName(imageDTO.getName());
+                imageEntity.setUrl(imageDTO.getUrl());
+                imageEntity.setSize(imageDTO.getSize());
+                imageEntity.setType(imageDTO.getType());
+                imageEntity.setProduct(entity);
+                imageEntities.add(imageEntity);
+            }
+        }
+        entity.setImages(imageEntities);
 
         return entity;
     }

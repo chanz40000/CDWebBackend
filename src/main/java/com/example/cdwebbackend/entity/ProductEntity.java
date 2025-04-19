@@ -22,11 +22,19 @@ public class ProductEntity extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "brand_id")
     private BrandEntity brand;
-
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ImageEntity> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductSizeColorEntity> productSizeColors;
 
+    public List<ImageEntity> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ImageEntity> images) {
+        this.images = images;
+    }
 
     public String getNameProduct() {
         return nameProduct;
