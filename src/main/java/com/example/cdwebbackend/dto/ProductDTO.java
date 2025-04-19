@@ -10,6 +10,8 @@ public class ProductDTO extends AbstractDTO<ProductDTO> {
     private int price;
     private String categoryCode;
     private String brandCode;
+
+
     private List<ProductSizeColorDTO> productSizeColorDTOS; // Chỉ lưu danh sách mã size thay vì đối tượng SizeEntity
 
     public String getNameProduct() {

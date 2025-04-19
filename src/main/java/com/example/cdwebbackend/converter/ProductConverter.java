@@ -2,12 +2,8 @@ package com.example.cdwebbackend.converter;
 
 import com.example.cdwebbackend.dto.ProductDTO;
 import com.example.cdwebbackend.dto.ProductSizeColorDTO;
-import com.example.cdwebbackend.entity.ColorEntity;
-import com.example.cdwebbackend.entity.ProductEntity;
-import com.example.cdwebbackend.entity.ProductSizeColorEntity;
-import com.example.cdwebbackend.entity.SizeEntity;
+import com.example.cdwebbackend.entity.*;
 import com.example.cdwebbackend.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -52,6 +48,8 @@ public class ProductConverter {
             listResult.add(productSizeColorEntity);
         }
         entity.setProductSizeColors(listResult);
+
+
 
         return entity;
     }
