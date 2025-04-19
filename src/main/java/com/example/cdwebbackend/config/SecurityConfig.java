@@ -73,6 +73,7 @@ import com.example.cdwebbackend.dto.UserLoginDTO;
 import com.example.cdwebbackend.entity.UserEntity;
 import com.example.cdwebbackend.filter.JwtTokenFilter;
 import com.example.cdwebbackend.repository.UserRepository;
+import com.example.cdwebbackend.security.CustomOAuth2UserService;
 import com.example.cdwebbackend.security.OAuth2LoginSuccessHandler;
 import com.example.cdwebbackend.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,35 +143,13 @@ public class SecurityConfig{
         return configuration.getAuthenticationManager();
     }
 
-    // JwtTokenFilter bean sử dụng để lọc các yêu cầu có token
-//    @Bean
-//    public JwtTokenFilter jwtTokenFilter(UserDetailsService userDetailsService) {
-//        return new JwtTokenFilter(userDetailsService, jwtTokenUtil);
-//    }
-    // Cấu hình bảo mật và các URL cho phép truy cập
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http.csrf().disable()
-//                .authorizeRequests()
-//                .antMatchers("/api/v1/users/login", "/api/v1/users/register").permitAll()  // Cho phép những endpoint này không cần xác thực
-//                .anyRequest().authenticated() // Tất cả các yêu cầu khác đều cần phải xác thực
-//                .and()
-//                .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class); // Thêm filter JWT vào trước filter xác thực mặc định
-//    }
-//    @Bean
-//    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-//        return http.csrf(customizer -> customizer.disable())
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/api/v1/users/login", "/api/v1/users/register").permitAll()
-//                        .requestMatchers("/auth/social-login", "/auth/social/callback").permitAll()
-//                        .anyRequest().authenticated()
-//                )
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-//                .build();
-//    }
+    @Autowired
+    CustomOAuth2UserService customOAuth2UserService;
+
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+        System.out.println("⚙️ SecurityFilterChain đang được cấu hình!");
+
         return http
                 .cors(withDefaults())
                 .csrf(csrf -> csrf.disable()) // Tắt CSRF cho REST API
@@ -187,8 +166,16 @@ public class SecurityConfig{
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(user -> user
+                                .userService(customOAuth2UserService) // ✨ BẮT BUỘC PHẢI CÓ
+                        )
                         .successHandler(oAuth2LoginSuccessHandler)
+                        .failureHandler((request, response, exception) -> {
+                            exception.printStackTrace(); // In lỗi để debug
+                            response.sendRedirect("http://localhost:3000/login?error=oauth2_failed");
+                        })
                 )
+
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
