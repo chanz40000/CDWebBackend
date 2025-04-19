@@ -56,6 +56,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(apiPrefix + "/users/register").permitAll()
                         .requestMatchers(apiPrefix + "/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, apiPrefix + "/users/upload-avatar").permitAll()
                         .requestMatchers(apiPrefix + "/users/details").hasRole(RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/users/changePassword?**").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/users/details?**").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)

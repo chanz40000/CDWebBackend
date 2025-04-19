@@ -12,6 +12,7 @@ import com.example.cdwebbackend.repository.RoleRepository;
 import com.example.cdwebbackend.repository.UserRepository;
 import com.example.cdwebbackend.responses.UserResponse;
 import com.example.cdwebbackend.service.AuthService;
+import com.example.cdwebbackend.service.impl.ImageUploadService;
 import com.example.cdwebbackend.service.impl.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 
 @Controller
@@ -48,6 +51,8 @@ public class UserController {
     @Autowired
     JwtTokenUtil jwtTokenUtil;
 
+    @Autowired
+    private ImageUploadService imageUploadService;
 
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@Validated @RequestBody UserDTO userDTO ,BindingResult result){
@@ -211,6 +216,41 @@ public class UserController {
                         "user", userOpt
                 ))
         );
+    }
+
+    @PostMapping("/upload-avatar")
+    public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file,
+                                          @RequestParam("userId") long userId) {
+        try {
+            String url = imageUploadService.uploadFile(file);
+            userService.updateAvatar(userId, url);
+
+            Map<String, Object> response = Map.of(
+                    "status", "success",
+                    "message", "Image uploaded successfully",
+                    "data", Map.of(
+                            "url", url,
+                            "userId", userId
+                    )
+            );
+
+            return ResponseEntity.ok(response);
+
+        } catch (IOException e) {
+            Map<String, Object> error = Map.of(
+                    "status", "fail",
+                    "message", "Upload failed: " + e.getMessage(),
+                    "data", null
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        } catch (DataNotFoundException e) {
+            Map<String, Object> error = Map.of(
+                    "status", "fail",
+                    "message", "User not found",
+                    "data", null
+            );
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
     }
 
 
