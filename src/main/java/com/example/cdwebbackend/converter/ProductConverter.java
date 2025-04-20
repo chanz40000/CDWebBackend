@@ -17,12 +17,14 @@ public class ProductConverter {
     ProductRepository productRepository;
     SizeRepository sizeRepository;
     ColorRepository colorRepository;
+
     public ProductEntity toEntity(ProductDTO dto) {
         ProductEntity entity = new ProductEntity();
         entity.setNameProduct(dto.getNameProduct());
         entity.setDescription(dto.getDescription());
         entity.setStock(dto.getStock());
         entity.setPrice(dto.getPrice());
+        entity.setImage(dto.getImageUrl());
 
         // Lấy CategoryEntity từ DB thay vì tạo mới
         if (dto.getCategoryCode() != null) {

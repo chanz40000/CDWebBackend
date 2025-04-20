@@ -3,6 +3,7 @@ package com.example.cdwebbackend.service.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,8 +22,23 @@ public class ImageUploadService {
     }
 
     public String uploadFile(MultipartFile file) throws IOException {
-        Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-        return uploadResult.get("secure_url").toString();
+
+        byte[] bytes = file.getBytes();
+        // Hash file bằng SHA1
+        String sha1 = DigestUtils.sha1Hex(bytes);
+        String publicId = "image_" + sha1; // public_id để so sánh môỗi tấm hình
+        // Tránh lưu trùng ảnh
+
+        try {
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(bytes, ObjectUtils.asMap(
+                    "public_id", publicId,
+                    "overwrite", false,
+                    "resource_type", "image"
+            ));
+            return uploadResult.get("secure_url").toString();
+        } catch (Exception e) {
+            throw new IOException("Cloudinary upload failed: " + e.getMessage(), e);
+        }
     }
 
 

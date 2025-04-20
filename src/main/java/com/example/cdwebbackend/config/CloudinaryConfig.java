@@ -31,7 +31,7 @@ public class CloudinaryConfig {
         try {
             return new Cloudinary(config);  // Kiểm tra khởi tạo đúng
         } catch (Exception e) {
-            e.printStackTrace();  // In lỗi để biết chi tiết
+            e.printStackTrace();
             throw new RuntimeException("Error initializing Cloudinary", e);
         }
     }
