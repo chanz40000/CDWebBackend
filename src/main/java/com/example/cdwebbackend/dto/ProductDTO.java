@@ -10,9 +10,18 @@ public class ProductDTO extends AbstractDTO<ProductDTO> {
     private int price;
     private String categoryCode;
     private String brandCode;
+    private String imageUrl;
 
 
     private List<ProductSizeColorDTO> productSizeColorDTOS; // Chỉ lưu danh sách mã size thay vì đối tượng SizeEntity
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     public String getNameProduct() {
         return nameProduct;

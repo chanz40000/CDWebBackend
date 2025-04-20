@@ -19,6 +19,10 @@ public class ProductEntity extends BaseEntity{
     private int stock;
     @Column(name = "price")
     private int price;
+
+    @Column(name = "image")
+    private String image;
+
     @ManyToOne
     @JoinColumn(name = "brand_id")
     private BrandEntity brand;
@@ -27,6 +31,13 @@ public class ProductEntity extends BaseEntity{
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductSizeColorEntity> productSizeColors;
 
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
 
     public String getNameProduct() {
         return nameProduct;

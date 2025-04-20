@@ -20,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -219,18 +221,27 @@ public class UserController {
     }
 
     @PostMapping("/upload-avatar")
-    public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file,
-                                          @RequestParam("userId") long userId) {
+    public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file) {
         try {
+
+            // Lấy thông tin người dùng từ SecurityContext
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+
+            // Tìm user theo username
+            UserEntity user = userRepository.findOneByUsername(username)
+                    .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+
             String url = imageUploadService.uploadFile(file);
-            userService.updateAvatar(userId, url);
+            userService.updateAvatar(user.getId(), url);
 
             Map<String, Object> response = Map.of(
                     "status", "success",
                     "message", "Image uploaded successfully",
                     "data", Map.of(
                             "url", url,
-                            "userId", userId
+                            "userId", user.getId()
                     )
             );
 
