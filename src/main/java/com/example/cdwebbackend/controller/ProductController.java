@@ -10,10 +10,15 @@ import com.example.cdwebbackend.service.impl.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -59,4 +64,56 @@ public class ProductController {
         }
 
     }
+
+    /**
+     * cách test api
+     * {
+     *   "name_product": "Áo hoodie",
+     *   "description": "Mẫu áo hoodie mùa đông",
+     *   "stock": 100,
+     *   "price": 300000,
+     *   "image": "link.jpg",
+     *   "category_id": "1",
+     *   "brand_id": "1",
+     *   "productSizeColorDTOS": [
+     *     {
+     *       "sizeCode": 1,
+     *       "colorCode": 1,
+     *       "stock": 100
+     *     }
+     *
+     *   ]
+     * }
+     * @param productDTO
+     * @param result
+     * @return
+     */
+
+    @PostMapping("/add")
+    public ResponseEntity<?> addProduct(@Validated @RequestBody ProductDTO productDTO, BindingResult result) {
+        try {
+
+            if (result.hasErrors()) {
+                List<String> errors = new ArrayList<>();
+                for (FieldError error : result.getFieldErrors()) {
+                    errors.add(error.getDefaultMessage());
+                }
+                return ResponseEntity.badRequest().body(errors);
+            }
+
+            ProductEntity product = productService.createProduct(productDTO);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Product created successfully",
+                    "productId", product.getId()
+            ));
+
+
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
+        }
+    }
+
 }

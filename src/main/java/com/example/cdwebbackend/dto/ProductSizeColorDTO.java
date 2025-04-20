@@ -1,9 +1,14 @@
 package com.example.cdwebbackend.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ProductSizeColorDTO extends AbstractDTO<ProductSizeColorDTO>{
     private Long productId;
+    @JsonProperty("sizeCode")
     private Long sizeCode;
+    @JsonProperty("colorCode")
     private Long colorCode;
+    @JsonProperty("stock")
     private int stock; // Số lượng sản phẩm có size & color cụ thể
 
     public ProductSizeColorDTO() {
