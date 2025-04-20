@@ -157,6 +157,7 @@ public class SecurityConfig{
                         .requestMatchers(
                                 "/api/v1/users/login",
                                 "/api/v1/users/register",
+                                "/api/v1/products/list",
                                 "/oauth2/**",
                                 "/login/oauth2/**",
                                 "/auth/social-login",

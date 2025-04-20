@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DateTimeException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -69,4 +71,13 @@ public class ProductService implements IProductService {
 
         return productRepository.save(productEntity);
     }
+
+    @Override
+    public List<ProductDTO> getAllProducts() {
+        List<ProductEntity> productEntities = productRepository.findAll();
+        return productEntities.stream()
+                .map(productConverter::toDTO)
+                .collect(Collectors.toList());
+    }
+
 }
