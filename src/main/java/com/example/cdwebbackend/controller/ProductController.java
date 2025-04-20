@@ -116,4 +116,15 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<?> getAllProducts() {
+        try {
+            List<ProductDTO> products = productService.getAllProducts();
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to fetch products");
+        }
+    }
+
 }

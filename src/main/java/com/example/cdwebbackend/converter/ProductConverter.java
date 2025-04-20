@@ -79,4 +79,40 @@ public class ProductConverter {
 
         return entity;
     }
+    public ProductDTO toDTO(ProductEntity entity) {
+        ProductDTO dto = new ProductDTO();
+        dto.setId(entity.getId());
+        dto.setNameProduct(entity.getNameProduct());
+        dto.setDescription(entity.getDescription());
+        dto.setStock(entity.getStock());
+        dto.setPrice(entity.getPrice());
+        dto.setImageUrl(entity.getImage());
+
+        // Gán category và brand
+        if (entity.getCategory() != null) {
+            dto.setCategoryCode(String.valueOf(entity.getCategory().getId()));
+        }
+
+        if (entity.getBrand() != null) {
+            dto.setBrandCode(String.valueOf(entity.getBrand().getId()));
+        }
+
+        // Chuyển danh sách size - color - stock
+        List<ProductSizeColorDTO> sizeColorDTOs = new ArrayList<>();
+        if (entity.getProductSizeColors() != null) {
+            for (ProductSizeColorEntity scEntity : entity.getProductSizeColors()) {
+                ProductSizeColorDTO scDTO = new ProductSizeColorDTO();
+                scDTO.setSizeCode(scEntity.getSize().getId());
+                scDTO.setColorCode(scEntity.getColor().getId());
+                scDTO.setStock(scEntity.getStock());
+
+                sizeColorDTOs.add(scDTO);
+            }
+        }
+
+        dto.setProductSizeColorDTOS(sizeColorDTOs);
+
+        return dto;
+    }
+
 }
