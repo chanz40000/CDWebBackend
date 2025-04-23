@@ -5,11 +5,16 @@ import com.example.cdwebbackend.dto.ProductDTO;
 import com.example.cdwebbackend.entity.ProductEntity;
 import com.example.cdwebbackend.exceptions.DataNotFoundException;
 import com.example.cdwebbackend.repository.ProductRepository;
+import com.example.cdwebbackend.responses.ProductResponse;
 import com.example.cdwebbackend.service.impl.ImageUploadService;
 import com.example.cdwebbackend.service.impl.ProductService;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("${api.prefix}/products")
@@ -84,47 +90,91 @@ public class ProductController {
      *
      *   ]
      * }
-     * @param productDTO
-     * @param result
-     * @return
+//     * @param productDTO
+//     * @param result
+//     * @return
      */
 
-    @PostMapping("/add")
-    public ResponseEntity<?> addProduct(@Validated @RequestBody ProductDTO productDTO, BindingResult result) {
+//    @PostMapping("/add")
+//    public ResponseEntity<?> addProduct(@Validated @RequestBody ProductDTO productDTO, BindingResult result) {
+//        try {
+//
+//            if (result.hasErrors()) {
+//                List<String> errors = new ArrayList<>();
+//                for (FieldError error : result.getFieldErrors()) {
+//                    errors.add(error.getDefaultMessage());
+//                }
+//                return ResponseEntity.badRequest().body(errors);
+//            }
+//
+//            ProductEntity product = productService.createProduct(productDTO);
+//            return ResponseEntity.ok(Map.of(
+//                    "message", "Product created successfully",
+//                    "productId", product.getId()
+//            ));
+//
+//
+//        } catch (DataNotFoundException e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
+//        }
+//    }
+    @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addProductWithImage(
+            @RequestPart("product") String productJson, // <-- nhận dưới dạng String
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            Authentication authentication
+    ) {
         try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class); // Parse tay
 
-            if (result.hasErrors()) {
-                List<String> errors = new ArrayList<>();
-                for (FieldError error : result.getFieldErrors()) {
-                    errors.add(error.getDefaultMessage());
-                }
-                return ResponseEntity.badRequest().body(errors);
+            if (file != null && !file.isEmpty()) {
+                String imageUrl = imageUploadService.uploadFile(file);
+                productDTO.setImageUrl(imageUrl);
             }
 
-            ProductEntity product = productService.createProduct(productDTO);
+            ProductEntity saved = productService.createProduct(productDTO);
             return ResponseEntity.ok(Map.of(
-                    "message", "Product created successfully",
-                    "productId", product.getId()
+                    "message", "Thêm sản phẩm thành công",
+                    "productId", saved.getId()
             ));
-
-
-        } catch (DataNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Lỗi khi parse hoặc xử lý sản phẩm");
         }
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<?> getAllProducts() {
-        try {
-            List<ProductDTO> products = productService.getAllProducts();
-            return ResponseEntity.ok(products);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to fetch products");
-        }
+
+//    @GetMapping("/list")
+//    public ResponseEntity<?> getAllProducts() {
+//        try {
+//            List<ProductDTO> products = productService.getAllProducts();
+//            return ResponseEntity.ok(products);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to fetch products");
+//        }
+//    }
+@GetMapping("/list")
+public ResponseEntity<List<ProductResponse>> getAllProducts() {
+    try {
+        // Giả sử productService.getAllProducts() trả về List<ProductDTO>
+        List<ProductDTO> products = productService.getAllProducts();
+
+        // Chuyển List<ProductDTO> → List<ProductResponse>
+        List<ProductResponse> responseList = products.stream()
+                .map(productDTO -> ProductResponse.fromEntity(productConverter.toEntity(productDTO))) // convert DTO -> Entity -> Response
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responseList);
+    } catch (Exception e) {
+        System.out.println("Lỗi: " + e.getMessage());
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+}
 
 }

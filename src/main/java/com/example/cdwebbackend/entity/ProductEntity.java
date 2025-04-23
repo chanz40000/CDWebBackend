@@ -8,9 +8,9 @@ import java.util.List;
 @Entity
 @Table(name = "product")
 public class ProductEntity extends BaseEntity{
-    @Column(name = "name_product")
+    @Column(name = "name_product", columnDefinition = "TEXT")
     private String nameProduct;
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
     @ManyToOne
     @JoinColumn(name = "category_id") // Thêm khóa ngoại trong bảng Product
