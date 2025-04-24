@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +36,7 @@ public class UserEntity extends BaseEntity implements UserDetails{
     @Column(name = "gender")
     String gender;
     @Column(name = "birthday")
-    LocalDateTime birthday;
+    LocalDate birthday;
     @Column(name = "avatar")
     String avatar;
 
@@ -140,11 +141,11 @@ public class UserEntity extends BaseEntity implements UserDetails{
         this.gender = gender;
     }
 
-    public LocalDateTime getBirthday() {
+    public LocalDate getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(LocalDateTime birthday) {
+    public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
     }
 
