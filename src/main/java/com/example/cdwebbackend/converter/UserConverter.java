@@ -7,6 +7,7 @@ import com.example.cdwebbackend.entity.RoleEntity;
 import com.example.cdwebbackend.entity.UserEntity;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,7 +48,7 @@ public class UserConverter {
         entity.setEmail(dto.getEmail());
         entity.setAddress(dto.getAddress());
         entity.setGender(dto.getGender());
-        entity.setBirthday(dto.getBirthday());
+        entity.setBirthday(LocalDate.from(dto.getBirthday()));
         entity.setAvatar(dto.getAvatar());
         entity.setFacebookAccountId(dto.getFacebookAccountId());
         entity.setGoogleAccountId(dto.getGoogleAccountId());

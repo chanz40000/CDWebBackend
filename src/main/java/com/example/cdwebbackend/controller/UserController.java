@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -82,7 +83,7 @@ public class UserController {
     public ResponseEntity<?> login(@Validated @RequestBody UserLoginDTO userLoginDTO) {
         try {
             String token = userService.login(userLoginDTO);
-
+             System.out.println("vao login");
             if (token == null || token.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
             }
@@ -93,31 +94,13 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
     }
-//@PostMapping("/login")
-//public String login(@Validated @RequestBody UserLoginDTO userLoginDTO) throws Exception{
-//    Optional<UserEntity> optionalUser = Optional.empty();
-//    String subject = null;
-//    RoleEntity roleUser = roleRepository.findOneById(1)
-//            .orElseThrow(()->new DataNotFoundException(localizatonUtils.getLocalizedMessage(MessageKeys.ROLE_DOES_NOT_EXISTS)));
-//    if(userLoginDTO.getGoogleAccountId()!=null &&userLoginDTO.isGoogleAccountIdValid()){
-//        subject = "Google:"+userLoginDTO.getGoogleAccountId();
-//        if(optionalUser.isEmpty()){
-//            UserEntity userEntity = userConverter.toEntity(userLoginDTO);
-//            userEntity = userRepository.save(userEntity);
-//            optionalUser=Optional.of(userEntity);
-//        }
-//        Map<String, Object>attributes = new HashMap<>();
-//        attributes.put("email", userLoginDTO.getEmail());
-//        return j
-//    }
-//}
-
     @PostMapping("/details")
     public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("Authorization") String authorizationHeader){
-
+        System.out.println("thong tin user: ");
         try{
             String extractedToken = authorizationHeader.substring(7); //Loai bo "Bearer " tu chuoi token
             UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
+            System.out.println("thong tin user: "+ userEntity.toString());
             return ResponseEntity.ok(UserResponse.fromUser(userEntity));
         }catch (Exception e){
             System.out.println("Lỗi: " + e.getMessage()); // In lỗi ra console
@@ -126,27 +109,54 @@ public class UserController {
         }
     }
 
-    @PutMapping("/details/{userId}")
-    public ResponseEntity<UserResponse> updateUserDetails
-            (@PathVariable("userId")  int userId,
-             @RequestBody UserDTO updateUserDTO,
-             @RequestHeader("Authorization") String authorizationHeader){
-        try{
-            String extractedToken = authorizationHeader.substring(7); //Loai bo "Bearer " tu chuoi token
-            UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
+//    @PutMapping("/details/{userId}")
+//    public ResponseEntity<UserResponse> updateUserDetails
+//            (@PathVariable("userId")  int userId,
+//             @RequestBody UserDTO updateUserDTO,
+//             @RequestHeader("Authorization") String authorizationHeader){
+//        try{
+//            String extractedToken = authorizationHeader.substring(7); //Loai bo "Bearer " tu chuoi token
+//            UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
+//
+//            if(userEntity.getId()!=userId){
+//                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//            }
+//
+//            UserEntity user = userService.updateUser(updateUserDTO, userId);
+//            return ResponseEntity.ok(UserResponse.fromUser(userEntity));
+//        }catch (Exception e){
+//            System.out.println("Lỗi: " + e.getMessage()); // In lỗi ra console
+//            e.printStackTrace(); // In stacktrace đầy đủ
+//            return ResponseEntity.badRequest().build();
+//        }
+//
+//    }
+@PutMapping("/details/{userId}")
+public ResponseEntity<?> updateUserDetails(
+        @PathVariable("userId") int userId,
+        @RequestBody UserDTO updateUserDTO,
+        @RequestHeader("Authorization") String authorizationHeader) {
+    try {
+        String extractedToken = authorizationHeader.substring(7);
+        UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
 
-            if(userEntity.getId()!=userId){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-            UserEntity user = userService.updateUser(updateUserDTO, userId);
-            return ResponseEntity.ok(UserResponse.fromUser(userEntity));
-        }catch (Exception e){
-            System.out.println("Lỗi: " + e.getMessage()); // In lỗi ra console
-            e.printStackTrace(); // In stacktrace đầy đủ
-            return ResponseEntity.badRequest().build();
+        if (userEntity.getId() != userId) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Bạn không có quyền cập nhật thông tin người dùng này.");
         }
 
+        UserEntity updatedUser = userService.updateUser(updateUserDTO, userId);
+        return ResponseEntity.ok(UserResponse.fromUser(updatedUser));
+
+    } catch (DataNotFoundException | DataIntegrityViolationException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Đã xảy ra lỗi hệ thống: " + e.getMessage());
     }
+}
+
 
     @PutMapping("/changePassword/{userId}")
     public ResponseEntity<UserResponse> updatePassword(

@@ -9,6 +9,7 @@ import jakarta.persistence.ManyToMany;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,7 @@ public class UserResponse {
     @Column(name = "gender")
     String gender;
     @Column(name = "birthday")
-    LocalDateTime birthday;
+    LocalDate birthday;
     @Column(name = "avatar")
     String avatar;
 
