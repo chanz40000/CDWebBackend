@@ -58,6 +58,7 @@ public class UserResponse {
                 .phone(user.getPhone())
                 .address(user.getAddress())
                 .birthday(user.getBirthday())
+                .avatar(user.getAvatar())
                 .facebookAccountId(user.getFacebookAccountId())
                 .googleAccountId(user.getGoogleAccountId())
                 .roles(user.getRoles()) // Nếu role là Enum

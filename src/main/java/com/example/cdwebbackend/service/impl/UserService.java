@@ -63,7 +63,7 @@ public class UserService implements IUserService {
         String username = userDTO.getUsername();
         //kiem tra xem username da co  hay chua
         if(userRepository.findOneByUsername(username).isPresent()) {
-            throw new DataIntegrityViolationException("Username already exists!");
+            throw new DataIntegrityViolationException("Username đã tồn tại!");
         }
 
         for (int i=0; i<userDTO.getRoles().size(); i++){
