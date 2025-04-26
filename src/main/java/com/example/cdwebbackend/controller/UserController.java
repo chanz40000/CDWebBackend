@@ -70,10 +70,10 @@ public class UserController {
                  return ResponseEntity.badRequest().body(errorMessages);
              }
              if(!userDTO.getPassword().equals(userDTO.getRetypePassword())){
-                 return ResponseEntity.badRequest().body("Password does not match");
+                 return ResponseEntity.badRequest().body("Password không khớp");
              }
             UserEntity user = userService.createUser(userDTO);
-             return ResponseEntity.ok("Register successfully");
+             return ResponseEntity.ok("Đăng ký thành công");
          }catch (Exception e){
              return ResponseEntity.badRequest().body(e.getMessage());
          }

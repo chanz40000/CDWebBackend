@@ -168,7 +168,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             }
 
             if (email == null || oauthId == null) {
-                response.sendRedirect("http://localhost:3000/login?error=missing_info");
+                response.sendRedirect("https://localhost:3000/login?error=missing_info");
                 return;
             }
 
@@ -214,7 +214,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             String token = jwtTokenUtil.generateToken(userEntity);
 
             if (token == null || token.isEmpty()) {
-                response.sendRedirect("http://localhost:3000/login?error=token_failed");
+                response.sendRedirect("https://localhost:3000/login?error=token_failed");
                 return;
             }
 
@@ -228,12 +228,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             System.out.println("Generated Token: " + token);
 
             // Redirect về frontend
-            response.sendRedirect("http://localhost:3000/oauth2/success?token=" + token);
+            response.sendRedirect("https://localhost:3000/oauth2/success?token=" + token);
 
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("http://localhost:3000/login?error=exception");
+            response.sendRedirect("https://localhost:3000/login?error=exception");
         }
     }
 }
