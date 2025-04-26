@@ -266,7 +266,7 @@ public class UserService implements IUserService {
         String username = userDTO.getUsername();
         if(!existingUser.getUsername().equals(username)&&
         userRepository.existsByUsername(username)){
-            throw new DataIntegrityViolationException("Phone number already exists");
+            throw new DataIntegrityViolationException("Username already exists");
         }
         RoleEntity updateRole = roleRepository.findOneById(existingUser.getRoles().get(0).getId())
                 .orElseThrow(() -> new DataNotFoundException("Role does not exist"));

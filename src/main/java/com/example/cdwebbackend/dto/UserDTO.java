@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class UserDTO extends AbstractDTO<UserDTO> {
     private String gender;
 
     @JsonProperty("birthday")
-    private LocalDateTime birthday;
+    private LocalDate birthday;
 
     @JsonProperty("avatar")
     private String avatar;
@@ -125,11 +126,11 @@ public class UserDTO extends AbstractDTO<UserDTO> {
         this.gender = gender;
     }
 
-    public LocalDateTime getBirthday() {
+    public LocalDate getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(LocalDateTime birthday) {
+    public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
     }
 

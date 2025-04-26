@@ -76,12 +76,14 @@ import com.example.cdwebbackend.repository.UserRepository;
 import com.example.cdwebbackend.security.CustomOAuth2UserService;
 import com.example.cdwebbackend.security.OAuth2LoginSuccessHandler;
 import com.example.cdwebbackend.service.impl.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -151,7 +153,7 @@ public class SecurityConfig{
         System.out.println("⚙️ SecurityFilterChain đang được cấu hình!");
 
         return http
-                .cors(withDefaults())
+                .cors(Customizer.withDefaults()) // Cho phép CORS
                 .csrf(csrf -> csrf.disable()) // Tắt CSRF cho REST API
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -166,9 +168,16 @@ public class SecurityConfig{
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                        })
+                )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(user -> user
-                                .userService(customOAuth2UserService) // ✨ BẮT BUỘC PHẢI CÓ
+                                .userService(customOAuth2UserService)
                         )
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler((request, response, exception) -> {
