@@ -41,7 +41,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Áp dụng cho tất cả endpoint
-                .allowedOrigins("http://localhost:3000") // Cho phép frontend React
+                .allowedOrigins("http://localhost:3001") // Cho phép frontend React
                 .allowedMethods("*") // GET, POST, PUT, DELETE, etc
                 .allowedHeaders("*")
                 .allowCredentials(true);
