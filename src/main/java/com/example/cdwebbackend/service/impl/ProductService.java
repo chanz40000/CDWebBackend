@@ -80,4 +80,11 @@ public class ProductService implements IProductService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public ProductDTO getProductById(Long id) throws DataNotFoundException {
+        ProductEntity productEntity = productRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy sản phẩm với id = " + id));
+        return productConverter.toDTO(productEntity);
+    }
+
 }
