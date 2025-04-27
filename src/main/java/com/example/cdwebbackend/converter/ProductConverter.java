@@ -26,6 +26,7 @@ public class ProductConverter {
 
     public ProductEntity toEntity(ProductDTO dto) {
         ProductEntity entity = new ProductEntity();
+        entity.setId(dto.getId());
         entity.setNameProduct(dto.getNameProduct());
         entity.setDescription(dto.getDescription());
         entity.setStock(dto.getStock());

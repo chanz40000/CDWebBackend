@@ -41,7 +41,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Áp dụng cho tất cả endpoint
-                .allowedOrigins("http://localhost:3001") // Cho phép frontend React
+                .allowedOrigins("http://localhost:3000") // Cho phép frontend React
                 .allowedMethods("*") // GET, POST, PUT, DELETE, etc
                 .allowedHeaders("*")
                 .allowCredentials(true);
@@ -56,10 +56,11 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(apiPrefix + "/users/register").permitAll()
                         .requestMatchers(apiPrefix + "/users/login").permitAll()
+                        .requestMatchers(apiPrefix + "/products/getProduct?**").permitAll()
+                        .requestMatchers(GET,apiPrefix + "/products/list").permitAll()
                         .requestMatchers(apiPrefix + "/users/upload-avatar").hasRole(RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/products/upload-image").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/products/add").hasAnyRole(RoleEntity.ADMIN)
-                        .requestMatchers(GET,apiPrefix + "/products/list").permitAll()
                         .requestMatchers(apiPrefix + "/users/details").hasRole(RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/users/changePassword?**").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/users/details?**").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
@@ -75,10 +76,10 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                         .requestMatchers(POST, apiPrefix + "/categories?**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(DELETE, apiPrefix + "/categories?**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/categories?**").hasRole(RoleEntity.ADMIN)
-                        .requestMatchers(GET, apiPrefix + "/products**").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
-                        .requestMatchers(POST, apiPrefix + "/products**").hasRole(RoleEntity.ADMIN)
-                        .requestMatchers(DELETE, apiPrefix + "/products**").hasRole(RoleEntity.ADMIN)
-                        .requestMatchers(HttpMethod.PUT, apiPrefix + "/products**").hasRole(RoleEntity.ADMIN)
+//                        .requestMatchers(GET, apiPrefix + "/products**").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
+//                        .requestMatchers(POST, apiPrefix + "/products**").hasRole(RoleEntity.ADMIN)
+//                        .requestMatchers(DELETE, apiPrefix + "/products**").hasRole(RoleEntity.ADMIN)
+//                        .requestMatchers(HttpMethod.PUT, apiPrefix + "/products**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(GET, apiPrefix + "/oder_detail**").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
                         .requestMatchers(POST, apiPrefix + "/oder_detail**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(DELETE, apiPrefix + "/oder_detail**").hasRole(RoleEntity.ADMIN)

@@ -177,4 +177,40 @@ public ResponseEntity<List<ProductResponse>> getAllProducts() {
     }
 }
 
+//    @PostMapping("/getProduct")
+//    public ResponseEntity<?> getProductById(@RequestBody Map<String, Object> requestBody) {
+//        try {
+//            // Lấy id từ requestBody
+//            long longId = Long.parseLong(requestBody.get("productId").toString());
+//
+//            ProductDTO productDTO = productService.getProductById(longId);
+//            if (productDTO == null) {
+//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No product found with id = " + longId);
+//            }
+//            ProductResponse response = ProductResponse.fromEntity(productConverter.toEntity(productDTO));
+//            return ResponseEntity.ok(response);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while retrieving the product.");
+//        }
+//    }
+
+    @GetMapping("/getProduct/{productId}")
+    public ResponseEntity<?> getProductById(@PathVariable("productId") Long productId) {
+        try {
+            ProductDTO productDTO = productService.getProductById(productId);
+            if (productDTO == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No product found with id = " + productId);
+            }
+            ProductResponse response = ProductResponse.fromEntity(productConverter.toEntity(productDTO));
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while retrieving the product.");
+        }
+    }
+
+
 }

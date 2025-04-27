@@ -31,6 +31,9 @@ public class ProductEntity extends BaseEntity{
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductSizeColorEntity> productSizeColors;
 
+
+
+
     public String getImage() {
         return image;
     }
