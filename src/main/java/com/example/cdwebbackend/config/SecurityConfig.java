@@ -165,7 +165,8 @@ public class SecurityConfig{
                                 "/login/oauth2/**",
                                 "/auth/social-login",
                                 "/auth/social/callback",
-                                "/oauth2/authorization/**"
+                                "/oauth2/authorization/**",
+                                "/api/chat/send"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -183,7 +184,7 @@ public class SecurityConfig{
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler((request, response, exception) -> {
                             exception.printStackTrace(); // In lỗi để debug
-                            response.sendRedirect("http://localhost:3000/login?error=oauth2_failed");
+                            response.sendRedirect("https://localhost:3000/login?error=oauth2_failed");
                         })
                 )
 
@@ -194,7 +195,7 @@ public class SecurityConfig{
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.setAllowedOrigins(List.of("https://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
