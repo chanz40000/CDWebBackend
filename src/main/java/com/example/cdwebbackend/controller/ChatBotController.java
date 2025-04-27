@@ -17,8 +17,8 @@ import java.util.Map;
 @RequestMapping("${api.prefix}/chat")
 public class ChatBotController {
 
-    @Value("${openai.api.key}")
-    private String openaiApiKey;
+//    @Value("${openai.api.key}")
+//    private String openaiApiKey;
 
     private static final
     String API_URL = "http://localhost:11434/api/chat";

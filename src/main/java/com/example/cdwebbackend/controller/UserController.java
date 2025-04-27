@@ -173,7 +173,7 @@ public ResponseEntity<?> updateUserDetails(
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
-            String oldPassword = passwords.get("oldPassword");
+            String oldPassword = passwords.get("password");
             String newPassword = passwords.get("newPassword");
 
 
