@@ -1,44 +1,81 @@
 package com.example.cdwebbackend.dto;
-
-import com.example.cdwebbackend.entity.BaseEntity;
-import com.example.cdwebbackend.entity.UserEntity;
-
 import java.util.Date;
+import java.util.List;
 
 public class ImportOrderDTO {
-    public class ImportOrderEntity extends BaseEntity {
-        private ProductDTO product;
 
-        private int quantity;
+    private List<ImportOrderProductDTO> products; // Danh sách sản phẩm và số lượng
 
-        private int importPrice;
+    private int importPrice;
+    private String username;
+    private Long id;
 
-        private UserEntity user; // Liên kết với người nhập hàng (UserEntity)
+    // Getter và Setter
+    public Long getId() {
+        return id;
+    }
 
-        public ImportOrderEntity() {
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    // Getters and Setters
+    public List<ImportOrderProductDTO> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<ImportOrderProductDTO> products) {
+        this.products = products;
+    }
+
+    public int getImportPrice() {
+        return importPrice;
+    }
+
+    public void setImportPrice(int importPrice) {
+        this.importPrice = importPrice;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUser(String user) {
+        this.username = user;
+    }
+
+    // DTO cho sản phẩm và số lượng
+    public static class ImportOrderProductDTO {
+
+        private Long importOrderId;  // ID của ImportOrderEntity
+        private Long productId;     // ID của ProductEntity
+        private int quantity;       // Số lượng của sản phẩm
+
+        // Constructor
+        public ImportOrderProductDTO() {
         }
 
-        public ImportOrderEntity(ProductDTO product, int quantity, int importPrice, UserEntity user) {
-            this.product = product;
+        public ImportOrderProductDTO(Long importOrderId, Long productId, int quantity) {
+            this.importOrderId = importOrderId;
+            this.productId = productId;
             this.quantity = quantity;
-            this.importPrice = importPrice;
-            this.user = user;
         }
 
-        public UserEntity getUser() {
-            return user;
+        // Getters and Setters
+        public Long getImportOrderId() {
+            return importOrderId;
         }
 
-        public void setUser(UserEntity user) {
-            this.user = user;
+        public void setImportOrderId(Long importOrderId) {
+            this.importOrderId = importOrderId;
         }
 
-        public ProductDTO getProduct() {
-            return product;
+        public Long getProductId() {
+            return productId;
         }
 
-        public void setProduct(ProductDTO product) {
-            this.product = product;
+        public void setProductId(Long productId) {
+            this.productId = productId;
         }
 
         public int getQuantity() {
@@ -49,14 +86,5 @@ public class ImportOrderDTO {
             this.quantity = quantity;
         }
 
-        public int getImportPrice() {
-            return importPrice;
-        }
-
-        public void setImportPrice(int importPrice) {
-            this.importPrice = importPrice;
-        }
     }
-
-
 }

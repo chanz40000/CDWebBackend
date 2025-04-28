@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface ImportOrderRepository extends JpaRepository<ImportOrderEntity, Long> {
-    List<ImportOrderEntity> findByUserImport(UserEntity user); // Tìm các đơn nhập theo người dùng
+    List<ImportOrderEntity> findByUser(UserEntity user); // Tìm các đơn nhập theo người dùng
     public Optional<ImportOrderEntity> findOneById(long id);
     public Optional<ImportOrderEntity> findOneByCreatedDate(Date createdDate);
 }

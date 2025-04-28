@@ -3,31 +3,28 @@ package com.example.cdwebbackend.entity;
 
 import jakarta.persistence.*;
         import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "import_order")
 public class ImportOrderEntity extends BaseEntity {
 
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private ProductEntity product;
-
-    @Column(name = "quantity")
-    private int quantity;
+    @OneToMany(mappedBy = "importOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ImportOrderProductEntity> importOrderProducts; // Danh sách các sản phẩm và số lượng
 
     @Column(name = "import_price")
     private int importPrice;
 
     @ManyToOne
     @JoinColumn(name = "username_import", nullable = false)
-    private UserEntity user; // Liên kết với người nhập hàng (UserEntity)
+    private UserEntity user;
 
+    // Constructor, Getters, Setters
     public ImportOrderEntity() {
     }
 
-    public ImportOrderEntity(ProductEntity product, int quantity, int importPrice, UserEntity user) {
-        this.product = product;
-        this.quantity = quantity;
+    public ImportOrderEntity(List<ImportOrderProductEntity> importOrderProducts, int importPrice, UserEntity user) {
+        this.importOrderProducts = importOrderProducts;
         this.importPrice = importPrice;
         this.user = user;
     }
@@ -40,20 +37,12 @@ public class ImportOrderEntity extends BaseEntity {
         this.user = user;
     }
 
-    public ProductEntity getProduct() {
-        return product;
+    public List<ImportOrderProductEntity> getImportOrderProducts() {
+        return importOrderProducts;
     }
 
-    public void setProduct(ProductEntity product) {
-        this.product = product;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setImportOrderProducts(List<ImportOrderProductEntity> importOrderProducts) {
+        this.importOrderProducts = importOrderProducts;
     }
 
     public int getImportPrice() {
@@ -63,5 +52,4 @@ public class ImportOrderEntity extends BaseEntity {
     public void setImportPrice(int importPrice) {
         this.importPrice = importPrice;
     }
-
 }

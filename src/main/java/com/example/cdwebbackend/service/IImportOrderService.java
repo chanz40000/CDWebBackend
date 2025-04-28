@@ -16,7 +16,9 @@ public interface IImportOrderService {
 
         public ImportOrderDTO selectById(int id);
 
-        public boolean insert(ImportOrderDTO imported) ;
+    ImportOrderDTO selectById(long id);
+
+    public boolean insert(ImportOrderDTO imported) ;
 
         public boolean insertAll(ArrayList<ImportOrderDTO> list) ;
 
