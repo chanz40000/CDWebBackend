@@ -12,5 +12,5 @@ public interface IProductService {
     public ProductEntity createProduct(ProductDTO productDTO)  throws DataNotFoundException ;
 
     public List<ProductDTO> getAllProducts();
-
+    public ProductDTO getProductById(Long id) throws DataNotFoundException;
 }
