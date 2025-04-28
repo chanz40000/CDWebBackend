@@ -107,51 +107,51 @@ public class UserService implements IUserService {
 
 
         // Kiểm tra trường hợp nếu người dùng đăng nhập bằng Google hoặc Facebook
-        if (userOpt.isEmpty() && (googleAccountId != null || facebookAccountId != null)) {
-            System.out.println("nguoi dung dang dang nhap bang google hoac facebook");
-            // Trường hợp Google hoặc Facebook, tạo mới người dùng nếu chưa tồn tại
-            if (googleAccountId != null) {
-                userOpt = userRepository.findOneByGoogleAccountId(googleAccountId);
-                System.out.println("dang nhap bang google");
-            } else if (facebookAccountId != null) {
-                userOpt = userRepository.findOneByFacebookAccountId(facebookAccountId);
-            }
-
-            // Nếu người dùng chưa tồn tại, tạo mới người dùng
+//        if (userOpt.isEmpty() && (googleAccountId != null || facebookAccountId != null)) {
+//            System.out.println("nguoi dung dang dang nhap bang google hoac facebook");
+//            // Trường hợp Google hoặc Facebook, tạo mới người dùng nếu chưa tồn tại
+//            if (googleAccountId != null) {
+//                userOpt = userRepository.findOneByGoogleAccountId(googleAccountId);
+//                System.out.println("dang nhap bang google");
+//            } else if (facebookAccountId != null) {
+//                userOpt = userRepository.findOneByFacebookAccountId(facebookAccountId);
+//            }
+//
+//            // Nếu người dùng chưa tồn tại, tạo mới người dùng
+////            if (userOpt.isEmpty()) {
+////                System.out.println("Tao moi nguoi dung");
+////                UserEntity userEntity = new UserEntity();
+////                userEntity.setGoogleAccountId(googleAccountId);
+////                userEntity.setFacebookAccountId(facebookAccountId);
+////                userEntity.setEmail(userLoginDTO.getEmail());  // Lấy email từ DTO
+////                // Cập nhật các trường cần thiết khác từ userLoginDTO
+////                userEntity = userRepository.save(userEntity);
+////
+////                userOpt = Optional.of(userEntity);
+////            }
+//            // Nếu người dùng chưa tồn tại, tạo mới người dùng
 //            if (userOpt.isEmpty()) {
 //                System.out.println("Tao moi nguoi dung");
 //                UserEntity userEntity = new UserEntity();
 //                userEntity.setGoogleAccountId(googleAccountId);
 //                userEntity.setFacebookAccountId(facebookAccountId);
 //                userEntity.setEmail(userLoginDTO.getEmail());  // Lấy email từ DTO
-//                // Cập nhật các trường cần thiết khác từ userLoginDTO
-//                userEntity = userRepository.save(userEntity);
 //
+//                // ✅ THÊM CÁC DÒNG NÀY:
+//                userEntity.setUsername(userLoginDTO.getEmail()); // dùng email làm username
+//                RoleEntity roleUser = roleRepository.findOneByName("USER")
+//                        .orElseThrow(() -> new DataNotFoundException("Default user role not found"));
+//                userEntity.setRoles(List.of(roleUser));
+//
+//                // Cập nhật các trường cần thiết khác từ userLoginDTO (nếu có)
+//                userEntity = userRepository.save(userEntity);
 //                userOpt = Optional.of(userEntity);
 //            }
-            // Nếu người dùng chưa tồn tại, tạo mới người dùng
-            if (userOpt.isEmpty()) {
-                System.out.println("Tao moi nguoi dung");
-                UserEntity userEntity = new UserEntity();
-                userEntity.setGoogleAccountId(googleAccountId);
-                userEntity.setFacebookAccountId(facebookAccountId);
-                userEntity.setEmail(userLoginDTO.getEmail());  // Lấy email từ DTO
-
-                // ✅ THÊM CÁC DÒNG NÀY:
-                userEntity.setUsername(userLoginDTO.getEmail()); // dùng email làm username
-                RoleEntity roleUser = roleRepository.findOneByName("USER")
-                        .orElseThrow(() -> new DataNotFoundException("Default user role not found"));
-                userEntity.setRoles(List.of(roleUser));
-
-                // Cập nhật các trường cần thiết khác từ userLoginDTO (nếu có)
-                userEntity = userRepository.save(userEntity);
-                userOpt = Optional.of(userEntity);
-            }
-
-            // Tạo và trả về JWT token cho người dùng
-            System.out.println("token tra ve: "+ jwtTokenUtil.generateToken(userOpt.get()));
-            return jwtTokenUtil.generateToken(userOpt.get());
-        }
+//
+//            // Tạo và trả về JWT token cho người dùng
+//            System.out.println("token tra ve: "+ jwtTokenUtil.generateToken(userOpt.get()));
+//            return jwtTokenUtil.generateToken(userOpt.get());
+//        }
 
         if (userOpt.isEmpty()) {
             throw new BadCredentialsException("Invalid username / password");
@@ -160,10 +160,10 @@ public class UserService implements IUserService {
         UserEntity userEntity = userOpt.get();
 
         // Kiểm tra trường hợp đăng nhập qua Google hoặc Facebook
-        if (userEntity.getGoogleAccountId() != null || userEntity.getFacebookAccountId() != null) {
-            // Nếu có Google hoặc Facebook Account ID, không cần kiểm tra mật khẩu
-            return jwtTokenUtil.generateToken(userEntity);
-        }
+//        if (userEntity.getGoogleAccountId() != null || userEntity.getFacebookAccountId() != null) {
+//            // Nếu có Google hoặc Facebook Account ID, không cần kiểm tra mật khẩu
+//            return jwtTokenUtil.generateToken(userEntity);
+//        }
         // Kiểm tra mật khẩu chính xác
         if (userEntity.getFacebookAccountId() == null && userEntity.getGoogleAccountId() == null) {
             if (!passwordEncoder.matches(userLoginDTO.getPassword(), userEntity.getPassword())) {

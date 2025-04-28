@@ -20,6 +20,9 @@ public class ProductEntity extends BaseEntity{
     @Column(name = "price")
     private int price;
 
+    @Column(name = "import_price")
+    private int import_price;
+
     @Column(name = "image")
     private String image;
 
@@ -31,8 +34,21 @@ public class ProductEntity extends BaseEntity{
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductSizeColorEntity> productSizeColors;
 
+    public ProductEntity(String nameProduct, String description, CategoryEntity category, int stock, int price, int import_price, String image, BrandEntity brand, List<ProductSizeColorEntity> productSizeColors) {
+        this.nameProduct = nameProduct;
+        this.description = description;
+        this.category = category;
+        this.stock = stock;
+        this.price = price;
+        this.import_price = import_price;
+        this.image = image;
+        this.brand = brand;
+        this.productSizeColors = productSizeColors;
+    }
 
+    public ProductEntity() {
 
+    }
 
     public String getImage() {
         return image;
@@ -96,5 +112,13 @@ public class ProductEntity extends BaseEntity{
 
     public void setProductSizeColors(List<ProductSizeColorEntity> productSizeColors) {
         this.productSizeColors = productSizeColors;
+    }
+
+    public int getImport_price() {
+        return import_price;
+    }
+
+    public void setImport_price(int import_price) {
+        this.import_price = import_price;
     }
 }
