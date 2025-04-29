@@ -64,4 +64,17 @@ public class ProductSizeColorEntity extends BaseEntity{
         this.color = color;
         this.stock = stock;
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ProductSizeColorEntity)) return false;
+        ProductSizeColorEntity that = (ProductSizeColorEntity) o;
+        return this.getId() != null && this.getId().equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
 }

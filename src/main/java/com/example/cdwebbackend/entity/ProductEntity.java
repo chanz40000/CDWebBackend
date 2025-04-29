@@ -20,8 +20,8 @@ public class ProductEntity extends BaseEntity{
     @Column(name = "price")
     private int price;
 
-    @Column(name = "import_price")
-    private int import_price;
+    @Column(name = "import_price", nullable = false)
+    private int import_price = 0;
 
     @Column(name = "image")
     private String image;
