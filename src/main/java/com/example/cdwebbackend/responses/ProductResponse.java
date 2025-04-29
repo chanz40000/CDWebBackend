@@ -20,6 +20,7 @@ public class ProductResponse {
     private String description;
     private int stock;
     private int price;
+    private int import_price;
     private String image;
     private String categoryName;
     private String brandName;

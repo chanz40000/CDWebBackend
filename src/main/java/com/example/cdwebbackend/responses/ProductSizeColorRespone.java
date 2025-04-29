@@ -13,12 +13,14 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ProductSizeColorRespone {
+    private Long id;
     private String size;
     private String color;
     private int stock;
 
     public static ProductSizeColorRespone fromEntity(ProductSizeColorEntity entity) {
         return ProductSizeColorRespone.builder()
+                .id(entity.getId())
                 .size(entity.getSize().getSize())
                 .color(entity.getColor().getName())
                 .stock(entity.getStock())
