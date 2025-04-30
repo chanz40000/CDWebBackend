@@ -22,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -132,7 +133,6 @@ public class CartControlelr {
             CartEntity updatedCart = cartRepository.findByUserId(user.getId())
                     .orElseThrow(() -> new DataNotFoundException("Cart not found after update"));
             CartDTO updatedCartDTO = cartConverter.toDTO(updatedCart);
-
             return ResponseEntity.ok(Map.of(
                     "status", "success",
                     "message", "Xóa sản phẩm khỏi giỏ hàng thành công",
@@ -145,6 +145,41 @@ public class CartControlelr {
             ));
         }
     }
+    @DeleteMapping("/remove-items")
+    public ResponseEntity<?> removeItems(@RequestParam("cartItemId") List<Long> cartItemIds) {
+        try {
+            // Lấy thông tin người dùng từ token (SecurityContext)
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+
+            // Lấy thông tin user
+            UserEntity user = userRepository.findOneByUsername(username)
+                    .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+            // Gọi service để xoá từng item theo ID
+            for (Long cartItemId : cartItemIds) {
+                cartService.removeItemFromCart(user.getId(), cartItemId);
+            }
+
+            // Lấy lại thông tin giỏ hàng mới
+            CartEntity updatedCart = cartRepository.findByUserId(user.getId())
+                    .orElseThrow(() -> new DataNotFoundException("Cart not found after update"));
+            CartDTO updatedCartDTO = cartConverter.toDTO(updatedCart);
+            CartResponse response = CartResponse.fromEntity(cartConverter.toEntity(updatedCartDTO));
+
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", "Xoá nhiều sản phẩm khỏi giỏ hàng thành công",
+                    "data", response
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", "failed",
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
 
     // Cập nhật biến thể sản phẩm (màu/kích cỡ)
     @PutMapping("/update-size-color")
