@@ -20,6 +20,9 @@ public class ProductDTO extends AbstractDTO<ProductDTO> {
     @JsonProperty("price")
     private int price;
 
+    @JsonProperty("import_price")
+    private int import_price;
+
     @NotBlank(message = "Category ID is required")
     @JsonProperty("category_id")
     private String categoryCode;
@@ -33,6 +36,14 @@ public class ProductDTO extends AbstractDTO<ProductDTO> {
 
     @JsonProperty("productSizeColorDTOS")
     private List<ProductSizeColorDTO> productSizeColorDTOS; // Chỉ lưu danh sách mã size thay vì đối tượng SizeEntity
+
+    public int getImport_price() {
+        return import_price;
+    }
+
+    public void setImport_price(int import_price) {
+        this.import_price = import_price;
+    }
 
     public String getImageUrl() {
         return imageUrl;

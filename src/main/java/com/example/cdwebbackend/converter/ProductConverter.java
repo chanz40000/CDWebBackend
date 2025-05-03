@@ -32,6 +32,7 @@ public class ProductConverter {
         entity.setStock(dto.getStock());
         entity.setPrice(dto.getPrice());
         entity.setImage(dto.getImageUrl());
+        entity.setImport_price(dto.getImport_price());
 
         // Lấy CategoryEntity từ DB thay vì tạo mới
         if (dto.getCategoryCode() != null) {
@@ -67,6 +68,7 @@ public class ProductConverter {
                 ColorEntity color = colorRepository.findOneById(item.getColorCode());
 
                 ProductSizeColorEntity scEntity = new ProductSizeColorEntity();
+                scEntity.setId(item.getId());
                 scEntity.setSize(size);
                 scEntity.setColor(color);
                 scEntity.setStock(item.getStock());
@@ -103,6 +105,7 @@ public class ProductConverter {
         if (entity.getProductSizeColors() != null) {
             for (ProductSizeColorEntity scEntity : entity.getProductSizeColors()) {
                 ProductSizeColorDTO scDTO = new ProductSizeColorDTO();
+                scDTO.setId(scEntity.getId());
                 scDTO.setSizeCode(scEntity.getSize().getId());
                 scDTO.setColorCode(scEntity.getColor().getId());
                 scDTO.setStock(scEntity.getStock());
