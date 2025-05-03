@@ -17,6 +17,7 @@ public class CartItemEntity extends BaseEntity {
     @JoinColumn(name = "product_size_color_id")
     private ProductSizeColorEntity productSizeColor;
 
+    @Column
     private int quantity;
 
     public CartItemEntity() {

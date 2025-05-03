@@ -1,13 +1,26 @@
 package com.example.cdwebbackend.dto;
 
+import com.example.cdwebbackend.entity.ProductSizeColorEntity;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class OrderDetailDTO extends AbstractDTO<OrderDetailDTO> {
+    @JsonProperty("order_id")
     private Long orderId;
+
+    @JsonProperty("product_id")
     private Long productId;
-    private Long colorId;
-    private Long sizeId;
+
+    @JsonProperty("product_size_color_id")
+    private Long productSizeColor;
+
+    @JsonProperty("quantity")
     private int quantity;
-    private double priceUnit;
-    private double subtotal;
+
+    @JsonProperty("price_unit")
+    private int priceUnit;
+
+    @JsonProperty("subtotal")
+    private int subtotal;
 
     // Getters and Setters
 
@@ -27,20 +40,12 @@ public class OrderDetailDTO extends AbstractDTO<OrderDetailDTO> {
         this.productId = productId;
     }
 
-    public Long getColorId() {
-        return colorId;
+    public Long getProductSizeColor() {
+        return productSizeColor;
     }
 
-    public void setColorId(Long colorId) {
-        this.colorId = colorId;
-    }
-
-    public Long getSizeId() {
-        return sizeId;
-    }
-
-    public void setSizeId(Long sizeId) {
-        this.sizeId = sizeId;
+    public void setProductSizeColor(Long productSizeColor) {
+        this.productSizeColor = productSizeColor;
     }
 
     public int getQuantity() {
@@ -51,19 +56,19 @@ public class OrderDetailDTO extends AbstractDTO<OrderDetailDTO> {
         this.quantity = quantity;
     }
 
-    public double getPriceUnit() {
+    public int getPriceUnit() {
         return priceUnit;
     }
 
-    public void setPriceUnit(double priceUnit) {
+    public void setPriceUnit(int priceUnit) {
         this.priceUnit = priceUnit;
     }
 
-    public double getSubtotal() {
+    public int getSubtotal() {
         return subtotal;
     }
 
-    public void setSubtotal(double subtotal) {
+    public void setSubtotal(int subtotal) {
         this.subtotal = subtotal;
     }
 }
