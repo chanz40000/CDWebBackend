@@ -104,7 +104,8 @@ public class CartService implements ICartService {
     //Xóa sản phẩm khỏi giỏ hàng
     @Override
     public void removeItemFromCart(Long userId, Long cartItemId) {
-        CartItemEntity cartItem = cartItemRepository.findOneById(cartItemId);
+        CartItemEntity cartItem = cartItemRepository.findByIdAndUserId(cartItemId, userId);
+//        CartItemEntity cartItem = cartItemRepository.findOneById(cartItemId);
         if (cartItem != null) {
             cartItemRepository.delete(cartItem);
         } else {
