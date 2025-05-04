@@ -220,30 +220,6 @@ public class CartControlelr {
         }
     }
 
-//    // Lấy giỏ hàng theo userId
-//    @GetMapping("/{userId}")
-//    public ResponseEntity<?> getCartByUserId(@PathVariable("userId") Long userId) {
-//        try {
-//            CartDTO cartDTO = cartService.getCartByUserId(userId);
-//            if (cartDTO == null) {
-//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-//                        "status", "failed",
-//                        "message", "Không tìm thấy giỏ hàng cho userId = " + userId
-//                ));
-//            }
-//            return ResponseEntity.ok(Map.of(
-//                    "status", "success",
-//                    "message", "Lấy giỏ hàng thành công",
-//                    "data", cartDTO
-//            ));
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-//                    "status", "failed",
-//                    "message", "Đã xảy ra lỗi khi lấy giỏ hàng"
-//            ));
-//        }
-//    }
 @GetMapping
 public ResponseEntity<?> getCartByUserIdFromToken() {
     try {

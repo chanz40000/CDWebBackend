@@ -14,8 +14,19 @@ public class OrderEntity extends BaseEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @Column(name = "total_price")
+    @Column(name = "total_price") // tổng tiền sản phẩm
     private int totalPrice;
+
+    //tiền ship
+    @Column(name = "shipping_fee")
+    private int shippingFee;
+
+    // Tổng toàn bộ
+    @Column(name = "final_price")
+    private int finalPrice;
+
+    @Column(name = "note")
+    private String note;
 
     // @ManyToOne: Quan hệ nhiều - một với StatusOrderEntity
     // 1 đơn hàng chỉ có 1 trạng thái, nhưng 1 trạng thái có thể áp dụng cho nhiều đơn hàng
@@ -28,8 +39,10 @@ public class OrderEntity extends BaseEntity {
     @JoinColumn(name = "payment_id")
     private PaymentEntity payment;
 
-    @Column(name = "create_date")
-    private LocalDateTime createDate;
+    // Địa chỉ giao hàng
+    @ManyToOne
+    @JoinColumn(name = "shipping_address_id", nullable = false)
+    private ShippingAddressEntity shippingAddress;
 
     // @OneToMany: Quan hệ một - nhiều với OrderDetailEntity
     // 1 đơn hàng có thể có nhiều chi tiết đơn hàng, nhưng mỗi chi tiết đơn hàng chỉ thuộc về 1 đơn hàng
@@ -37,6 +50,39 @@ public class OrderEntity extends BaseEntity {
     private List<OrderDetailEntity> orderDetails;
 
     // Getters and Setters
+
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public int getShippingFee() {
+        return shippingFee;
+    }
+
+    public void setShippingFee(int shippingFee) {
+        this.shippingFee = shippingFee;
+    }
+
+    public int getFinalPrice() {
+        return finalPrice;
+    }
+
+    public void setFinalPrice(int finalPrice) {
+        this.finalPrice = finalPrice;
+    }
+
+    public ShippingAddressEntity getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(ShippingAddressEntity shippingAddress) {
+        this.shippingAddress = shippingAddress;
+    }
 
     public UserEntity getUser() {
         return user;
@@ -68,14 +114,6 @@ public class OrderEntity extends BaseEntity {
 
     public void setPayment(PaymentEntity payment) {
         this.payment = payment;
-    }
-
-    public LocalDateTime getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(LocalDateTime createDate) {
-        this.createDate = createDate;
     }
 
     public List<OrderDetailEntity> getOrderDetails() {

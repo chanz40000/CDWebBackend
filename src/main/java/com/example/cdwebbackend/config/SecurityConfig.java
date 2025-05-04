@@ -161,6 +161,7 @@ public class SecurityConfig{
                                 "/api/v1/users/register",
                                 "/api/v1/products/getProduct/**",
                                 "/api/v1/products/list",
+                                "/api/v1/ghn/districts",
                                 "/oauth2/**",
                                 "/login/oauth2/**",
                                 "/auth/social-login",

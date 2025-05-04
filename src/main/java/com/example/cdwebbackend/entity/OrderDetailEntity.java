@@ -19,20 +19,25 @@ public class OrderDetailEntity extends BaseEntity {
     private int quantity;
 
     @ManyToOne
-    @JoinColumn(name = "color_id")
-    private ColorEntity color;
-
-    @ManyToOne
-    @JoinColumn(name = "size_id")
-    private SizeEntity size;
+    @JoinColumn(name = "product_size_color_id")
+    private ProductSizeColorEntity productSizeColor;
 
     @Column(name = "price_unit")
-    private int priceUnit;
+    private int priceUnit; // giá tại lúc mua
 
     @Column(name = "subtotal")
-    private int subtotal;
+    private int subtotal; // tổng tiền (giá * slg)
 
     // Getters and Setters
+
+
+    public ProductSizeColorEntity getProductSizeColor() {
+        return productSizeColor;
+    }
+
+    public void setProductSizeColor(ProductSizeColorEntity productSizeColor) {
+        this.productSizeColor = productSizeColor;
+    }
 
     public OrderEntity getOrder() {
         return order;
@@ -56,22 +61,6 @@ public class OrderDetailEntity extends BaseEntity {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
-    }
-
-    public ColorEntity getColor() {
-        return color;
-    }
-
-    public void setColor(ColorEntity color) {
-        this.color = color;
-    }
-
-    public SizeEntity getSize() {
-        return size;
-    }
-
-    public void setSize(SizeEntity size) {
-        this.size = size;
     }
 
     public int getPriceUnit() {
