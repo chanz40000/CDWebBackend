@@ -60,7 +60,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@Validated @RequestBody UserDTO userDTO ,BindingResult result){
 
-        try { .
+        try {
              if(result.hasErrors()){
                  List<String> errorMessages = new ArrayList<>();
                  for (FieldError fieldError : result.getFieldErrors()) {
