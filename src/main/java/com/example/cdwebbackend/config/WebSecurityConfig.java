@@ -44,6 +44,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                 .allowedOrigins("https://localhost:3000") // Cho phép frontend React
                 .allowedMethods("*") // GET, POST, PUT, DELETE, etc
                 .allowedHeaders("*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowCredentials(true);
     }
 
@@ -71,6 +72,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                         .requestMatchers(apiPrefix + "/carts/remove-item").hasRole(RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/carts/remove-items").hasRole(RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/carts/update-size-color").hasRole(RoleEntity.USER)
+
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/carts/update-quantity").hasRole(RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/users/changePassword?**").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/users/details?**").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
@@ -96,6 +98,11 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                         .requestMatchers(POST, apiPrefix + "/oder_detail**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(DELETE, apiPrefix + "/oder_detail**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/oder_detail**").hasRole(RoleEntity.ADMIN)
+
+
+                        .requestMatchers(apiPrefix + "/payments/ipn").permitAll()
+                        .requestMatchers(apiPrefix + "/payments/return").permitAll()
+                        .requestMatchers(apiPrefix + "/payments/create-payment").hasRole(RoleEntity.USER)
                         .anyRequest().authenticated())
                 .exceptionHandling(eh -> eh
                 .accessDeniedHandler((request, response, accessDeniedException) -> {

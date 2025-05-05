@@ -14,7 +14,7 @@ public class ShippingAddressResponse {
     private String province;
     private String district;
     private String ward;
-    private String addressDetails;
+    private String addressDetail;
     private boolean isDefault;
 
     public static ShippingAddressResponse fromEntity(ShippingAddressEntity entity) {
@@ -26,7 +26,7 @@ public class ShippingAddressResponse {
                 .province(entity.getProvince())
                 .district(entity.getDistrict())
                 .ward(entity.getWard())
-                .addressDetails(entity.getAddressDetail())
+                .addressDetail(entity.getAddressDetail())
                 .isDefault(entity.isDefault())
                 .build();
     }

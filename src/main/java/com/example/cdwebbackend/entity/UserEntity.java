@@ -172,4 +172,22 @@ public class UserEntity extends BaseEntity implements UserDetails{
     public void setGoogleAccountId(String googleAccountId) {
         this.googleAccountId = googleAccountId;
     }
+
+    @Override
+    public String toString() {
+        return "UserEntity{" +
+                "username='" + username + '\'' +
+                ", fullname='" + fullname + '\'' +
+                ", password='" + password + '\'' +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", address='" + address + '\'' +
+                ", roles=" + roles +
+                ", gender='" + gender + '\'' +
+                ", birthday=" + birthday +
+                ", avatar='" + avatar + '\'' +
+                ", facebookAccountId='" + facebookAccountId + '\'' +
+                ", googleAccountId='" + googleAccountId + '\'' +
+                '}';
+    }
 }

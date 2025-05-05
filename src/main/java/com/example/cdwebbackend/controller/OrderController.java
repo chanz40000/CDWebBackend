@@ -136,92 +136,218 @@ public class OrderController {
             );
         }
     }
-    @Transactional
-    @PostMapping("/add-order")
-    public ResponseEntity<?> addOrder(
-            @RequestParam("cartItemIds") List<Long> cartItemIds,
-            @RequestParam("shippingAddressId") Long shippingAddressId,
-            @RequestParam("paymentId") Long paymentId,
-            @RequestParam("shippingFee") int shippingFee,
-            @RequestParam("finalPrice") int finalPrice,
-            @RequestParam("totalPrice") int totalPrice,
-            @RequestParam("note") String note
-    ){
-        try{
-            // Lấy user từ authentication context
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-            UserEntity user = userRepository.findOneByUsername(username)
-                    .orElseThrow(() -> new DataNotFoundException("User not found"));
+//    @Transactional
+//    @PostMapping("/add-order")
+//    public ResponseEntity<?> addOrder(
+//            @RequestParam("cartItemIds") List<Long> cartItemIds,
+//            @RequestParam("shippingAddressId") Long shippingAddressId,
+//            @RequestParam("paymentId") Long paymentId,
+//            @RequestParam("shippingFee") int shippingFee,
+//            @RequestParam("finalPrice") int finalPrice,
+//            @RequestParam("totalPrice") int totalPrice,
+//            @RequestParam("note") String note
+//    ){
+//        try{
+//            // Lấy user từ authentication context
+//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//            String username = authentication.getName();
+//            UserEntity user = userRepository.findOneByUsername(username)
+//                    .orElseThrow(() -> new DataNotFoundException("User not found"));
+//
+//
+//            // Lấy địa chỉ giao hàng từ shippingAddressId
+//            ShippingAddressEntity shippingAddress = shippingAddressRePository.findById(shippingAddressId)
+//                    .orElseThrow(() -> new DataNotFoundException("Địa chỉ giao hàng không hợp lệ"));
+//            OrderEntity order = new OrderEntity();
+//            order.setUser(user);
+//            order.setShippingAddress(shippingAddress);
+//            order.setShippingFee(shippingFee);
+//            order.setFinalPrice(finalPrice);
+//            order.setTotalPrice(totalPrice);
+//            order.setNote(note);
+//            // (Trạng thái chờ xác nhận)
+//            StatusOrderEntity statusOrder = statusOrderRepository.findById(1L)
+//                    .orElseThrow(() -> new DataNotFoundException("Trạng thái đơn hàng không hợp lệ"));
+//            order.setStatusOrder(statusOrder);
+//
+//            // Thanh toán khi nhận)
+////            PaymentEntity payment = paymentRepository.findById(1L)
+//            PaymentEntity payment = paymentRepository.findById(paymentId)
+//                    .orElseThrow(() -> new DataNotFoundException("Phương thức thanh toán không hợp lệ"));
+//            order.setPayment(payment);
+//
+//            order = orderRepository.save(order);
+//
+//            // Lưu OrderDetail
+//            List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
+//            for (Long cartItemId: cartItemIds){
+//                CartItemEntity cartItem = cartItemRepository.findByIdAndUserId(cartItemId, user.getId());
+//
+//                if (cartItem == null) {
+//                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+//                            "status", "failed",
+//                            "message", "Cart item ID " + cartItemId + " không tồn tại hoặc không thuộc về user"
+//                    ));
+//                }
+//
+//                OrderDetailEntity orderDetail = new OrderDetailEntity();
+//                orderDetail.setOrder(order);
+//                orderDetail.setProduct(cartItem.getProduct());
+//                orderDetail.setQuantity(cartItem.getQuantity());
+//                orderDetail.setProductSizeColor(cartItem.getProductSizeColor());
+//                orderDetail.setPriceUnit(cartItem.getProductSizeColor().getProduct().getPrice());
+//                orderDetail.setSubtotal(cartItem.getQuantity() * cartItem.getProductSizeColor().getProduct().getPrice());
+//                orderDetailEntities.add(orderDetail);
+//            }
+//            order.setOrderDetails(orderDetailEntities);
+//            orderRepository.save(order);
+//
+//            // Xóa cartItem đã mua
+//            cartItemRepository.deleteByIdInAndUserId(cartItemIds, user.getId());
+//
+//            // Convert sang OrderResponse
+//            OrderResponse orderResponse = OrderResponse.fromEntity(order);
+//
+//            return ResponseEntity.ok(Map.of(
+//                    "status", "success",
+//                    "message", "Đơn hàng đã được tạo thành công",
+//                    "data", orderResponse
+//            ));
+//
+//        }catch (Exception e){
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+//                    "status", "failed",
+//                    "message", e.getMessage()
+//            ));
+//        }
+//    }
+@Transactional
+@PostMapping("/add-order")
+public ResponseEntity<?> addOrder(
+        @RequestParam("cartItemIds") List<Long> cartItemIds,
+        @RequestParam("shippingAddressId") Long shippingAddressId,
+        @RequestParam("paymentId") Long paymentId,
+        @RequestParam("shippingFee") int shippingFee,
+        @RequestParam("finalPrice") int finalPrice,
+        @RequestParam("totalPrice") int totalPrice,
+        @RequestParam("note") String note
+) {
+    try {
+        // Log dữ liệu đầu vào để debug
+        System.out.println("Received request for /add-order:");
+        System.out.println("cartItemIds: " + cartItemIds);
+        System.out.println("shippingAddressId: " + shippingAddressId);
+        System.out.println("paymentId: " + paymentId);
+        System.out.println("shippingFee: " + shippingFee);
+        System.out.println("finalPrice: " + finalPrice);
+        System.out.println("totalPrice: " + totalPrice);
+        System.out.println("note: " + note);
 
-
-            // Lấy địa chỉ giao hàng từ shippingAddressId
-            ShippingAddressEntity shippingAddress = shippingAddressRePository.findById(shippingAddressId)
-                    .orElseThrow(() -> new DataNotFoundException("Địa chỉ giao hàng không hợp lệ"));
-            OrderEntity order = new OrderEntity();
-            order.setUser(user);
-            order.setShippingAddress(shippingAddress);
-            order.setShippingFee(shippingFee);
-            order.setFinalPrice(finalPrice);
-            order.setTotalPrice(totalPrice);
-            order.setNote(note);
-            // (Trạng thái chờ xác nhận)
-            StatusOrderEntity statusOrder = statusOrderRepository.findById(1L)
-                    .orElseThrow(() -> new DataNotFoundException("Trạng thái đơn hàng không hợp lệ"));
-            order.setStatusOrder(statusOrder);
-
-            // Thanh toán khi nhận)
-//            PaymentEntity payment = paymentRepository.findById(1L)
-            PaymentEntity payment = paymentRepository.findById(paymentId)
-                    .orElseThrow(() -> new DataNotFoundException("Phương thức thanh toán không hợp lệ"));
-            order.setPayment(payment);
-
-            order = orderRepository.save(order);
-
-            // Lưu OrderDetail
-            List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
-            for (Long cartItemId: cartItemIds){
-                CartItemEntity cartItem = cartItemRepository.findByIdAndUserId(cartItemId, user.getId());
-
-                if (cartItem == null) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                            "status", "failed",
-                            "message", "Cart item ID " + cartItemId + " không tồn tại hoặc không thuộc về user"
-                    ));
-                }
-
-                OrderDetailEntity orderDetail = new OrderDetailEntity();
-                orderDetail.setOrder(order);
-                orderDetail.setProduct(cartItem.getProduct());
-                orderDetail.setQuantity(cartItem.getQuantity());
-                orderDetail.setProductSizeColor(cartItem.getProductSizeColor());
-                orderDetail.setPriceUnit(cartItem.getProductSizeColor().getProduct().getPrice());
-                orderDetail.setSubtotal(cartItem.getQuantity() * cartItem.getProductSizeColor().getProduct().getPrice());
-                orderDetailEntities.add(orderDetail);
-            }
-            order.setOrderDetails(orderDetailEntities);
-            orderRepository.save(order);
-
-            // Xóa cartItem đã mua
-            cartItemRepository.deleteByIdInAndUserId(cartItemIds, user.getId());
-
-            // Convert sang OrderResponse
-            OrderResponse orderResponse = OrderResponse.fromEntity(order);
-
-            return ResponseEntity.ok(Map.of(
-                    "status", "success",
-                    "message", "Đơn hàng đã được tạo thành công",
-                    "data", orderResponse
-            ));
-
-        }catch (Exception e){
-            e.printStackTrace();
+        // Kiểm tra dữ liệu đầu vào
+        if (cartItemIds == null || cartItemIds.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "status", "failed",
-                    "message", e.getMessage()
+                    "message", "Danh sách cartItemIds không được rỗng"
             ));
         }
+        if (shippingAddressId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", "failed",
+                    "message", "shippingAddressId không được rỗng"
+            ));
+        }
+        if (paymentId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", "failed",
+                    "message", "paymentId không được rỗng"
+            ));
+        }
+        if (finalPrice <= 0 || totalPrice <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", "failed",
+                    "message", "finalPrice và totalPrice phải lớn hơn 0"
+            ));
+        }
+
+        // Lấy user từ authentication context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        UserEntity user = userRepository.findOneByUsername(username)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        // Lấy địa chỉ giao hàng từ shippingAddressId
+        ShippingAddressEntity shippingAddress = shippingAddressRePository.findById(shippingAddressId)
+                .orElseThrow(() -> new DataNotFoundException("Địa chỉ giao hàng không hợp lệ với ID: " + shippingAddressId));
+
+        // Tạo đơn hàng
+        OrderEntity order = new OrderEntity();
+        order.setUser(user);
+        order.setShippingAddress(shippingAddress);
+        order.setShippingFee(shippingFee);
+        order.setFinalPrice(finalPrice);
+        order.setTotalPrice(totalPrice);
+        order.setNote(note);
+
+        // Thiết lập trạng thái đơn hàng dựa trên paymentId
+        Long statusOrderId = (paymentId == 3) ? 2L : 1L; // 2: Chờ thanh toán (VNPay), 1: Chờ xác nhận (COD, Momo)
+        StatusOrderEntity statusOrder = statusOrderRepository.findById(statusOrderId)
+                .orElseThrow(() -> new DataNotFoundException("Trạng thái đơn hàng không hợp lệ với ID: " + statusOrderId));
+        order.setStatusOrder(statusOrder);
+
+        // Lấy phương thức thanh toán
+        PaymentEntity payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new DataNotFoundException("Phương thức thanh toán không hợp lệ với ID: " + paymentId));
+        order.setPayment(payment);
+
+        // Lưu đơn hàng
+        order = orderRepository.save(order);
+
+        // Lưu OrderDetail
+        List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
+        for (Long cartItemId : cartItemIds) {
+            CartItemEntity cartItem = cartItemRepository.findByIdAndUserId(cartItemId, user.getId());
+            if (cartItem == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                        "status", "failed",
+                        "message", "Cart item ID " + cartItemId + " không tồn tại hoặc không thuộc về user"
+                ));
+            }
+
+            OrderDetailEntity orderDetail = new OrderDetailEntity();
+            orderDetail.setOrder(order);
+            orderDetail.setProduct(cartItem.getProduct());
+            orderDetail.setQuantity(cartItem.getQuantity());
+            orderDetail.setProductSizeColor(cartItem.getProductSizeColor());
+            orderDetail.setPriceUnit(cartItem.getProductSizeColor().getProduct().getPrice());
+            orderDetail.setSubtotal(cartItem.getQuantity() * cartItem.getProductSizeColor().getProduct().getPrice());
+            orderDetailEntities.add(orderDetail);
+        }
+        order.setOrderDetails(orderDetailEntities);
+        orderRepository.save(order);
+
+        // Chỉ xóa cartItem nếu không phải VNPay (paymentId != 3)
+        if (paymentId != 3) {
+            cartItemRepository.deleteByIdInAndUserId(cartItemIds, user.getId());
+        }
+
+        // Convert sang OrderResponse
+        OrderResponse orderResponse = OrderResponse.fromEntity(order);
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "Đơn hàng đã được tạo thành công",
+                "data", orderResponse
+        ));
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "status", "failed",
+                "message", "Lỗi khi tạo đơn hàng: " + e.getMessage()
+        ));
     }
+}
 
     @PostMapping("/add-shipping-address")
     public ResponseEntity<?> addShippingAddress(@RequestParam("receiver_name") String receiver_name,
