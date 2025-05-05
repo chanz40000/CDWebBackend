@@ -45,46 +45,5 @@ public class ImportOrderDTO {
     }
 
     // DTO cho sản phẩm và số lượng
-    public static class ImportOrderProductDTO {
 
-        private Long importOrderId;  // ID của ImportOrderEntity
-        private Long productId;     // ID của ProductEntity
-        private int quantity;       // Số lượng của sản phẩm
-
-        // Constructor
-        public ImportOrderProductDTO() {
-        }
-
-        public ImportOrderProductDTO(Long importOrderId, Long productId, int quantity) {
-            this.importOrderId = importOrderId;
-            this.productId = productId;
-            this.quantity = quantity;
-        }
-
-        // Getters and Setters
-        public Long getImportOrderId() {
-            return importOrderId;
-        }
-
-        public void setImportOrderId(Long importOrderId) {
-            this.importOrderId = importOrderId;
-        }
-
-        public Long getProductId() {
-            return productId;
-        }
-
-        public void setProductId(Long productId) {
-            this.productId = productId;
-        }
-
-        public int getQuantity() {
-            return quantity;
-        }
-
-        public void setQuantity(int quantity) {
-            this.quantity = quantity;
-        }
-
-    }
 }

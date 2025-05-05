@@ -1,11 +1,14 @@
 package com.example.cdwebbackend.controller;
 
 import com.example.cdwebbackend.dto.ImportOrderDTO;
+import com.example.cdwebbackend.dto.ImportOrderProductDTO;
 import com.example.cdwebbackend.dto.ProductDTO;
 import com.example.cdwebbackend.dto.UserDTO;
-import com.example.cdwebbackend.entity.ProductEntity;
-import com.example.cdwebbackend.entity.UserEntity;
+import com.example.cdwebbackend.entity.*;
+import com.example.cdwebbackend.repository.ImportOrderProductRepository;
 import com.example.cdwebbackend.repository.ImportOrderRepository;
+import com.example.cdwebbackend.repository.ProductRepository;
+import com.example.cdwebbackend.repository.ProductSizeColorRepository;
 import com.example.cdwebbackend.service.impl.ImportOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +33,10 @@ import java.util.stream.Collectors;
 public class ImportOrderController {
     @Autowired
     ImportOrderRepository importOrderRepository;
-
     @Autowired
     ImportOrderService importOrderService;
+
+
     @PostMapping("/insert")
     public ResponseEntity<?> createImportOrder(@Validated @RequestBody ImportOrderDTO importOrderDTO , BindingResult result){
 
@@ -63,7 +67,7 @@ public class ImportOrderController {
             if (id == null) {
                 return ResponseEntity.badRequest().body("ID không hợp lệ");
             }
-
+            //ImportOrderEntity importOrderEntity = importOrderRepository.findOneById(id).get();
             // Xóa đơn nhập hàng theo ID
             importOrderService.deleteById(id);
 
@@ -74,25 +78,7 @@ public class ImportOrderController {
         }
     }
 
-//    @PostMapping("/update")
-//    public ResponseEntity<?> updateImportOrder(@Validated @RequestBody ImportOrderDTO importOrderDTO , BindingResult result) {
-//        System.out.println("vao chuc nang sua don hang");
-//        try {
-//            if(result.hasErrors()){
-//                List<String> errorMessages = new ArrayList<>();
-//                for (FieldError fieldError : result.getFieldErrors()) {
-//                    String defaultMessage = fieldError.getDefaultMessage();
-//                    errorMessages.add(defaultMessage);
-//                }
-//                return ResponseEntity.badRequest().body(errorMessages);
-//            }
-//            importOrderService.update(importOrderDTO);
-//            return ResponseEntity.ok("Sua don hang thành công");
-//        }catch (Exception e){
-//            System.out.println(e.getMessage());
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
+
 @PostMapping("/update")
 public ResponseEntity<?> updateImportOrder(@Validated @RequestBody ImportOrderDTO importOrderIdDTO, BindingResult result) {
     System.out.println("Vào chức năng sửa đơn hàng");
