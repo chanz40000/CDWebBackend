@@ -102,6 +102,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -152,8 +153,16 @@ public class SecurityConfig{
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         System.out.println("⚙️ SecurityFilterChain đang được cấu hình!");
 
-        return http
-                .cors(Customizer.withDefaults()) // Cho phép CORS
+        return
+        http
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(Arrays.asList("https://localhost:3000"));
+                    config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+                    config.setAllowedHeaders(Arrays.asList("*"));
+                    config.setAllowCredentials(true);
+                    return config;
+                })) // Cho phép CORS
                 .csrf(csrf -> csrf.disable()) // Tắt CSRF cho REST API
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -171,6 +180,7 @@ public class SecurityConfig{
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -206,6 +216,7 @@ public class SecurityConfig{
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 
 
 //    protected void configure(HttpSecurity http) throws Exception {
