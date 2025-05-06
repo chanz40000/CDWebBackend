@@ -13,8 +13,8 @@ import java.util.Optional;
 
     @Repository
     public interface ImportOrderProductRepository extends JpaRepository<ImportOrderProductEntity, Long> {
-        List<ImportOrderProductEntity> findByUser(UserEntity user); // Tìm các đơn nhập theo người dùng
-        public Optional<ImportOrderProductEntity> findByImport_order_id(long id);
+        //List<ImportOrderProductEntity> findByUser(UserEntity user); // Tìm các đơn nhập theo người dùng
+        public Optional<ImportOrderProductEntity> findByImportOrderId(long id);
         public Optional<ImportOrderProductEntity> findOneByCreatedDate(Date createdDate);
     }
 

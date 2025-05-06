@@ -1,6 +1,7 @@
 package com.example.cdwebbackend.converter;
 
 import com.example.cdwebbackend.dto.ImportOrderDTO;
+import com.example.cdwebbackend.dto.ImportOrderProductDTO;
 import com.example.cdwebbackend.dto.ProductDTO;
 import com.example.cdwebbackend.dto.UserDTO;
 import com.example.cdwebbackend.entity.ImportOrderEntity;
@@ -41,12 +42,12 @@ public class ImportOrderConverter {
         // Xử lý danh sách sản phẩm và số lượng
         if (dto.getProducts() != null) {
             List<ImportOrderProductEntity> importOrderProductEntities = new ArrayList<>();
-            for (ImportOrderDTO.ImportOrderProductDTO productDTO : dto.getProducts()) {
+            for (ImportOrderProductDTO productDTO : dto.getProducts()) {
                 // Tìm kiếm sản phẩm từ DB
                 ProductEntity productEntity = productRepository.findOneById(productDTO.getProductId());
 
                 // Tạo liên kết giữa ImportOrder và Product thông qua ImportOrderProductEntity
-                ImportOrderProductEntity productEntityRel = new ImportOrderProductEntity(entity, productEntity, productDTO.getQuantity());
+                ImportOrderProductEntity productEntityRel = new ImportOrderProductEntity(entity, productEntity, productDTO.getQuantity(), productDTO.getPrice());
 
                 // Thêm vào danh sách các sản phẩm trong đơn hàng
                 importOrderProductEntities.add(productEntityRel);
@@ -70,10 +71,10 @@ public class ImportOrderConverter {
 
         // Chuyển đổi danh sách ImportOrderProductEntity sang ProductQuantityDTO
         if (entity.getImportOrderProducts() != null) {
-            List<ImportOrderDTO.ImportOrderProductDTO> productDTOs = new ArrayList<>();
+            List<ImportOrderProductDTO> productDTOs = new ArrayList<>();
             for (ImportOrderProductEntity importOrderProductEntity : entity.getImportOrderProducts()) {
                 // Tạo DTO cho từng sản phẩm và số lượng
-                ImportOrderDTO.ImportOrderProductDTO productDTO = new ImportOrderDTO.ImportOrderProductDTO();
+                ImportOrderProductDTO productDTO = new ImportOrderProductDTO();
                 productDTO.setProductId(importOrderProductEntity.getProduct().getId());
                 productDTO.setQuantity(importOrderProductEntity.getQuantity());
                 productDTOs.add(productDTO);

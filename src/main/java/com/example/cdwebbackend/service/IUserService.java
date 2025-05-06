@@ -35,6 +35,9 @@ public interface IUserService {
     public UserEntity updatePassword(String newPassword, long userId) throws DataNotFoundException;
 
     @Transactional
+    UserEntity updatePassword(String newPassword, String email) throws DataNotFoundException;
+
+    @Transactional
     UserEntity updateUser(UserDTO userDTO, long userId) throws DataNotFoundException;
     public UserEntity updateAvatar(long userId, String imageUrl) throws DataNotFoundException;
 

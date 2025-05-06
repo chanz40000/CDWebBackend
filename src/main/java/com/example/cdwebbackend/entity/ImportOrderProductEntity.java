@@ -17,16 +17,27 @@ public class ImportOrderProductEntity extends BaseEntity{
 
     @Column(name = "quantity")
     private int quantity;
+    @Column(name = "price")
+    private int price;
 
 
     // Constructor, Getters, Setters
     public ImportOrderProductEntity() {
     }
 
-    public ImportOrderProductEntity(ImportOrderEntity importOrder, ProductEntity product, int quantity) {
+    public ImportOrderProductEntity(ImportOrderEntity importOrder, ProductEntity product, int quantity, int price) {
         this.importOrder = importOrder;
         this.product = product;
         this.quantity = quantity;
+        this.price = price;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 
     public ImportOrderEntity getImportOrder() {
