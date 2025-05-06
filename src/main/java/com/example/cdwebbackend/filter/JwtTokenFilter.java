@@ -120,7 +120,12 @@ private boolean isByPassToken(@NonNull HttpServletRequest request) {
             Pair.of(String.format("%s/products", apiPrefix), "GET"),
             Pair.of(String.format("%s/categories", apiPrefix), "GET"),
             Pair.of(String.format("%s/users/register", apiPrefix), "POST"),
-            Pair.of(String.format("%s/users/login", apiPrefix), "POST")
+            Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
+            Pair.of(String.format("%s/users/forgotPass", apiPrefix), "POST"),
+            Pair.of(String.format("%s/users/newPassword", apiPrefix), "PUT"),
+            Pair.of(String.format("%s/users/validateOtp", apiPrefix), "POST")
+
+
     );
 
     // Bỏ qua các URL nếu chúng khớp với danh sách bypassTokens
@@ -132,11 +137,6 @@ private boolean isByPassToken(@NonNull HttpServletRequest request) {
         }
     }
 
-    // Kiểm tra nếu URL bắt đầu bằng "/users/details" để bỏ qua
-//    if (request.getServletPath().contains(apiPrefix + "/users/details")) {
-//        System.out.println("Bypass Token Matched for /users/details");
-//        return true;
-//    }
 
     return false;
 }

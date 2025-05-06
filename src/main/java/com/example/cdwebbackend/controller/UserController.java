@@ -2,6 +2,7 @@ package com.example.cdwebbackend.controller;
 
 import com.example.cdwebbackend.components.JwtTokenUtil;
 import com.example.cdwebbackend.converter.UserConverter;
+import com.example.cdwebbackend.dto.ForgotPasswordDTO;
 import com.example.cdwebbackend.dto.UserDTO;
 import com.example.cdwebbackend.dto.UserLoginDTO;
 import com.example.cdwebbackend.entity.RoleEntity;
@@ -12,9 +13,12 @@ import com.example.cdwebbackend.repository.RoleRepository;
 import com.example.cdwebbackend.repository.UserRepository;
 import com.example.cdwebbackend.responses.UserResponse;
 import com.example.cdwebbackend.service.AuthService;
+import com.example.cdwebbackend.service.impl.EmailSenderService;
 import com.example.cdwebbackend.service.impl.ImageUploadService;
 import com.example.cdwebbackend.service.impl.UserService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +60,8 @@ public class UserController {
 
     @Autowired
     private ImageUploadService imageUploadService;
+    @Autowired
+    EmailSenderService senderService;
 
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@Validated @RequestBody UserDTO userDTO ,BindingResult result){
@@ -94,6 +100,133 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
     }
+    @PostMapping("/forgotPass")
+    public ResponseEntity<?>forgot(@Validated @RequestBody ForgotPasswordDTO forgotPasswordDTO, HttpServletResponse response){
+        System.out.println("vao forgot password");
+        try {
+            System.out.println(forgotPasswordDTO.getEmail());
+            String email = forgotPasswordDTO.getEmail();
+            //kiem tra xem email da duoc dang ky chua
+            UserEntity userEntity = userRepository.findOneByEmail(email);
+            if(userEntity==null){
+                System.out.println("Email chưa được đăng ký");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email chưa được đăng ký");
+            }
+            //tao otp
+
+            Random rand = new Random();
+            int otpvalue = rand.nextInt(1255650);
+            System.out.println(otpvalue);
+            // sending otp
+            senderService.sendEmail(email,
+                "This is your otp: ",
+                otpvalue+"");
+
+            // Lưu OTP vào cookie
+            Cookie otpCookie = new Cookie("otp", otpvalue+"");
+            //otpCookie.setHttpOnly(true);
+            otpCookie.setSecure(true); // Chỉ hoạt động với HTTPS
+            otpCookie.setPath("/");
+            otpCookie.setMaxAge(15 * 60); // OTP hết hạn sau 15 phút
+            response.addCookie(otpCookie);
+
+            // Lưu email vào cookie
+            Cookie emailCookie = new Cookie("email", email);
+            //emailCookie.setHttpOnly(true);
+            emailCookie.setSecure(true);
+            emailCookie.setPath("/");
+            emailCookie.setMaxAge(15 * 60);
+            response.addCookie(emailCookie);
+
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("message", "OTP đã được gửi thành công");
+            return ResponseEntity.ok(responseBody);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        }
+
+    }
+
+    @PostMapping("/validateOtp")
+    public ResponseEntity<?> validateOtp(@RequestBody Map<String, String> request,
+                                         @CookieValue(value = "otp", required = false) String otpFromCookie,
+                                         @CookieValue(value = "email", required = false) String emailFromCookie) {
+        try {
+            String inputOtp = request.get("otp");
+
+            // Kiểm tra xem OTP từ cookie có tồn tại không
+            if (otpFromCookie == null || emailFromCookie == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("OTP hoặc email không tồn tại hoặc đã hết hạn");
+            }
+
+            // So sánh OTP từ người dùng với OTP trong cookie
+            if (inputOtp != null && inputOtp.equals(otpFromCookie)) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Xác thực OTP thành công");
+                response.put("email", emailFromCookie);
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("OTP không đúng");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Đã xảy ra lỗi: " + e.getMessage());
+        }
+    }
+    @PutMapping("/newPassword")
+    public ResponseEntity<?> newPassword(@Validated @RequestBody Map<String, String> request,
+                                         @CookieValue(value = "email", required = false) String emailFromCookie,
+                                         HttpServletResponse response) {
+        System.out.println("Cập nhật mật khẩu mới");
+
+        try {
+            String email = request.get("email");
+            String newPassword = request.get("newPassword");
+
+            // Kiểm tra email từ cookie và body
+            if (emailFromCookie == null || !emailFromCookie.equals(email)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Phiên xác thực không hợp lệ hoặc đã hết hạn.");
+            }
+
+            // Kiểm tra dữ liệu đầu vào
+            if (newPassword == null || newPassword.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Mật khẩu mới không được để trống.");
+            }
+
+            // Cập nhật mật khẩu
+            UserEntity user = userService.updatePassword(newPassword, email);
+
+            // Xóa cookie sau khi cập nhật thành công
+            Cookie emailCookie = new Cookie("email", null);
+            emailCookie.setHttpOnly(true);
+            emailCookie.setSecure(true);
+            emailCookie.setPath("/");
+            emailCookie.setMaxAge(0); // Xóa cookie
+            response.addCookie(emailCookie);
+
+            Cookie otpCookie = new Cookie("otp", null);
+            otpCookie.setHttpOnly(true);
+            otpCookie.setSecure(true);
+            otpCookie.setPath("/");
+            otpCookie.setMaxAge(0); // Xóa cookie
+            response.addCookie(otpCookie);
+
+            return ResponseEntity.ok(UserResponse.fromUser(user));
+
+        } catch (DataNotFoundException e) {
+            System.out.println("Lỗi: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Người dùng không tồn tại: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Lỗi: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi cập nhật mật khẩu: " + e.getMessage());
+        }
+    }
     @PostMapping("/details")
     public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("Authorization") String authorizationHeader){
         System.out.println("thong tin user: ");
@@ -109,28 +242,6 @@ public class UserController {
         }
     }
 
-//    @PutMapping("/details/{userId}")
-//    public ResponseEntity<UserResponse> updateUserDetails
-//            (@PathVariable("userId")  int userId,
-//             @RequestBody UserDTO updateUserDTO,
-//             @RequestHeader("Authorization") String authorizationHeader){
-//        try{
-//            String extractedToken = authorizationHeader.substring(7); //Loai bo "Bearer " tu chuoi token
-//            UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
-//
-//            if(userEntity.getId()!=userId){
-//                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-//            }
-//
-//            UserEntity user = userService.updateUser(updateUserDTO, userId);
-//            return ResponseEntity.ok(UserResponse.fromUser(userEntity));
-//        }catch (Exception e){
-//            System.out.println("Lỗi: " + e.getMessage()); // In lỗi ra console
-//            e.printStackTrace(); // In stacktrace đầy đủ
-//            return ResponseEntity.badRequest().build();
-//        }
-//
-//    }
 @PutMapping("/details/{userId}")
 public ResponseEntity<?> updateUserDetails(
         @PathVariable("userId") int userId,

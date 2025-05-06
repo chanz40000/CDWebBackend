@@ -5,9 +5,11 @@ import com.example.cdwebbackend.dto.ImportOrderDTO;
 import com.example.cdwebbackend.dto.ImportOrderProductDTO;
 import com.example.cdwebbackend.entity.ImportOrderEntity;
 import com.example.cdwebbackend.entity.ImportOrderProductEntity;
+import com.example.cdwebbackend.entity.ProductEntity;
 import com.example.cdwebbackend.entity.ProductSizeColorEntity;
 import com.example.cdwebbackend.repository.ImportOrderProductRepository;
 import com.example.cdwebbackend.repository.ImportOrderRepository;
+import com.example.cdwebbackend.repository.ProductRepository;
 import com.example.cdwebbackend.repository.ProductSizeColorRepository;
 import com.example.cdwebbackend.service.IImportOrderService;
 import lombok.AllArgsConstructor;
@@ -26,11 +28,11 @@ public class ImportOrderService implements IImportOrderService {
     @Autowired
     ImportOrderConverter importOrderConverter;
     @Autowired
-    ImportOrderService importOrderService;
-    @Autowired
     ProductSizeColorRepository productSizeColorRepository;
     @Autowired
     ImportOrderProductRepository importOrderProductRepository;
+    @Autowired
+    ProductRepository productRepository;
     @Override
     public ArrayList<ImportOrderDTO> selectAll(){
         ArrayList<ImportOrderDTO> importOrderDTOS = new ArrayList<>();
@@ -66,10 +68,19 @@ public class ImportOrderService implements IImportOrderService {
         //duyet qua tung sp
         for (ImportOrderProductDTO productImport: products){
             //lay ra sp trong db
-            ProductSizeColorEntity productEntity = productSizeColorRepository.findOneById(productImport.getProductId());
+            ProductSizeColorEntity productSizeColorEntity = productSizeColorRepository.findOneById(productImport.getProductId());
             //sua so luong
-            productEntity.setStock(productEntity.getStock()+productImport.getQuantity());
-            productSizeColorRepository.save(productEntity);
+            productSizeColorEntity.setStock(productSizeColorEntity.getStock()+productImport.getQuantity());
+            productSizeColorRepository.save(productSizeColorEntity);
+
+            //sua gia nhap
+            //lay ra san pham goc
+            ProductEntity productEntity = productSizeColorEntity.getProduct();
+            if (productEntity.getImport_price()!=productImport.getPrice()){
+                productEntity.setPrice(productImport.getPrice());
+                productRepository.save(productEntity);
+            }
+
         }
         importOrderRepository.save(importOrderEntity);
         return true;
@@ -92,7 +103,7 @@ public class ImportOrderService implements IImportOrderService {
         ImportOrderEntity importOrderEntity = importOrderConverter.toEntity(imported);
         //lay ra danh sach san pham nhap
 
-        List<ImportOrderProductEntity> products = importOrderProductRepository.findByImport_order_id(imported.getId()).stream().toList();
+        List<ImportOrderProductEntity> products = importOrderProductRepository.findByImportOrderId(imported.getId()).stream().toList();
         //duyet qua tung sp
         for (ImportOrderProductEntity importOrderProductEntity: products){
             //lay ra sp trong db
@@ -109,7 +120,7 @@ public class ImportOrderService implements IImportOrderService {
         System.out.println("xoa don hang voi id: "+ id_import);
         //lay ra danh sach san pham nhap
 
-        List<ImportOrderProductEntity> products = importOrderProductRepository.findByImport_order_id(id_import).stream().toList();
+        List<ImportOrderProductEntity> products = importOrderProductRepository.findByImportOrderId(id_import).stream().toList();
         //duyet qua tung sp
         for (ImportOrderProductEntity importOrderProductEntity: products){
             //lay ra sp trong db

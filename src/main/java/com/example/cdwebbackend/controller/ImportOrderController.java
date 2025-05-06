@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
 @RequestMapping("${api.prefix}/importOrder")
 public class ImportOrderController {
     @Autowired
-    ImportOrderRepository importOrderRepository;
-    @Autowired
     ImportOrderService importOrderService;
 
 

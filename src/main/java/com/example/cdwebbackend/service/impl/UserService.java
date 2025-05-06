@@ -252,6 +252,19 @@ public class UserService implements IUserService {
         String encodedPassword = passwordEncoder.encode(newPassword);
         existingUser.setPassword(encodedPassword);
 
+        userRepository.save(existingUser);
+        System.out.println("Da doi pass word");
+        return existingUser;
+    }
+
+    @Override
+    @Transactional
+    public UserEntity updatePassword(String newPassword, String email) throws DataNotFoundException {
+        UserEntity existingUser = userRepository.findOneByEmail(email);
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        existingUser.setPassword(encodedPassword);
+        userRepository.save(existingUser);
         System.out.println("Da doi pass word");
         return existingUser;
     }
