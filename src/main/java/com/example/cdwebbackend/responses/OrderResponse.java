@@ -33,10 +33,10 @@ public class OrderResponse {
         List<OrderDetailResponse> orderDetailResponses = entity.getOrderDetails().stream()
                 .map(OrderDetailResponse::fromEntity)
                 .collect(Collectors.toList());
-        ShippingAddressResponse shippingAddressResponse = null;
-        if (entity.getShippingAddress() != null) {
-            shippingAddressResponse = ShippingAddressResponse.fromEntity(entity.getShippingAddress());
-        }
+//        ShippingAddressResponse shippingAddressResponse = null;
+//        if (entity.getShippingAddress() != null) {
+//            shippingAddressResponse = ShippingAddressResponse.fromEntity(entity.getShippingAddress());
+//        }
         return OrderResponse.builder()
                 .id(entity.getId())
                 .userId(entity.getUser().getId())
@@ -44,13 +44,13 @@ public class OrderResponse {
 //                .statusOrderStatus(entity.getStatusOrder().getName())
                 .paymentId(entity.getPayment().getId())
                 .orderDetails(orderDetailResponses)
-                .receiverName(entity.getShippingAddress().getReceiverName())
-                .receiverPhone(entity.getShippingAddress().getReceiverPhone())
-                .province(entity.getShippingAddress().getProvince())
-                .district(entity.getShippingAddress().getDistrict())
-                .ward(entity.getShippingAddress().getWard())
+                .receiverName(entity.getReceiverName())
+                .receiverPhone(entity.getReceiverPhone())
+                .province(entity.getProvince())
+                .district(entity.getDistrict())
+                .ward(entity.getWard())
                 .note(entity.getNote())
-                .addressDetails(entity.getShippingAddress().getAddressDetail())
+                .addressDetails(entity.getAddressDetail())
                 .build();
 
     }

@@ -28,6 +28,24 @@ public class OrderEntity extends BaseEntity {
     @Column(name = "note")
     private String note;
 
+    @Column(name = "receiver_name")
+    private String receiverName;
+
+    @Column(name = "receiver_phone")
+    private String receiverPhone;
+
+    @Column(name = "province") // Tỉnh, thành phố
+    private String province;
+
+    @Column(name = "district") //Huyện, quận
+    private String district;
+
+    @Column(name = "ward") // Phường, xã
+    private String ward;
+
+    @Column(name = "address_detail")
+    private String addressDetail;
+
     // @ManyToOne: Quan hệ nhiều - một với StatusOrderEntity
     // 1 đơn hàng chỉ có 1 trạng thái, nhưng 1 trạng thái có thể áp dụng cho nhiều đơn hàng
     @ManyToOne
@@ -39,10 +57,6 @@ public class OrderEntity extends BaseEntity {
     @JoinColumn(name = "payment_id")
     private PaymentEntity payment;
 
-    // Địa chỉ giao hàng
-    @ManyToOne
-    @JoinColumn(name = "shipping_address_id", nullable = false)
-    private ShippingAddressEntity shippingAddress;
 
     // @OneToMany: Quan hệ một - nhiều với OrderDetailEntity
     // 1 đơn hàng có thể có nhiều chi tiết đơn hàng, nhưng mỗi chi tiết đơn hàng chỉ thuộc về 1 đơn hàng
@@ -51,6 +65,54 @@ public class OrderEntity extends BaseEntity {
 
     // Getters and Setters
 
+
+    public String getReceiverName() {
+        return receiverName;
+    }
+
+    public void setReceiverName(String receiverName) {
+        this.receiverName = receiverName;
+    }
+
+    public String getReceiverPhone() {
+        return receiverPhone;
+    }
+
+    public void setReceiverPhone(String receiverPhone) {
+        this.receiverPhone = receiverPhone;
+    }
+
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
+    }
+
+    public String getWard() {
+        return ward;
+    }
+
+    public void setWard(String ward) {
+        this.ward = ward;
+    }
+
+    public String getAddressDetail() {
+        return addressDetail;
+    }
+
+    public void setAddressDetail(String addressDetail) {
+        this.addressDetail = addressDetail;
+    }
 
     public String getNote() {
         return note;
@@ -76,13 +138,6 @@ public class OrderEntity extends BaseEntity {
         this.finalPrice = finalPrice;
     }
 
-    public ShippingAddressEntity getShippingAddress() {
-        return shippingAddress;
-    }
-
-    public void setShippingAddress(ShippingAddressEntity shippingAddress) {
-        this.shippingAddress = shippingAddress;
-    }
 
     public UserEntity getUser() {
         return user;

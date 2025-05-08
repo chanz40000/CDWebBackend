@@ -49,10 +49,13 @@ public class OrderConverter {
         entity.setTotalPrice(dto.getTotalPrice());
         entity.setFinalPrice(dto.getFinalPrice());
         entity.setNote(dto.getNote());
+        entity.setReceiverName(dto.getReceiverName());
+        entity.setReceiverPhone(dto.getReceiverPhone());
+        entity.setDistrict(dto.getDistrict());
+        entity.setProvince(dto.getProvince());
+        entity.setWard(dto.getWard());
+        entity.setAddressDetail(dto.getAddressDetail());
 
-        if (dto.getShippingAddress() != null) {
-            entity.setShippingAddress(shippingAddressRepository.findOneById(dto.getShippingAddress()));
-        }
 
         if (dto.getPayment() != null) {
             entity.setPayment(paymentRepository.findOneById(dto.getPayment()));
@@ -85,9 +88,12 @@ public class OrderConverter {
         dto.setTotalPrice(entity.getTotalPrice());
         dto.setFinalPrice(entity.getFinalPrice());
         dto.setNote(entity.getNote());
-        if (entity.getShippingAddress() != null) {
-            dto.setShippingAddress(entity.getShippingAddress().getId());
-        }
+        dto.setReceiverName(entity.getReceiverName());
+        dto.setReceiverPhone(entity.getReceiverPhone());
+        dto.setDistrict(entity.getDistrict());
+        dto.setProvince(entity.getProvince());
+        dto.setWard(entity.getWard());
+        dto.setAddressDetail(entity.getAddressDetail());
         if (entity.getPayment() != null) {
             dto.setPayment(entity.getPayment().getId());
         }

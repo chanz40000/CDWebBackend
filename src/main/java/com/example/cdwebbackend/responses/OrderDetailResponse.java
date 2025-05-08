@@ -23,7 +23,7 @@ public class OrderDetailResponse {
                 .productId(orderDetailEntity.getProduct().getId())
                 .quantity(orderDetailEntity.getQuantity())
                 .size(orderDetailEntity.getProductSizeColor() != null ? orderDetailEntity.getProductSizeColor().getSize().getSize() : null)
-                .color(orderDetailEntity.getProductSizeColor() != null ? orderDetailEntity.getProductSizeColor().getColor().getName() : null)
+                .color(orderDetailEntity.getProductSizeColor() != null ? orderDetailEntity.getProductSizeColor().getProductColor().getColor().getName() : null)
                 .priceUnit(orderDetailEntity.getPriceUnit())
                 .subtotal(orderDetailEntity.getSubtotal())
                 .build();

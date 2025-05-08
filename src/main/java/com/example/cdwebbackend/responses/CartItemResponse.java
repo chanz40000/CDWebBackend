@@ -21,11 +21,11 @@ public class CartItemResponse {
                 .id(entity.getId())
                 .productId(entity.getProduct().getId())
                 .productName(entity.getProduct().getNameProduct())
-                .productImage(entity.getProduct().getImage())
+                .productImage(entity.getProduct().getProductColors().get(0).getImage())
                 .price(entity.getProduct().getPrice())
                 .quantity(entity.getQuantity())
                 .size(entity.getProductSizeColor() != null ? entity.getProductSizeColor().getSize().getSize() : null)
-                .color(entity.getProductSizeColor() != null ? entity.getProductSizeColor().getColor().getName() : null)
+                .color(entity.getProductSizeColor() != null ? entity.getProductSizeColor().getProductColor().getColor().getName() : null)
                 .build();
     }
 

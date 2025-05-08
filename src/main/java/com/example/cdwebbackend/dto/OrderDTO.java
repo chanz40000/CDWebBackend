@@ -29,8 +29,26 @@ public class OrderDTO extends AbstractDTO<OrderDTO> {
     @JsonProperty("note")
     private String note;
 
-    @JsonProperty("shipping_address_id")
-    private Long shippingAddress;
+    @JsonProperty("receiver_name")
+    private String receiverName;
+
+    @JsonProperty("receiver_phone")
+    private String receiverPhone;
+
+    @JsonProperty("province")// Tỉnh, thành phố
+    private String province;
+
+    @JsonProperty("district")//Huyện, quận
+    private String district;
+
+    @JsonProperty("ward") // Phường, xã
+    private String ward;
+
+    @JsonProperty("address_detail")
+    private String addressDetail;
+
+//    @JsonProperty("shipping_address_id")
+//    private Long shippingAddress;
 
     @JsonProperty("orderDetailDTOs")
     private List<OrderDetailDTO> orderDetails;
@@ -38,6 +56,54 @@ public class OrderDTO extends AbstractDTO<OrderDTO> {
 
     // Getters and Setters
 
+
+    public String getReceiverName() {
+        return receiverName;
+    }
+
+    public void setReceiverName(String receiverName) {
+        this.receiverName = receiverName;
+    }
+
+    public String getReceiverPhone() {
+        return receiverPhone;
+    }
+
+    public void setReceiverPhone(String receiverPhone) {
+        this.receiverPhone = receiverPhone;
+    }
+
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
+    }
+
+    public String getWard() {
+        return ward;
+    }
+
+    public void setWard(String ward) {
+        this.ward = ward;
+    }
+
+    public String getAddressDetail() {
+        return addressDetail;
+    }
+
+    public void setAddressDetail(String addressDetail) {
+        this.addressDetail = addressDetail;
+    }
 
     public String getNote() {
         return note;
@@ -69,14 +135,6 @@ public class OrderDTO extends AbstractDTO<OrderDTO> {
 
     public void setFinalPrice(int finalPrice) {
         this.finalPrice = finalPrice;
-    }
-
-    public Long getShippingAddress() {
-        return shippingAddress;
-    }
-
-    public void setShippingAddress(Long shippingAddress) {
-        this.shippingAddress = shippingAddress;
     }
 
     public Long getUserId() {

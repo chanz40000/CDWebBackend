@@ -338,6 +338,13 @@ public class SecurityConfig {
                                 apiPrefix + "/chat/send",
                                 apiPrefix + "/payments/ipn",
                                 apiPrefix + "/payments/return",
+                                // quyenf admin
+                                apiPrefix + "/products/getCategory/**",
+                                apiPrefix + "/products/getBrand/**",
+                                apiPrefix + "/products/getSize/**",
+                                apiPrefix + "/products/getColor/**",
+                                apiPrefix + "/products/getColorProduct/**",
+                                apiPrefix + "/products/getProductSizeColor/**",
                                 "/oauth2/**",
                                 "/login/oauth2/**",
                                 "/auth/social-login",
@@ -359,7 +366,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/oder_detail/**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(apiPrefix + "/users/upload-avatar").hasRole(RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/products/upload-image").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
-                        .requestMatchers(apiPrefix + "/products/add").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(apiPrefix + "/products/add").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/users/details").hasRole(RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/orders/prepare").hasRole(RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/orders/add-shipping-address").hasRole(RoleEntity.USER)
