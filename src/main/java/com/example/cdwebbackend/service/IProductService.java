@@ -20,4 +20,7 @@ public interface IProductService {
     public void chooseInfomation(Long productId, Long colorId, String image, int stock, Long size);
     public ProductSizeColorEntity addSizeByColor(Long productColorId, Long productId, Long sizeId, int stock);
     public ProductColorEntity addColorProduct(Long productId, Long colorId, String url);
+    public ProductEntity updateProduct(ProductDTO productDTO, Long productId) throws DataNotFoundException;
+    public void deleteProduct(Long productId) throws DataNotFoundException;
+    public void deleteProductSizeColor(Long productSizeColorId) throws DataNotFoundException;
 }

@@ -130,7 +130,49 @@ public class ProductController {
         }
     }
 
+    @PutMapping(value = "/update/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateProductWithImage(
+            @PathVariable("productId") Long productId,
+            @RequestPart("product") String productJson
+    ) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class);
 
+            // Gán productId cho DTO nếu cần
+            productDTO.setId(productId);
+
+            ProductEntity updated = productService.updateProduct(productDTO, productId);
+            ProductResponse response = ProductResponse.fromEntity(updated);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Cập nhật sản phẩm thành công",
+                    "productId", updated.getId(),
+                    "data", response
+            ));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Dữ liệu không hợp lệ",
+                    "details", "Trường ID (categoryCode, brandCode, ...) phải là số"
+            ));
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Không tìm thấy dữ liệu",
+                    "details", e.getMessage()
+            ));
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Lỗi parse JSON",
+                    "details", e.getOriginalMessage()
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "error", "Lỗi server",
+                    "details", e.getMessage()
+            ));
+        }
+    }
     @PostMapping("/update_information")
     public ResponseEntity<?> updateProductInformation(
             @RequestParam("productId") Long productId,
@@ -157,6 +199,58 @@ public class ProductController {
                     "error", "Đã xảy ra lỗi khi cập nhật thông tin sản phẩm: " + e.getMessage()
             ));
         }
+    }
+
+    @DeleteMapping("/delete_product") public ResponseEntity<?> deleteProductById(
+            @RequestParam("productId") Long productId
+    ){
+        try {
+
+
+
+            // Cập nhật thông tin sản phẩm với ảnh mới
+            productService.deleteProduct(productId);
+
+
+            // Trả về phản hồi thành công
+            return ResponseEntity.ok(Map.of(
+                    "message", "Xóa thành công",
+                    "productId", productId
+            ));
+        } catch (Exception e) {
+            e.printStackTrace(); // Log lỗi chi tiết hơn
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "error", "Đã xảy ra lỗi khi xóa sản phẩm: " + e.getMessage()
+            ));
+        }
+
+
+    }
+
+    @DeleteMapping("/delete_product_size_color") public ResponseEntity<?> deleteProductSizeColorById(
+            @RequestParam("productSizeColorId") Long productSizeColorId
+    ){
+        try {
+
+
+
+            // Cập nhật thông tin sản phẩm với ảnh mới
+            productService.deleteProductSizeColor(productSizeColorId);
+
+
+            // Trả về phản hồi thành công
+            return ResponseEntity.ok(Map.of(
+                    "message", "Xóa thành công ",
+                    "productId", productSizeColorId
+            ));
+        } catch (Exception e) {
+            e.printStackTrace(); // Log lỗi chi tiết hơn
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "error", "Đã xảy ra lỗi khi xóa sản phẩm: " + e.getMessage()
+            ));
+        }
+
+
     }
 
     @PostMapping("/add_size_by_color")
