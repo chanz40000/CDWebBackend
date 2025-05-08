@@ -276,21 +276,31 @@ public ResponseEntity<?> addOrder(
         UserEntity user = userRepository.findOneByUsername(username)
                 .orElseThrow(() -> new DataNotFoundException("User not found"));
 
-        // Lấy địa chỉ giao hàng từ shippingAddressId
-        ShippingAddressEntity shippingAddress = shippingAddressRePository.findById(shippingAddressId)
-                .orElseThrow(() -> new DataNotFoundException("Địa chỉ giao hàng không hợp lệ với ID: " + shippingAddressId));
+//        // Lấy địa chỉ giao hàng từ shippingAddressId
+//        ShippingAddressEntity shippingAddress = shippingAddressRePository.findById(shippingAddressId)
+//                .orElseThrow(() -> new DataNotFoundException("Địa chỉ giao hàng không hợp lệ với ID: " + shippingAddressId));
+
+
+        ShippingAddressEntity shippingAddressEntity = shippingAddressRePository.findByIdAndUserId(shippingAddressId, user.getId())
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy địa chỉ"));
+
 
         // Tạo đơn hàng
         OrderEntity order = new OrderEntity();
         order.setUser(user);
-        order.setShippingAddress(shippingAddress);
+        order.setReceiverName(shippingAddressEntity.getReceiverName());
+        order.setReceiverPhone(shippingAddressEntity.getReceiverPhone());
+        order.setProvince(shippingAddressEntity.getProvince());
+        order.setDistrict(shippingAddressEntity.getDistrict());
+        order.setWard(shippingAddressEntity.getWard());
+        order.setAddressDetail(shippingAddressEntity.getAddressDetail());
         order.setShippingFee(shippingFee);
         order.setFinalPrice(finalPrice);
         order.setTotalPrice(totalPrice);
         order.setNote(note);
 
         // Thiết lập trạng thái đơn hàng dựa trên paymentId
-        Long statusOrderId = (paymentId == 3) ? 2L : 1L; // 2: Chờ thanh toán (VNPay), 1: Chờ xác nhận (COD, Momo)
+        Long statusOrderId = (paymentId == 3) ? 7L : 1L; // 2: Chờ thanh toán (VNPay), 1: Chờ xác nhận (COD, Momo)
         StatusOrderEntity statusOrder = statusOrderRepository.findById(statusOrderId)
                 .orElseThrow(() -> new DataNotFoundException("Trạng thái đơn hàng không hợp lệ với ID: " + statusOrderId));
         order.setStatusOrder(statusOrder);
@@ -327,9 +337,10 @@ public ResponseEntity<?> addOrder(
         orderRepository.save(order);
 
         // Chỉ xóa cartItem nếu không phải VNPay (paymentId != 3)
-        if (paymentId != 3) {
-            cartItemRepository.deleteByIdInAndUserId(cartItemIds, user.getId());
-        }
+//        if (paymentId != 3) {
+//
+//        }
+        cartItemRepository.deleteByIdInAndUserId(cartItemIds, user.getId());
 
         // Convert sang OrderResponse
         OrderResponse orderResponse = OrderResponse.fromEntity(order);
@@ -348,6 +359,30 @@ public ResponseEntity<?> addOrder(
         ));
     }
 }
+//
+//    @GetMapping
+//    public ResponseEntity<?> getOrderById(@RequestParam("id") Long orderId) {
+//
+//        try{
+//
+//            // Lấy thông tin người dùng từ SecurityContext
+//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//            String username = authentication.getName();
+//
+//            // Tìm user theo username
+//            UserEntity user = userRepository.findOneByUsername(username)
+//                    .orElseThrow(() -> new DataNotFoundException("User not found"));
+//
+//            OrderDTO orderDTO = o
+//
+//
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//    }
+
 
     @PostMapping("/add-shipping-address")
     public ResponseEntity<?> addShippingAddress(@RequestParam("receiver_name") String receiver_name,
@@ -487,6 +522,78 @@ public ResponseEntity<?> addOrder(
                     "data", response
             ));
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", "failed",
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
+    @PostMapping("/edit-shipping-address")
+    public ResponseEntity<?> editShippingAddress(
+                                                @RequestParam("id") Long id,
+                                                @RequestParam("receiver_name") String receiver_name,
+                                                @RequestParam("receiver_phone") String receiver_phone,
+                                                @RequestParam("province") String province,
+                                                @RequestParam("district") String district,
+                                                @RequestParam("ward") String ward,
+                                                @RequestParam("address_detail") String address_detail){
+
+        try{
+            // Lấy thông tin người dùng từ token
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+
+            // Lấy user và cart tương ứng
+            UserEntity user = userRepository.findOneByUsername(username)
+                    .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+            // tạo moi thong tin
+            ShippingAddressDTO shippingAddressDTO = new ShippingAddressDTO();
+            shippingAddressDTO.setUser(user.getId());
+            shippingAddressDTO.setReceiverName(receiver_name);
+            shippingAddressDTO.setReceiverPhone(receiver_phone);
+            shippingAddressDTO.setProvince(province);
+            shippingAddressDTO.setDistrict(district);
+            shippingAddressDTO.setWard(ward);
+            shippingAddressDTO.setAddressDetail(address_detail);
+            ShippingAddressEntity updateAddress = shippingAddressService.updateShippingAddress(user.getId(), id, shippingAddressDTO);
+            ShippingAddressResponse response = ShippingAddressResponse.fromEntity(updateAddress);
+
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", "Thêm địa chỉ thành công",
+                    "data", response
+            ));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", "failed",
+                    "message", e.getMessage()
+            ));
+        }
+    }
+    @DeleteMapping("/delete-shipping-address")
+    public ResponseEntity<?> deleteShippingAddress(@RequestParam("id") Long id){
+
+        try {
+            // Lấy thông tin người dùng từ token
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+
+            // Lấy user và cart tương ứng
+            UserEntity user = userRepository.findOneByUsername(username)
+                    .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+            shippingAddressService.deleteShippingAddress(user.getId(), id);
+//            ShippingAddressResponse response = ShippingAddressResponse.
+
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", "Xóa địa chỉ thành công"
+            ));
+
+
+        }catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "status", "failed",
                     "message", e.getMessage()

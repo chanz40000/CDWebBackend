@@ -16,14 +16,16 @@ public class ProductSizeColorRespone {
     private Long id;
     private String size;
     private String color;
+    private String image;
     private int stock;
 
     public static ProductSizeColorRespone fromEntity(ProductSizeColorEntity entity) {
         return ProductSizeColorRespone.builder()
                 .id(entity.getId())
                 .size(entity.getSize().getSize())
-                .color(entity.getColor().getName())
+                .color(entity.getProductColor().getColor().getName())
                 .stock(entity.getStock())
+                .image(entity.getProductColor().getImage())
                 .build();
     }
 }

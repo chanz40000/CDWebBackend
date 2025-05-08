@@ -13,4 +13,6 @@ public interface ShippingAddressRePository extends JpaRepository<ShippingAddress
     ShippingAddressEntity findByUserId(long userId);
     List<ShippingAddressEntity> findAllByUserId(Long userId);
     Optional<ShippingAddressEntity> findByUserIdAndIsDefaultTrue(Long userId);
+    Optional<ShippingAddressEntity> findByIdAndUserId(Long id, Long userId);
+
 }
