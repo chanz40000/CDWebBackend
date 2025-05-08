@@ -188,6 +188,37 @@ public class ProductService implements IProductService {
         return productRepository.save(productEntity);
     }
 
+    @Override
+    @Transactional
+    public ProductEntity updateProduct(ProductDTO productDTO, Long productId) throws DataNotFoundException {
+        ProductEntity productEntity = productRepository.findOneById(productId);
+        if (productEntity == null) {
+            throw new DataNotFoundException("Product not found with id: " + productId);
+        }
+
+        CategoryEntity category = categoryRepository.findOneById(Long.parseLong(productDTO.getCategoryCode()));
+        if (category == null) {
+            throw new DataNotFoundException("Category not found with code: " + productDTO.getCategoryCode());
+        }
+
+        BrandEntity brandEntity = brandRepository.findOneById(Long.parseLong(productDTO.getBrandCode()));
+        if (brandEntity == null) {
+            throw new DataNotFoundException("Brand not found with code: " + productDTO.getBrandCode());
+        }
+
+        // Cập nhật từng trường
+        productEntity.setNameProduct(productDTO.getNameProduct());
+        productEntity.setDescription(productDTO.getDescription());
+        productEntity.setStock(productDTO.getStock());
+        productEntity.setPrice(productDTO.getPrice());
+        productEntity.setCategory(category);
+        productEntity.setBrand(brandEntity);
+
+        // KHÔNG cập nhật hoặc clear các collection như productSizeColors nếu không cần thiết!
+
+        return productRepository.save(productEntity);
+    }
+
 
 
     @Override
@@ -209,5 +240,23 @@ public class ProductService implements IProductService {
     public ColorEntity getDefaultColor() {
         return null;
     }
+    @Override
+    public void deleteProduct(Long productId) throws DataNotFoundException {
+        ProductEntity productEntity = productRepository.findOneById(productId);
+        if (productEntity == null) {
+            throw new DataNotFoundException("Không tìm thấy sản phẩm với ID: " + productId);
+        }
+        productRepository.delete(productEntity);
+    }
+    @Override
+    public void deleteProductSizeColor(Long productSizeColorId) throws DataNotFoundException {
+        ProductSizeColorEntity productSizeColorEntity = productSizeColorRepository.findOneById(productSizeColorId);
+        if (productSizeColorEntity == null) {
+            throw new DataNotFoundException("Không tìm thấy sản phẩm với ID: " + productSizeColorId);
+        }
+        productSizeColorRepository.delete(productSizeColorEntity);
+    }
+
+
 
 }
