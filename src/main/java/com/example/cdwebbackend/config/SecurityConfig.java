@@ -333,6 +333,10 @@ public class SecurityConfig {
                                 apiPrefix + "/users/newPassword/**",
                                 apiPrefix + "/users/validateOtp",
                                 apiPrefix + "/products/getProduct/**",
+                                apiPrefix + "/products/getProductName/**",
+                                apiPrefix + "/products/getListColor/**",
+                                apiPrefix + "/products/getIdProductSizeColor/**",
+                                apiPrefix + "/products/getListSize/**",
                                 apiPrefix + "/products/list",
                                 apiPrefix + "/ghn/districts",
                                 apiPrefix + "/chat/send",
@@ -345,6 +349,8 @@ public class SecurityConfig {
                                 "/oauth2/authorization/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, apiPrefix + "/importOrder/**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.POST, apiPrefix + "/importOrder/insert").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.GET, apiPrefix + "/importOrder/list").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.POST, apiPrefix + "/orders").hasRole(RoleEntity.USER)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/orders").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
                         .requestMatchers(HttpMethod.DELETE, apiPrefix + "/orders").hasRole(RoleEntity.ADMIN)
@@ -357,10 +363,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, apiPrefix + "/oder_detail/**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.DELETE, apiPrefix + "/oder_detail/**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/oder_detail/**").hasRole(RoleEntity.ADMIN)
-                        .requestMatchers(apiPrefix + "/users/upload-avatar").hasRole(RoleEntity.USER)
+                        .requestMatchers(apiPrefix + "/users/upload-avatar").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
                         .requestMatchers(apiPrefix + "/products/upload-image").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/products/add").hasRole(RoleEntity.ADMIN)
-                        .requestMatchers(apiPrefix + "/users/details").hasRole(RoleEntity.USER)
+                        .requestMatchers(apiPrefix + "/users/details").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
                         .requestMatchers(apiPrefix + "/orders/prepare").hasRole(RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/orders/add-shipping-address").hasRole(RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/carts/**").hasRole(RoleEntity.USER)

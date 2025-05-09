@@ -70,6 +70,7 @@ public class ImportOrderService implements IImportOrderService {
             //lay ra sp trong db
             ProductSizeColorEntity productSizeColorEntity = productSizeColorRepository.findOneById(productImport.getProductId());
             //sua so luong
+
             productSizeColorEntity.setStock(productSizeColorEntity.getStock()+productImport.getQuantity());
             productSizeColorRepository.save(productSizeColorEntity);
 
@@ -77,7 +78,7 @@ public class ImportOrderService implements IImportOrderService {
             //lay ra san pham goc
             ProductEntity productEntity = productSizeColorEntity.getProduct();
             if (productEntity.getImport_price()!=productImport.getPrice()){
-                productEntity.setPrice(productImport.getPrice());
+                productEntity.setImport_price(productImport.getPrice());
                 productRepository.save(productEntity);
             }
 

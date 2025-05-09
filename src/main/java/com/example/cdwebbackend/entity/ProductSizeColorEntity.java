@@ -19,7 +19,7 @@ public class ProductSizeColorEntity extends BaseEntity{
     private ColorEntity color;
 
     @Column(name = "stock")
-    private int stock;
+    private Integer stock;
 
     public ProductSizeColorEntity() {
 
@@ -51,6 +51,7 @@ public class ProductSizeColorEntity extends BaseEntity{
     }
 
     public int getStock() {
+        if(stock==null)return 0;;
         return stock;
     }
 

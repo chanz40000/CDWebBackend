@@ -39,6 +39,8 @@ public class ImportOrderConverter {
             System.out.println("khong co user");
         }
 
+//        entity.setCreatedDate(dto.getCreatedDate());
+//        entity.setModifiedDate(dto.getModifiedDate());
         // Xử lý danh sách sản phẩm và số lượng
         if (dto.getProducts() != null) {
             List<ImportOrderProductEntity> importOrderProductEntities = new ArrayList<>();
@@ -68,6 +70,8 @@ public class ImportOrderConverter {
     // Convert từ ImportOrderEntity sang ImportOrderDTO
     public ImportOrderDTO toDTO(ImportOrderEntity entity) {
         ImportOrderDTO dto = new ImportOrderDTO();
+        dto.setCreatedDate(entity.getCreatedDate());
+        dto.setModifiedDate(entity.getModifiedDate());
 
         // Chuyển đổi danh sách ImportOrderProductEntity sang ProductQuantityDTO
         if (entity.getImportOrderProducts() != null) {
