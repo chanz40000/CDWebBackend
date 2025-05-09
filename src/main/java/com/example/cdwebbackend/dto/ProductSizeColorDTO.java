@@ -3,21 +3,22 @@ package com.example.cdwebbackend.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ProductSizeColorDTO extends AbstractDTO<ProductSizeColorDTO>{
+    @JsonProperty("productId")
     private Long productId;
-    @JsonProperty("sizeCode")
-    private Long sizeCode;
-    @JsonProperty("colorCode")
-    private Long colorCode;
+    @JsonProperty("sizeId")
+    private Long sizeId;
+    @JsonProperty("colorId")
+    private Long colorId;
     @JsonProperty("stock")
     private int stock; // Số lượng sản phẩm có size & color cụ thể
 
     public ProductSizeColorDTO() {
     }
 
-    public ProductSizeColorDTO(Long productId, Long sizeCode, Long colorCode, int stock) {
+    public ProductSizeColorDTO(Long productId, Long sizeId, Long colorId, int stock) {
         this.productId = productId;
-        this.sizeCode = sizeCode;
-        this.colorCode = colorCode;
+        this.sizeId = sizeId;
+        this.colorId = colorId;
         this.stock = stock;
     }
 
@@ -30,19 +31,19 @@ public class ProductSizeColorDTO extends AbstractDTO<ProductSizeColorDTO>{
     }
 
     public long getSizeCode() {
-        return sizeCode;
+        return sizeId;
     }
 
-    public void setSizeCode(Long sizeCode) {
-        this.sizeCode = sizeCode;
+    public void setSizeCode(Long sizeId) {
+        this.sizeId = sizeId;
     }
 
     public Long getColorCode() {
-        return colorCode;
+        return colorId;
     }
 
-    public void setColorCode(Long colorCode) {
-        this.colorCode = colorCode;
+    public void setColorCode(Long colorId) {
+        this.colorId = colorId;
     }
 
     public int getStock() {

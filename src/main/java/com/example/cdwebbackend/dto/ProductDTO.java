@@ -31,11 +31,34 @@ public class ProductDTO extends AbstractDTO<ProductDTO> {
     @JsonProperty("brand_id")
     private String brandCode;
 
-    @JsonProperty("image")
-    private String imageUrl;
+//    @JsonProperty("image")
+//    private String imageUrl;
 
     @JsonProperty("productSizeColorDTOS")
     private List<ProductSizeColorDTO> productSizeColorDTOS; // Chỉ lưu danh sách mã size thay vì đối tượng SizeEntity
+
+    @JsonProperty("productColorDTOs")
+    private List<ProductColorDTO> productColorDTOS;
+
+    @JsonProperty("image_urls")
+    private List<String> imageUrls;
+
+
+    public List<ProductColorDTO> getProductColorDTOS() {
+        return productColorDTOS;
+    }
+
+    public void setProductColorDTOS(List<ProductColorDTO> productColorDTOS) {
+        this.productColorDTOS = productColorDTOS;
+    }
+public List<String> getImageUrls() {
+    return imageUrls;
+}
+
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
+    }
+
 
     public int getImport_price() {
         return import_price;
@@ -45,13 +68,13 @@ public class ProductDTO extends AbstractDTO<ProductDTO> {
         this.import_price = import_price;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
+//    public String getImageUrl() {
+//        return imageUrl;
+//    }
+//
+//    public void setImageUrl(String imageUrl) {
+//        this.imageUrl = imageUrl;
+//    }
 
     public String getNameProduct() {
         return nameProduct;

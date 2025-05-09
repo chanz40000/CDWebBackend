@@ -1,5 +1,6 @@
 package com.example.cdwebbackend.converter;
 
+import com.example.cdwebbackend.dto.ProductColorDTO;
 import com.example.cdwebbackend.dto.ProductDTO;
 import com.example.cdwebbackend.dto.ProductSizeColorDTO;
 import com.example.cdwebbackend.entity.*;
@@ -24,6 +25,9 @@ public class ProductConverter {
     @Autowired
     private ColorRepository colorRepository;
 
+    @Autowired
+    private ProductColorRepository productColorRepository;
+
     public ProductEntity toEntity(ProductDTO dto) {
         ProductEntity entity = new ProductEntity();
         entity.setId(dto.getId());
@@ -31,7 +35,7 @@ public class ProductConverter {
         entity.setDescription(dto.getDescription());
         entity.setStock(dto.getStock());
         entity.setPrice(dto.getPrice());
-        entity.setImage(dto.getImageUrl());
+//        entity.setImage(dto.getImageUrl());
         entity.setImport_price(dto.getImport_price());
 
         // Lấy CategoryEntity từ DB thay vì tạo mới
@@ -65,12 +69,15 @@ public class ProductConverter {
         if (dtoList != null) {
             for (ProductSizeColorDTO item : dtoList) {
                 SizeEntity size = sizeRepository.findOneById(item.getSizeCode());
-                ColorEntity color = colorRepository.findOneById(item.getColorCode());
+//                ColorEntity color = colorRepository.findOneById(item.getColorCode());
 
                 ProductSizeColorEntity scEntity = new ProductSizeColorEntity();
+
+                if (item.getColorCode() != null) {
+                    scEntity.setProductColor(productColorRepository.findOneById(item.getColorCode()));
+                }
                 scEntity.setId(item.getId());
                 scEntity.setSize(size);
-                scEntity.setColor(color);
                 scEntity.setStock(item.getStock());
                 scEntity.setProduct(entity); // thiết lập quan hệ hai chiều nếu cần
 
@@ -79,7 +86,20 @@ public class ProductConverter {
             entity.setProductSizeColors(sizeColorEntities);
         }
 
-
+        List<ProductColorDTO> productColorDTOS = dto.getProductColorDTOS();
+        List<ProductColorEntity> productColorEntities = new ArrayList<>();
+        if (productColorDTOS != null) {
+            for (ProductColorDTO item : productColorDTOS) {
+                ColorEntity color = colorRepository.findOneById(item.getColorId());
+                ProductColorEntity productColorEntity = new ProductColorEntity();
+                productColorEntity.setId(item.getId());
+                productColorEntity.setProduct(entity);
+                productColorEntity.setColor(color);
+                productColorEntity.setImage(item.getImage());
+                productColorEntities.add(productColorEntity);
+            }
+            entity.setProductColors(productColorEntities);
+        }
         return entity;
     }
     public ProductDTO toDTO(ProductEntity entity) {
@@ -89,7 +109,7 @@ public class ProductConverter {
         dto.setDescription(entity.getDescription());
         dto.setStock(entity.getStock());
         dto.setPrice(entity.getPrice());
-        dto.setImageUrl(entity.getImage());
+//        dto.setImageUrl(entity.getImage());
 
         // Gán category và brand
         if (entity.getCategory() != null) {
@@ -107,14 +127,28 @@ public class ProductConverter {
                 ProductSizeColorDTO scDTO = new ProductSizeColorDTO();
                 scDTO.setId(scEntity.getId());
                 scDTO.setSizeCode(scEntity.getSize().getId());
-                scDTO.setColorCode(scEntity.getColor().getId());
+                scDTO.setColorCode(scEntity.getProductColor().getId());
                 scDTO.setStock(scEntity.getStock());
 
                 sizeColorDTOs.add(scDTO);
             }
         }
-
         dto.setProductSizeColorDTOS(sizeColorDTOs);
+
+        List<ProductColorDTO> productColorDTOS = new ArrayList<>();
+        if (entity.getProductColors() != null) {
+            for (ProductColorEntity productColorEntity : entity.getProductColors()) {
+                ProductColorDTO productColorDTO = new ProductColorDTO();
+                productColorDTO.setId(productColorEntity.getId());
+                productColorDTO.setProductId(productColorEntity.getProduct().getId());
+                productColorDTO.setColorId(productColorEntity.getColor().getId());
+                productColorDTO.setImage(productColorEntity.getImage());
+
+                productColorDTOS.add(productColorDTO);
+            }
+        }
+        dto.setProductColorDTOS(productColorDTOS);
+
 
         return dto;
     }

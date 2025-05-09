@@ -13,17 +13,40 @@ public class ProductSizeColorEntity extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "size_id")
     private SizeEntity size;
+//
+//    @ManyToOne
+//    @JoinColumn(name = "color_id")
+//    private ColorEntity color;
 
     @ManyToOne
-    @JoinColumn(name = "color_id")
-    private ColorEntity color;
+    @JoinColumn(name = "product_color_id")
+    private ProductColorEntity productColor;
+
 
     @Column(name = "stock")
     private Integer stock;
 
+
+
     public ProductSizeColorEntity() {
 
     }
+
+    public ProductSizeColorEntity(ProductEntity product, SizeEntity size, ProductColorEntity productColor, int stock) {
+        this.product = product;
+        this.size = size;
+        this.productColor = productColor;
+        this.stock = stock;
+    }
+
+    public ProductColorEntity getProductColor() {
+        return productColor;
+    }
+
+    public void setProductColor(ProductColorEntity productColor) {
+        this.productColor = productColor;
+    }
+
     // Getters, Setters
 
     public ProductEntity getProduct() {
@@ -42,13 +65,13 @@ public class ProductSizeColorEntity extends BaseEntity{
         this.size = size;
     }
 
-    public ColorEntity getColor() {
-        return color;
-    }
-
-    public void setColor(ColorEntity color) {
-        this.color = color;
-    }
+//    public ColorEntity getColor() {
+//        return color;
+//    }
+//
+//    public void setColor(ColorEntity color) {
+//        this.color = color;
+//    }
 
     public int getStock() {
         if(stock==null)return 0;;
@@ -59,12 +82,12 @@ public class ProductSizeColorEntity extends BaseEntity{
         this.stock = stock;
     }
 
-    public ProductSizeColorEntity(ProductEntity product, SizeEntity size, ColorEntity color, int stock) {
-        this.product = product;
-        this.size = size;
-        this.color = color;
-        this.stock = stock;
-    }
+//    public ProductSizeColorEntity(ProductEntity product, SizeEntity size, ColorEntity color, int stock) {
+//        this.product = product;
+//        this.size = size;
+//        this.color = color;
+//        this.stock = stock;
+//    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

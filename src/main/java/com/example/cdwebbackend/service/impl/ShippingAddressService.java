@@ -4,6 +4,7 @@ import com.example.cdwebbackend.converter.ShippingAddressConverter;
 import com.example.cdwebbackend.dto.ShippingAddressDTO;
 import com.example.cdwebbackend.entity.ShippingAddressEntity;
 import com.example.cdwebbackend.entity.UserEntity;
+import com.example.cdwebbackend.exceptions.DataNotFoundException;
 import com.example.cdwebbackend.repository.ShippingAddressRePository;
 import com.example.cdwebbackend.repository.UserRepository;
 import com.example.cdwebbackend.service.IShippingAddressService;
@@ -62,5 +63,28 @@ public class ShippingAddressService implements IShippingAddressService {
     public ShippingAddressEntity getSelectedAddress(Long userId) {
         return shippingAddressRePository.findByUserIdAndIsDefaultTrue(userId)
                 .orElse(null);
+    }
+
+    @Override
+    public ShippingAddressEntity updateShippingAddress(Long userId, Long addressId, ShippingAddressDTO shippingAddressDTO) throws DataNotFoundException {
+        ShippingAddressEntity shippingAddressEntity = shippingAddressRePository.findByIdAndUserId(addressId, userId)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy địa chỉ"));
+        shippingAddressEntity.setReceiverName(shippingAddressDTO.getReceiverName());
+        shippingAddressEntity.setReceiverPhone(shippingAddressDTO.getReceiverPhone());
+        shippingAddressEntity.setProvince(shippingAddressDTO.getProvince());
+        shippingAddressEntity.setDistrict(shippingAddressDTO.getDistrict());
+        shippingAddressEntity.setWard(shippingAddressDTO.getWard());
+        shippingAddressEntity.setAddressDetail(shippingAddressDTO.getAddressDetail());
+        ShippingAddressEntity newAddress = shippingAddressRePository.save(shippingAddressEntity);
+        chooseShippingAddress(userId, newAddress.getId());
+        return newAddress;
+    }
+
+    @Override
+    public void deleteShippingAddress(Long userId, Long addressId) throws DataNotFoundException {
+        ShippingAddressEntity addressEntity = shippingAddressRePository.findByIdAndUserId(addressId, userId)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy địa chỉ"));
+        shippingAddressRePository.delete(addressEntity);
+
     }
 }

@@ -11,5 +11,4 @@ public interface ProductSizeColorRepository extends JpaRepository<ProductSizeCol
     public ProductSizeColorEntity findOneById(long id);
     List<ProductSizeColorEntity> findByProduct_Id(Long productId);
     public ProductSizeColorEntity findByProductIdAndColorIdAndSizeId(long productId,long colorId,long sizeId);
-
 }
