@@ -2,6 +2,7 @@ package com.example.cdwebbackend.responses;
 
 import com.example.cdwebbackend.entity.RoleEntity;
 import com.example.cdwebbackend.entity.UserEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -39,7 +40,7 @@ public class UserResponse {
     private List<RoleEntity> roles = new ArrayList<>();
     @Column(name = "gender")
     String gender;
-    @Column(name = "birthday")
+    @Column(name = "birthday")@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy")
     LocalDate birthday;
     @Column(name = "avatar")
     String avatar;

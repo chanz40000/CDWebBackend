@@ -1,6 +1,11 @@
 package com.example.cdwebbackend.service.impl;
 
+import com.example.cdwebbackend.converter.ColorConverter;
 import com.example.cdwebbackend.converter.ProductConverter;
+
+import com.example.cdwebbackend.converter.SizeConverter;
+import com.example.cdwebbackend.dto.ProductDTO;
+import com.example.cdwebbackend.dto.SizeDTO;
 import com.example.cdwebbackend.dto.ColorDTO;
 import com.example.cdwebbackend.dto.ProductColorDTO;
 import com.example.cdwebbackend.dto.ProductDTO;
@@ -33,6 +38,12 @@ public class ProductService implements IProductService {
 
     @Autowired
     private ProductConverter productConverter;
+    @Autowired
+    ProductSizeColorRepository productSizeColorRepository;
+    @Autowired
+    ColorConverter colorConverter;
+    @Autowired
+    SizeConverter sizeConverter;
 
     @Autowired
     private ColorRepository colorRepository;
@@ -236,6 +247,39 @@ public class ProductService implements IProductService {
         return productConverter.toDTO(productEntity);
     }
 
+    public List<ProductDTO> getProductByName(String productName) {
+        List<ProductDTO>  products = new ArrayList<>();
+        List<ProductEntity> productEntities= productRepository.findAllByNameProductContainingIgnoreCase(productName);
+        for (ProductEntity p: productEntities){
+             products.add(productConverter.toDTO(p));
+        }
+        return products;
+    }
+    //lay ra tat ca mau sac ma san pham co
+    public List<ColorDTO>  getListColorByIdProduct(long idProduct){
+         List<ColorDTO>colorDTOS = new ArrayList<>();
+
+         List<ProductSizeColorEntity>productSizeColorEntities = productSizeColorRepository.findByProduct_Id(idProduct);
+         for (ProductSizeColorEntity p: productSizeColorEntities){
+             ColorEntity c = p.getColor();
+             colorDTOS.add(colorConverter.toDTO(c));
+         }
+         return colorDTOS;
+    }
+    public List<SizeDTO>  getListSizeByIdProduct(long idProduct){
+        List<SizeDTO>sizeDTOS = new ArrayList<>();
+
+        List<ProductSizeColorEntity>productSizeColorEntities = productSizeColorRepository.findByProduct_Id(idProduct);
+        for (ProductSizeColorEntity p: productSizeColorEntities){
+            SizeEntity s = p.getSize();
+            sizeDTOS.add(sizeConverter.toDTO(s));
+        }
+        return sizeDTOS;
+    }
+
+    public Long getProductSizeColorId(Long productId, Long colorId, Long sizeId) {
+        return productSizeColorRepository.findByProductIdAndColorIdAndSizeId(productId, colorId, sizeId).getId();
+    }
     @Override
     public ColorEntity getDefaultColor() {
         return null;
@@ -256,7 +300,5 @@ public class ProductService implements IProductService {
         }
         productSizeColorRepository.delete(productSizeColorEntity);
     }
-
-
 
 }

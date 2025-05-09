@@ -9,18 +9,17 @@ import com.example.cdwebbackend.repository.ImportOrderProductRepository;
 import com.example.cdwebbackend.repository.ImportOrderRepository;
 import com.example.cdwebbackend.repository.ProductRepository;
 import com.example.cdwebbackend.repository.ProductSizeColorRepository;
+import com.example.cdwebbackend.responses.ProductResponse;
 import com.example.cdwebbackend.service.impl.ImportOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +54,7 @@ public class ImportOrderController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @PostMapping("/delete")
     public ResponseEntity<?> deleteImportOrder(@RequestBody Map<String, Long> requestBody) {
         try {
@@ -102,6 +102,18 @@ public ResponseEntity<?> updateImportOrder(@Validated @RequestBody ImportOrderDT
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 }
+   @GetMapping("/list")
+    public ResponseEntity<?>getAllImportOrder(){
+       try {
+           // Giả sử productService.getAllProducts() trả về List<ProductDTO>
+           List<ImportOrderDTO> responseList = importOrderService.selectAll();
+           return ResponseEntity.ok(responseList);
+       } catch (Exception e) {
+           System.out.println("Lỗi: " + e.getMessage());
+           e.printStackTrace();
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+       }
+   }
 
 
 }
