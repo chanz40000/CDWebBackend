@@ -338,6 +338,7 @@ public class SecurityConfig {
                                 apiPrefix + "/products/getIdProductSizeColor/**",
                                 apiPrefix + "/products/getListSize/**",
                                 apiPrefix + "/products/list",
+                                apiPrefix + "/products/list_page",
                                 apiPrefix + "/ghn/districts",
                                 apiPrefix + "/chat/send",
                                 apiPrefix + "/payments/ipn",

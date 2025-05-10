@@ -29,6 +29,9 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -417,9 +420,9 @@ public class ProductController {
             List<ProductColorDTO> productColorDTOS = productColorEntities.stream()
                     .map(entity -> {
                         ProductColorDTO dto = new ProductColorDTO();
-                        ColorEntity color = colorRepository.findOneById(entity.getId());
+                        ColorEntity color = colorRepository.findOneById(entity.getColor().getId());
                         dto.setId(entity.getId());
-                        dto.setColorId(entity.getId());
+                        dto.setColorId(entity.getColor().getId());
                         dto.setProductId(productId);
                         dto.setImage(entity.getImage());
                         dto.setColor(color.getName());
@@ -488,6 +491,31 @@ public ResponseEntity<List<ProductResponse>> getAllProducts() {
         return ResponseEntity.ok(responseList);
     } catch (Exception e) {
         System.out.println("Lỗi: " + e.getMessage());
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+@GetMapping("/list_page")
+public ResponseEntity<Map<String, Object>> getAllProducts(
+        @RequestParam(name = "page", defaultValue = "0") int page,
+        @RequestParam(name = "size", defaultValue = "3") int size
+) {
+    try {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductDTO> productPage = productService.getAllProductsPaginated(pageable);
+
+        List<ProductResponse> responseList = productPage.getContent().stream()
+                .map(dto -> ProductResponse.fromEntity(productConverter.toEntity(dto)))
+                .collect(Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("products", responseList);
+        response.put("currentPage", productPage.getNumber());
+        response.put("totalItems", productPage.getTotalElements());
+        response.put("totalPages", productPage.getTotalPages());
+        response.put("pageSize", size);
+        return ResponseEntity.ok(response);
+    } catch (Exception e) {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
