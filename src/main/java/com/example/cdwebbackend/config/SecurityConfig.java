@@ -334,6 +334,7 @@ public class SecurityConfig {
                                 apiPrefix + "/users/validateOtp",
                                 apiPrefix + "/products/getProduct/**",
                                 apiPrefix + "/products/list",
+                                apiPrefix + "/products/list_page",
                                 apiPrefix + "/ghn/districts",
                                 apiPrefix + "/chat/send",
                                 apiPrefix + "/payments/ipn",

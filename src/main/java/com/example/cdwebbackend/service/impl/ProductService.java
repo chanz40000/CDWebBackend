@@ -13,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.DateTimeException;
 import java.util.*;
@@ -257,6 +260,10 @@ public class ProductService implements IProductService {
         productSizeColorRepository.delete(productSizeColorEntity);
     }
 
+    public Page<ProductDTO> getAllProductsPaginated(Pageable pageable) {
+        return productRepository.findAll(pageable)
+                .map(product -> productConverter.toDTO(product));
+    }
 
 
 }
