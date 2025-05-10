@@ -54,8 +54,6 @@ public class ProductService implements IProductService {
     @Autowired
     private ProductColorRepository productColorRepository;
 
-    @Autowired
-    private ProductSizeColorRepository productSizeColorRepository;
 
     @Override
     @Transactional
@@ -93,7 +91,7 @@ public class ProductService implements IProductService {
         if (existingEntity != null) {
             // Nếu đã tồn tại, trả về bản ghi đã có hoặc thông báo lỗi
             int totalStock = 0;
-            List<ProductSizeColorEntity> productSizeColorEntities = productSizeColorRepository.findByProductId(productId);
+            List<ProductSizeColorEntity> productSizeColorEntities = productSizeColorRepository.findByProduct_Id(productId);
             for (ProductSizeColorEntity entity : productSizeColorEntities) {
                 totalStock += entity.getStock();
             }
@@ -108,7 +106,7 @@ public class ProductService implements IProductService {
 
         // Kiểm tra tổng số stock hiện tại cho productId
         int totalStock = 0;
-        List<ProductSizeColorEntity> productSizeColorEntities = productSizeColorRepository.findByProductId(productId);
+        List<ProductSizeColorEntity> productSizeColorEntities = productSizeColorRepository.findByProduct_Id(productId);
         for (ProductSizeColorEntity entity : productSizeColorEntities) {
             totalStock += entity.getStock();
         }
@@ -261,7 +259,7 @@ public class ProductService implements IProductService {
 
          List<ProductSizeColorEntity>productSizeColorEntities = productSizeColorRepository.findByProduct_Id(idProduct);
          for (ProductSizeColorEntity p: productSizeColorEntities){
-             ColorEntity c = p.getColor();
+             ColorEntity c = p.getProductColor().getColor();
              colorDTOS.add(colorConverter.toDTO(c));
          }
          return colorDTOS;
@@ -278,7 +276,8 @@ public class ProductService implements IProductService {
     }
 
     public Long getProductSizeColorId(Long productId, Long colorId, Long sizeId) {
-        return productSizeColorRepository.findByProductIdAndColorIdAndSizeId(productId, colorId, sizeId).getId();
+        ProductColorEntity productColorEntity = productColorRepository.findByColorIdAndProductId(colorId, productId);
+        return productSizeColorRepository.findByProductIdAndSizeIdAndProductColorId(productId, sizeId, productColorEntity.getId()).getId();
     }
     @Override
     public ColorEntity getDefaultColor() {
