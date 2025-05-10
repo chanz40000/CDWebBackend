@@ -1,6 +1,11 @@
 package com.example.cdwebbackend.controller;
 
 import com.example.cdwebbackend.converter.ProductConverter;
+
+import com.example.cdwebbackend.dto.ColorDTO;
+import com.example.cdwebbackend.dto.ProductDTO;
+import com.example.cdwebbackend.dto.SizeDTO;
+import com.example.cdwebbackend.entity.ProductEntity;
 import com.example.cdwebbackend.dto.*;
 import com.example.cdwebbackend.entity.*;
 import com.example.cdwebbackend.exceptions.DataNotFoundException;
@@ -437,7 +442,7 @@ public class ProductController {
     ) {
         try {
             ProductEntity product = productRepository.findOneById(productId);
-            List<ProductSizeColorEntity> productSizeColorEntities = productSizeColorRepository.findByProductId(productId);
+            List<ProductSizeColorEntity> productSizeColorEntities = productSizeColorRepository.findByProduct_Id(productId);
 
             // Nếu không tìm thấy dữ liệu, trả về phản hồi với thông báo không tìm thấy
             if (productSizeColorEntities.isEmpty()) {
@@ -530,6 +535,69 @@ public ResponseEntity<Map<String, Object>> getAllProducts(
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while retrieving the product.");
+        }
+    }
+    @GetMapping("/getListColor/{productId}")
+    public ResponseEntity<?> getListColorByProductId(@PathVariable("productId") Long productId) {
+        try {
+            List<ColorDTO>response = productService.getListColorByIdProduct(productId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while retrieving the product.");
+        }
+    }
+    @GetMapping("/getListSize/{productId}")
+    public ResponseEntity<?> getListSizeByProductId(@PathVariable("productId") Long productId) {
+        try {
+            List<SizeDTO>response = productService.getListSizeByIdProduct(productId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while retrieving the product.");
+        }
+    }
+
+    @GetMapping("/getProductName/{productName}")
+    public ResponseEntity<?> getProductByName(@PathVariable("productName") String productName) {
+        try {
+            List<ProductDTO> productDTOs = productService.getProductByName(productName);
+            if (productDTOs.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No product found with id = " + productName);
+            }
+            List<ProductResponse> response =new ArrayList<>();
+            for (ProductDTO p: productDTOs){
+                response.add(ProductResponse.fromEntity(productConverter.toEntity(p)));
+            }
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while retrieving the product.");
+        }
+    }
+    //lay id cua product_color_size
+    @GetMapping("/getIdProductSizeColor")
+    public ResponseEntity<?> getProductSizeColorId(
+            @RequestParam("productId") Long productId,
+            @RequestParam("colorId") Long colorId,
+            @RequestParam("sizeId") Long sizeId
+    ) {
+        try {
+            Long productSizeColorId = productService.getProductSizeColorId(productId, colorId, sizeId);
+            if (productSizeColorId != null) {
+                return ResponseEntity.ok(productSizeColorId);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Không tìm thấy tổ hợp sản phẩm với màu và kích thước này.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi lấy ID tổ hợp sản phẩm: " + e.getMessage());
         }
     }
 

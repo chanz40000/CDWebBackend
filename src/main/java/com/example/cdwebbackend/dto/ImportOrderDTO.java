@@ -3,6 +3,9 @@ import java.util.Date;
 import java.util.List;
 
 public class ImportOrderDTO {
+    private Date createdDate;
+    private Date modifiedDate;
+    private String modifiedBy;
 
     private List<ImportOrderProductDTO> products; // Danh sách sản phẩm và số lượng
 
@@ -44,6 +47,35 @@ public class ImportOrderDTO {
         this.username = user;
     }
 
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public Date getModifiedDate() {
+        return modifiedDate;
+    }
+
+    public void setModifiedDate(Date modifiedDate) {
+        this.modifiedDate = modifiedDate;
+    }
+
+    public String getModifiedBy() {
+        return modifiedBy;
+    }
+
+    public void setModifiedBy(String modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     // DTO cho sản phẩm và số lượng
+
 
 }

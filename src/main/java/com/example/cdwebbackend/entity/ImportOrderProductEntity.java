@@ -12,8 +12,8 @@ public class ImportOrderProductEntity extends BaseEntity{
     private ImportOrderEntity importOrder;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private ProductEntity product;
+    @JoinColumn(name = "product_size_color_id", nullable = false)
+    private ProductSizeColorEntity productSizeColor;
 
     @Column(name = "quantity")
     private int quantity;
@@ -25,9 +25,9 @@ public class ImportOrderProductEntity extends BaseEntity{
     public ImportOrderProductEntity() {
     }
 
-    public ImportOrderProductEntity(ImportOrderEntity importOrder, ProductEntity product, int quantity, int price) {
+    public ImportOrderProductEntity(ImportOrderEntity importOrder, ProductSizeColorEntity product, int quantity, int price) {
         this.importOrder = importOrder;
-        this.product = product;
+        this.productSizeColor = product;
         this.quantity = quantity;
         this.price = price;
     }
@@ -48,12 +48,12 @@ public class ImportOrderProductEntity extends BaseEntity{
         this.importOrder = importOrder;
     }
 
-    public ProductEntity getProduct() {
-        return product;
+    public ProductSizeColorEntity getProduct() {
+        return productSizeColor;
     }
 
-    public void setProduct(ProductEntity product) {
-        this.product = product;
+    public void setProduct(ProductSizeColorEntity product) {
+        this.productSizeColor = product;
     }
 
     public int getQuantity() {

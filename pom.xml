@@ -190,7 +190,11 @@
             <artifactId>spring-boot-starter-validation</artifactId>
             <version>3.3.2</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.15.2</version> <!-- Thay bằng phiên bản phù hợp -->
+        </dependency>
 
     </dependencies>
     <build>
