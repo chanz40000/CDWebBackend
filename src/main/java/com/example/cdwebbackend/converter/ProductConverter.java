@@ -107,6 +107,7 @@ public class ProductConverter {
         dto.setId(entity.getId());
         dto.setNameProduct(entity.getNameProduct());
         dto.setDescription(entity.getDescription());
+        if(entity.getStock()==null)entity.setStock(0);
         dto.setStock(entity.getStock());
         dto.setPrice(entity.getPrice());
 //        dto.setImageUrl(entity.getImage());

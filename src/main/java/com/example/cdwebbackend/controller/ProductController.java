@@ -439,7 +439,7 @@ public class ProductController {
     ) {
         try {
             ProductEntity product = productRepository.findOneById(productId);
-            List<ProductSizeColorEntity> productSizeColorEntities = productSizeColorRepository.findByProductId(productId);
+            List<ProductSizeColorEntity> productSizeColorEntities = productSizeColorRepository.findByProduct_Id(productId);
 
             // Nếu không tìm thấy dữ liệu, trả về phản hồi với thông báo không tìm thấy
             if (productSizeColorEntities.isEmpty()) {

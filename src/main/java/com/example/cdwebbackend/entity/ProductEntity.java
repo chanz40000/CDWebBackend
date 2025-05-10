@@ -16,7 +16,7 @@ public class ProductEntity extends BaseEntity{
     @JoinColumn(name = "category_id") // Thêm khóa ngoại trong bảng Product
     private CategoryEntity category;
     @Column(name = "stock")
-    private int stock;
+    private Integer stock;
     @Column(name = "price")
     private int price;
 
@@ -108,7 +108,7 @@ public class ProductEntity extends BaseEntity{
         this.category = category;
     }
 
-    public int getStock() {
+    public Integer getStock() {
         return stock;
     }
 
