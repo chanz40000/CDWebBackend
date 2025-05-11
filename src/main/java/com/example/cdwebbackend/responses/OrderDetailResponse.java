@@ -15,11 +15,15 @@ public class OrderDetailResponse {
     private String color;
     private int priceUnit;
     private int subtotal;
+    private String image;
+    private String nameProduct;
 
     public static OrderDetailResponse fromEntity(OrderDetailEntity orderDetailEntity) {
         return OrderDetailResponse.builder()
                 .id(orderDetailEntity.getId())
                 .orderId(orderDetailEntity.getOrder().getId())
+                .image(orderDetailEntity.getProductSizeColor().getProductColor().getImage())
+                .nameProduct(orderDetailEntity.getProduct().getNameProduct())
                 .productId(orderDetailEntity.getProduct().getId())
                 .quantity(orderDetailEntity.getQuantity())
                 .size(orderDetailEntity.getProductSizeColor() != null ? orderDetailEntity.getProductSizeColor().getSize().getSize() : null)

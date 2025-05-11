@@ -1,10 +1,9 @@
 package com.example.cdwebbackend.dto;
 
-import com.example.cdwebbackend.entity.OrderDetailEntity;
-import com.example.cdwebbackend.entity.ShippingAddressEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
 
+import java.util.Date;
 import java.util.List;
 
 public class OrderDTO extends AbstractDTO<OrderDTO> {
@@ -53,9 +52,20 @@ public class OrderDTO extends AbstractDTO<OrderDTO> {
     @JsonProperty("orderDetailDTOs")
     private List<OrderDetailDTO> orderDetails;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
+    @JsonProperty("created")
+    private Date createDate;
 
     // Getters and Setters
 
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
 
     public String getReceiverName() {
         return receiverName;
