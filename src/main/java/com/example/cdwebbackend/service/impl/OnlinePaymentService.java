@@ -28,11 +28,21 @@ public class OnlinePaymentService implements IOnlinePaymentService {
 
     @Override
     public void updatePaymentStatus(String id, Long id_status) {
-        Optional<OrderEntity> order = orderRepository.findById(Long.parseLong(id));
-        OrderEntity order1 = order.get();
+        Optional<OrderEntity> optionalOrder = orderRepository.findById(Long.parseLong(id));
+        if (optionalOrder.isEmpty()) {
+            throw new RuntimeException("Order not found with id: " + id);
+        }
+
+        OrderEntity order = optionalOrder.get();
+
         StatusOrderEntity statusOrder = statusOrderRepository.findOneById(id_status);
-        order1.setStatusOrder(statusOrder);
-        orderRepository.save(order1);
+        if (statusOrder == null) {
+            throw new RuntimeException("StatusOrder not found with id: " + id_status);
+        }
+
+        order.setStatusOrder(statusOrder);
+        orderRepository.save(order);
     }
+
 }
 

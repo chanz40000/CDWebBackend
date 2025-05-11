@@ -1,10 +1,11 @@
 package com.example.cdwebbackend.responses;
 
 import com.example.cdwebbackend.entity.OrderEntity;
-import jakarta.persistence.criteria.Order;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,9 @@ public class OrderResponse {
     private List<OrderDetailResponse> orderDetails;
     private ShippingAddressResponse shippingAddresses;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
+    private Date created;
+
     public static OrderResponse fromEntity(OrderEntity entity) {
         List<OrderDetailResponse> orderDetailResponses = entity.getOrderDetails().stream()
                 .map(OrderDetailResponse::fromEntity)
@@ -39,8 +43,12 @@ public class OrderResponse {
 //        }
         return OrderResponse.builder()
                 .id(entity.getId())
+                .created(entity.getCreatedDate())
                 .userId(entity.getUser().getId())
                 .statusOrderId(entity.getStatusOrder().getId())
+                .totalPrice(entity.getTotalPrice())
+                .shippingFee(entity.getShippingFee())
+                .finalPrice(entity.getFinalPrice())
 //                .statusOrderStatus(entity.getStatusOrder().getName())
                 .paymentId(entity.getPayment().getId())
                 .orderDetails(orderDetailResponses)
