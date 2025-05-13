@@ -16,5 +16,6 @@ import java.util.Optional;
         //List<ImportOrderProductEntity> findByUser(UserEntity user); // Tìm các đơn nhập theo người dùng
         public Optional<ImportOrderProductEntity> findByImportOrderId(long id);
         public Optional<ImportOrderProductEntity> findOneByCreatedDate(Date createdDate);
+
     }
 
