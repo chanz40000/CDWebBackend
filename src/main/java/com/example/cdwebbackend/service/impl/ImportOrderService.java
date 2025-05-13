@@ -106,12 +106,21 @@ public class ImportOrderService implements IImportOrderService {
 
         List<ImportOrderProductEntity> products = importOrderProductRepository.findByImportOrderId(imported.getId()).stream().toList();
         //duyet qua tung sp
+//        for (ImportOrderProductEntity importOrderProductEntity: products){
+//            //lay ra sp trong db
+//            ProductSizeColorEntity productEntity = productSizeColorRepository.findOneById(importOrderProductEntity.getId());
+//            //sua so luong, tru so luong da nhap ra
+//            productEntity.setStock(productEntity.getStock()-importOrderProductEntity.getQuantity());
+//            productSizeColorRepository.save(productEntity);
+//        }
+
         for (ImportOrderProductEntity importOrderProductEntity: products){
             //lay ra sp trong db
-            ProductSizeColorEntity productEntity = productSizeColorRepository.findOneById(importOrderProductEntity.getId());
-            //sua so luong, tru so luong da nhap ra
-            productEntity.setStock(productEntity.getStock()-importOrderProductEntity.getQuantity());
-            productSizeColorRepository.save(productEntity);
+            ProductSizeColorEntity productSizeColorEntity = importOrderProductEntity.getProduct();
+            //sua so luong
+
+            productSizeColorEntity.setStock(productSizeColorEntity.getStock()-importOrderProductEntity.getQuantity());
+            productSizeColorRepository.save(productSizeColorEntity);
         }
         importOrderRepository.delete(importOrderEntity);
         return true;
@@ -125,11 +134,17 @@ public class ImportOrderService implements IImportOrderService {
         //duyet qua tung sp
         for (ImportOrderProductEntity importOrderProductEntity: products){
             //lay ra sp trong db
-            ProductSizeColorEntity productEntity = productSizeColorRepository.findOneById(importOrderProductEntity.getId());
-            //sua so luong, tru so luong da nhap ra
-            productEntity.setStock(productEntity.getStock()-importOrderProductEntity.getQuantity());
-            productSizeColorRepository.save(productEntity);
+            ProductSizeColorEntity productSizeColorEntity = importOrderProductEntity.getProduct();
+            //sua so luong
+
+            productSizeColorEntity.setStock(productSizeColorEntity.getStock()-importOrderProductEntity.getQuantity());
+            productSizeColorRepository.save(productSizeColorEntity);
         }
+        //xoa don hang trong bang importOrderProduct
+        for (ImportOrderProductEntity importOrderProductEntity: importOrderRepository.findOneById(id_import).get().getImportOrderProducts()){
+            importOrderProductRepository.delete(importOrderProductEntity);
+        }
+        //xoa don hang trong bang importOrder
         importOrderRepository.delete(this.selectById2(id_import));
         return true;
     }

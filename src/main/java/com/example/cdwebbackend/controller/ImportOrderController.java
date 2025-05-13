@@ -107,6 +107,7 @@ public ResponseEntity<?> updateImportOrder(@Validated @RequestBody ImportOrderDT
        try {
            // Giả sử productService.getAllProducts() trả về List<ProductDTO>
            List<ImportOrderDTO> responseList = importOrderService.selectAll();
+           System.out.println("Danh sách đơn nhập: " + responseList.toString());
            return ResponseEntity.ok(responseList);
        } catch (Exception e) {
            System.out.println("Lỗi: " + e.getMessage());

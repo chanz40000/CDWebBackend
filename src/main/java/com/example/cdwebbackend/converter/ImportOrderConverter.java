@@ -73,6 +73,8 @@ public class ImportOrderConverter {
         ImportOrderDTO dto = new ImportOrderDTO();
         dto.setCreatedDate(entity.getCreatedDate());
         dto.setModifiedDate(entity.getModifiedDate());
+        dto.setId(entity.getId());
+        dto.setImportPrice(entity.getImportPrice());
 
         // Chuyển đổi danh sách ImportOrderProductEntity sang ProductQuantityDTO
         if (entity.getImportOrderProducts() != null) {
