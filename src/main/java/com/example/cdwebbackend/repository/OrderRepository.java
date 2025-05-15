@@ -12,4 +12,7 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     OrderEntity findOneById(long id);
     List<OrderEntity> findAllByCreatedDate(Date createDate);
      List<OrderEntity> findAllByCreatedDateBetween(Date start,Date end);
+    List<OrderEntity> findByUserId(long userId);
+    OrderEntity findByUserIdAndId(long userId, long id);
+    List<OrderEntity> findByUserIdAndStatusOrderId(long userId, long status);
 }

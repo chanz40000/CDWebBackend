@@ -1,6 +1,7 @@
 package com.example.cdwebbackend.controller;
 
 import com.example.cdwebbackend.converter.CartItemConverter;
+import com.example.cdwebbackend.converter.OrderConverter;
 import com.example.cdwebbackend.converter.ShippingAddressConverter;
 import com.example.cdwebbackend.dto.*;
 import com.example.cdwebbackend.entity.*;
@@ -8,6 +9,7 @@ import com.example.cdwebbackend.exceptions.DataNotFoundException;
 import com.example.cdwebbackend.repository.*;
 import com.example.cdwebbackend.responses.*;
 import com.example.cdwebbackend.service.ICartItemService;
+import com.example.cdwebbackend.service.IOrderService;
 import com.example.cdwebbackend.service.IShippingAddressService;
 import com.example.cdwebbackend.service.impl.OrderService;
 import jakarta.transaction.Transactional;
@@ -22,12 +24,13 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("${api.prefix}/oders")
+@RequestMapping("${api.prefix}/orders")
 public class OrderController {
 
     @Autowired
@@ -62,6 +65,12 @@ public class OrderController {
     private CartItemRepository cartItemRepository;
     @Autowired
     OrderService orderService;
+
+    @Autowired
+    private IOrderService orderService;
+
+    @Autowired
+    private OrderConverter orderConverter;
 
 //    @Autowired
 //    priva
@@ -139,92 +148,7 @@ public class OrderController {
             );
         }
     }
-//    @Transactional
-//    @PostMapping("/add-order")
-//    public ResponseEntity<?> addOrder(
-//            @RequestParam("cartItemIds") List<Long> cartItemIds,
-//            @RequestParam("shippingAddressId") Long shippingAddressId,
-//            @RequestParam("paymentId") Long paymentId,
-//            @RequestParam("shippingFee") int shippingFee,
-//            @RequestParam("finalPrice") int finalPrice,
-//            @RequestParam("totalPrice") int totalPrice,
-//            @RequestParam("note") String note
-//    ){
-//        try{
-//            // Lấy user từ authentication context
-//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//            String username = authentication.getName();
-//            UserEntity user = userRepository.findOneByUsername(username)
-//                    .orElseThrow(() -> new DataNotFoundException("User not found"));
-//
-//
-//            // Lấy địa chỉ giao hàng từ shippingAddressId
-//            ShippingAddressEntity shippingAddress = shippingAddressRePository.findById(shippingAddressId)
-//                    .orElseThrow(() -> new DataNotFoundException("Địa chỉ giao hàng không hợp lệ"));
-//            OrderEntity order = new OrderEntity();
-//            order.setUser(user);
-//            order.setShippingAddress(shippingAddress);
-//            order.setShippingFee(shippingFee);
-//            order.setFinalPrice(finalPrice);
-//            order.setTotalPrice(totalPrice);
-//            order.setNote(note);
-//            // (Trạng thái chờ xác nhận)
-//            StatusOrderEntity statusOrder = statusOrderRepository.findById(1L)
-//                    .orElseThrow(() -> new DataNotFoundException("Trạng thái đơn hàng không hợp lệ"));
-//            order.setStatusOrder(statusOrder);
-//
-//            // Thanh toán khi nhận)
-////            PaymentEntity payment = paymentRepository.findById(1L)
-//            PaymentEntity payment = paymentRepository.findById(paymentId)
-//                    .orElseThrow(() -> new DataNotFoundException("Phương thức thanh toán không hợp lệ"));
-//            order.setPayment(payment);
-//
-//            order = orderRepository.save(order);
-//
-//            // Lưu OrderDetail
-//            List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
-//            for (Long cartItemId: cartItemIds){
-//                CartItemEntity cartItem = cartItemRepository.findByIdAndUserId(cartItemId, user.getId());
-//
-//                if (cartItem == null) {
-//                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-//                            "status", "failed",
-//                            "message", "Cart item ID " + cartItemId + " không tồn tại hoặc không thuộc về user"
-//                    ));
-//                }
-//
-//                OrderDetailEntity orderDetail = new OrderDetailEntity();
-//                orderDetail.setOrder(order);
-//                orderDetail.setProduct(cartItem.getProduct());
-//                orderDetail.setQuantity(cartItem.getQuantity());
-//                orderDetail.setProductSizeColor(cartItem.getProductSizeColor());
-//                orderDetail.setPriceUnit(cartItem.getProductSizeColor().getProduct().getPrice());
-//                orderDetail.setSubtotal(cartItem.getQuantity() * cartItem.getProductSizeColor().getProduct().getPrice());
-//                orderDetailEntities.add(orderDetail);
-//            }
-//            order.setOrderDetails(orderDetailEntities);
-//            orderRepository.save(order);
-//
-//            // Xóa cartItem đã mua
-//            cartItemRepository.deleteByIdInAndUserId(cartItemIds, user.getId());
-//
-//            // Convert sang OrderResponse
-//            OrderResponse orderResponse = OrderResponse.fromEntity(order);
-//
-//            return ResponseEntity.ok(Map.of(
-//                    "status", "success",
-//                    "message", "Đơn hàng đã được tạo thành công",
-//                    "data", orderResponse
-//            ));
-//
-//        }catch (Exception e){
-//            e.printStackTrace();
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-//                    "status", "failed",
-//                    "message", e.getMessage()
-//            ));
-//        }
-//    }
+
 @Transactional
 @PostMapping("/add-order")
 public ResponseEntity<?> addOrder(
@@ -362,30 +286,101 @@ public ResponseEntity<?> addOrder(
         ));
     }
 }
-//
-//    @GetMapping
-//    public ResponseEntity<?> getOrderById(@RequestParam("id") Long orderId) {
-//
-//        try{
-//
-//            // Lấy thông tin người dùng từ SecurityContext
-//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//            String username = authentication.getName();
-//
-//            // Tìm user theo username
-//            UserEntity user = userRepository.findOneByUsername(username)
-//                    .orElseThrow(() -> new DataNotFoundException("User not found"));
-//
-//            OrderDTO orderDTO = o
-//
-//
-//        }catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//
-//    }
+    @GetMapping("/getOrder")
+    public ResponseEntity<?> getOrderByUserId(
+            @RequestParam("orderId") Long orderId
+    ) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
 
+            UserEntity user = userRepository.findOneByUsername(username)
+                    .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+
+            OrderDTO orderDTOS = orderService.getOrdersByIdAndUserId(user.getId(), orderId);
+
+            OrderResponse response = OrderResponse.fromEntity(orderConverter.toEntity(orderDTOS));
+
+
+
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", response
+            ));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+    @GetMapping("/getOrder_byUser")
+    public ResponseEntity<?> getOrderByUserId() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+
+
+            UserEntity user = userRepository.findOneByUsername(username)
+                    .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+            List<OrderDTO> orderDTOS = orderService.getAllOrdersByUserId(user.getId());
+
+            // In ra từng OrderDTO
+            for (OrderDTO dto : orderDTOS) {
+                System.out.println("OrderDTO: " + dto);
+            }
+
+            List<OrderResponse> responses = orderDTOS.stream()
+                    .map(orderDTO -> OrderResponse.fromEntity(orderConverter.toEntity(orderDTO)))
+                    .collect(Collectors.toList());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("orders", responses);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/getOrder/status")
+    public ResponseEntity<?> getOrderByStatus(
+            @RequestParam("statusId") Long statusId
+    ) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+
+
+            UserEntity user = userRepository.findOneByUsername(username)
+                    .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+            List<OrderDTO> orderDTOS = orderService.getOrdersByUserIdAndStatusId(user.getId(),statusId);
+
+            // In ra từng OrderDTO
+            for (OrderDTO dto : orderDTOS) {
+                System.out.println("OrderDTO: " + dto);
+            }
+
+            List<OrderResponse> responses = orderDTOS.stream()
+                    .map(orderDTO -> OrderResponse.fromEntity(orderConverter.toEntity(orderDTO)))
+                    .collect(Collectors.toList());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("orders", responses);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @PostMapping("/add-shipping-address")
     public ResponseEntity<?> addShippingAddress(@RequestParam("receiver_name") String receiver_name,
@@ -665,6 +660,26 @@ public ResponseEntity<?> addOrder(
 
 
 
+
+    @GetMapping("/getStatus")
+    public ResponseEntity<List<StatusOrderDTO>> getStatus() {
+        try {
+        List<StatusOrderEntity> statusOrderEntities = statusOrderRepository.findAll();
+
+        List<StatusOrderDTO> statusOrderDTOS = statusOrderEntities.stream()
+                .map(entity ->{
+                    StatusOrderDTO statusOrderDTO = new StatusOrderDTO();
+                    statusOrderDTO.setId(entity.getId());
+                    statusOrderDTO.setName(entity.getName());
+                    return statusOrderDTO;
+                })
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(statusOrderDTOS);
+    } catch (Exception e){
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+    }
 
 
 

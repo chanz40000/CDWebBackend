@@ -223,11 +223,11 @@ public ResponseEntity<ResponseObject> handleVnPayIpn(HttpServletRequest request)
             logger.info("Updated payment status to {} and order status to {} for txnRef: {}", paymentStatus, orderStatus, txnRef);
 
             if ("00".equals(vnp_ResponseCode)) {
-                onlinePaymentService.updatePaymentStatus(id_order, 11L);
+                onlinePaymentService.updatePaymentStatus(id_order, 1L);
 
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(new ResponseObject("00", "Transaction successful", null));
+                        .body(new ResponseObject("00", "Transaction successful", Map.of("id", id_order)));
             } else {
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)

@@ -338,6 +338,7 @@ public class SecurityConfig {
                                 apiPrefix + "/products/getIdProductSizeColor/**",
                                 apiPrefix + "/products/getListSize/**",
                                 apiPrefix + "/products/list",
+                                apiPrefix + "/products/list_page",
                                 apiPrefix + "/ghn/districts",
                                 apiPrefix + "/chat/send",
                                 apiPrefix + "/payments/ipn",
@@ -374,6 +375,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, apiPrefix + "/v1/categories/**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/categories/**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/oder_detail/**").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/getOrder_byUser").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/getOrder/**").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/getStatus").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/getOrder/status/**").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.POST, apiPrefix + "/oder_detail/**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.DELETE, apiPrefix + "/oder_detail/**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/oder_detail/**").hasRole(RoleEntity.ADMIN)

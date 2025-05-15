@@ -46,6 +46,7 @@ public class OrderConverter {
     public OrderEntity toEntity(OrderDTO dto) {
         OrderEntity entity = new OrderEntity();
         entity.setId(dto.getId());
+        entity.setCreatedDate(dto.getCreateDate());
         entity.setTotalPrice(dto.getTotalPrice());
         entity.setFinalPrice(dto.getFinalPrice());
         entity.setNote(dto.getNote());
@@ -66,9 +67,16 @@ public class OrderConverter {
         }
 
         if (dto.getUserId() != null) {
-            UserEntity userEntity = userRepository.findById(dto.getUserId()).get();
+            UserEntity userEntity = userRepository.findById(dto.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
             entity.setUser(userEntity);
+
         }
+
+//        if (entity.getUser() != null) {
+//            dto.setUserId(entity.getUser().getId());
+//        }
+
 
         List<OrderDetailDTO> orderDetailDTOList = dto.getOrderDetails();
         List<OrderDetailEntity> orderDetailEntityList = new ArrayList<>();
@@ -86,6 +94,7 @@ public class OrderConverter {
         OrderDTO dto = new OrderDTO();
         dto.setId(entity.getId());
         dto.setTotalPrice(entity.getTotalPrice());
+        dto.setCreateDate(entity.getCreatedDate());
         dto.setFinalPrice(entity.getFinalPrice());
         dto.setNote(entity.getNote());
         dto.setReceiverName(entity.getReceiverName());
@@ -99,6 +108,10 @@ public class OrderConverter {
         }
         if (entity.getStatusOrder() != null) {
             dto.setStatusOrder(entity.getStatusOrder().getId());
+        }
+
+        if (entity.getUser() != null) {
+            dto.setUserId(entity.getUser().getId());
         }
         List<OrderDetailDTO> orderDetailDTOList = new ArrayList<>();
         List<OrderDetailEntity> orderDetailEntityList = entity.getOrderDetails();
