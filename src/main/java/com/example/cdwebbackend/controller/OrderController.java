@@ -11,15 +11,19 @@ import com.example.cdwebbackend.responses.*;
 import com.example.cdwebbackend.service.ICartItemService;
 import com.example.cdwebbackend.service.IOrderService;
 import com.example.cdwebbackend.service.IShippingAddressService;
+import com.example.cdwebbackend.service.impl.OrderService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +63,8 @@ public class OrderController {
 
     @Autowired
     private CartItemRepository cartItemRepository;
+    @Autowired
+    OrderService orderService;
 
     @Autowired
     private IOrderService orderService;
@@ -593,6 +599,68 @@ public ResponseEntity<?> addOrder(
         }
     }
 
+    //lay ra doan thu theo ngay
+    @GetMapping("/total-revenue-by-day")
+    public ResponseEntity<?> totalRevenueByDay(
+            @RequestParam("date")
+            @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
+        double totalRevenue = orderService.totalRevenueByDay(date);
+        return ResponseEntity.ok(totalRevenue);
+    }
+    //lay ra doanh thu giua 2 ngay
+    @GetMapping("/total-revenue-by-date-between")
+    public ResponseEntity<?> totalRevenueByDateBetween(
+            @RequestParam("start-date")
+            @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate, @RequestParam("end-date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+        double totalRevenue = orderService.totalRevenueByDateBetween(startDate, endDate);
+        return ResponseEntity.ok(totalRevenue);
+    }
+    //lay ra doanh thu theo thang
+    @GetMapping("/total-revenue-by-month")
+    public ResponseEntity<?> totalRevenueByMonth(
+            @RequestParam("month") int month,
+            @RequestParam("year") int year) {
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+
+        Date startDate = java.sql.Date.valueOf(start);
+        Date endDate = java.sql.Date.valueOf(end);
+
+        double totalRevenue = orderService.totalRevenueByMonth(startDate, endDate);
+        return ResponseEntity.ok(totalRevenue);
+    }
+    //lay doanh thu theo nam
+    @GetMapping("/total-revenue-by-year")
+    public ResponseEntity<?> totalRevenueByYear(@RequestParam("year") int year) {
+        double totalRevenue = orderService.totalRevenueByYear(year);
+        return ResponseEntity.ok(totalRevenue);
+    }
+
+    @GetMapping("/list-total-revenue-by-year")
+    public ResponseEntity<?> listTotalRevenueByYear(@RequestParam("year") int year) {
+        List<Double> totalRevenue = orderService.listTotalRevenueByYear(year);
+        return ResponseEntity.ok(totalRevenue);
+    }
+
+    @GetMapping("/daily-revenue-between")
+    public ResponseEntity<?> tongDoanhThuTheoKhoangNgay(
+            @RequestParam("start-date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
+            @RequestParam("end-date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate) {
+
+        Map<Date, Double> dailyRevenueBetween = orderService.totalRevenueByDateRange(startDate, endDate);
+        return ResponseEntity.ok(dailyRevenueBetween);
+    }
+    @GetMapping("/top-10-best-selling-products")
+    public ResponseEntity<List<BestSellingProductDTO>> getTop10BestSellingProducts() {
+        List<BestSellingProductDTO> topProducts = orderService.getTop10BestSellingProducts();
+        return ResponseEntity.ok(topProducts);
+    }
+
+
+
+
+
     @GetMapping("/getStatus")
     public ResponseEntity<List<StatusOrderDTO>> getStatus() {
         try {
@@ -612,6 +680,7 @@ public ResponseEntity<?> addOrder(
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
     }
+
 
 
 
