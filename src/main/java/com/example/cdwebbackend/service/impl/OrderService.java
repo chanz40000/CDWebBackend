@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class OrderService {
+public class OrderService implements IOrderService{
     @Autowired
     OrderRepository orderRepository;
     @Autowired
@@ -136,17 +136,8 @@ public class OrderService {
                 ))
                 .collect(Collectors.toList());
     }
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
-@Service
-@RequiredArgsConstructor
-public class OrderService implements IOrderService {
-
-    @Autowired
-    private OrderRepository orderRepository;
 
     @Autowired
     private OrderConverter orderConverter;

@@ -66,8 +66,8 @@ public class OrderController {
     @Autowired
     OrderService orderService;
 
-    @Autowired
-    private IOrderService orderService;
+//    @Autowired
+//    private IOrderService orderService;
 
     @Autowired
     private OrderConverter orderConverter;
