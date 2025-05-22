@@ -543,7 +543,7 @@ public ResponseEntity<Map<String, Object>> getAllProducts(
             List<ColorDTO>response = productService.getListColorByIdProduct(productId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace();git
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while retrieving the product.");
         }
@@ -552,6 +552,7 @@ public ResponseEntity<Map<String, Object>> getAllProducts(
     public ResponseEntity<?> getListSizeByProductId(@PathVariable("productId") Long productId) {
         try {
             List<SizeDTO>response = productService.getListSizeByIdProduct(productId);
+            System.out.println(response);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
