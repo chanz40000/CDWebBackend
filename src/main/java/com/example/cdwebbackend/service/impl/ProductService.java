@@ -257,26 +257,54 @@ public class ProductService implements IProductService {
         return products;
     }
     //lay ra tat ca mau sac ma san pham co
-    public List<ColorDTO>  getListColorByIdProduct(long idProduct){
-         List<ColorDTO>colorDTOS = new ArrayList<>();
+//    public List<ColorDTO>  getListColorByIdProduct(long idProduct){
+//         List<ColorDTO>colorDTOS = new ArrayList<>();
+//
+//         List<ProductSizeColorEntity>productSizeColorEntities = productSizeColorRepository.findByProduct_Id(idProduct);
+//         for (ProductSizeColorEntity p: productSizeColorEntities){
+//             ColorEntity c = p.getProductColor().getColor();
+//             colorDTOS.add(colorConverter.toDTO(c));
+//         }
+//         return colorDTOS;
+//    }
+    public List<ColorDTO> getListColorByIdProduct(long idProduct) {
+        List<ColorDTO> colorDTOS = new ArrayList<>();
+        Set<Long> uniqueColorIds = new HashSet<>(); // Theo dõi ID màu duy nhất
 
-         List<ProductSizeColorEntity>productSizeColorEntities = productSizeColorRepository.findByProduct_Id(idProduct);
-         for (ProductSizeColorEntity p: productSizeColorEntities){
-             ColorEntity c = p.getProductColor().getColor();
-             colorDTOS.add(colorConverter.toDTO(c));
-         }
-         return colorDTOS;
+        List<ProductSizeColorEntity> productSizeColorEntities = productSizeColorRepository.findByProduct_Id(idProduct);
+        for (ProductSizeColorEntity p : productSizeColorEntities) {
+            ColorEntity c = p.getProductColor().getColor();
+            // Chỉ thêm nếu ID màu chưa được xử lý
+            if (c != null && uniqueColorIds.add(c.getId())) {
+                colorDTOS.add(colorConverter.toDTO(c));
+            }
+        }
+        return colorDTOS;
     }
-    public List<SizeDTO>  getListSizeByIdProduct(long idProduct){
-        List<SizeDTO>sizeDTOS = new ArrayList<>();
+//    public List<SizeDTO>  getListSizeByIdProduct(long idProduct){
+//        List<SizeDTO>sizeDTOS = new ArrayList<>();
+//
+//        List<ProductSizeColorEntity>productSizeColorEntities = productSizeColorRepository.findByProduct_Id(idProduct);
+//        for (ProductSizeColorEntity p: productSizeColorEntities){
+//            SizeEntity s = p.getSize();
+//            sizeDTOS.add(sizeConverter.toDTO(s));
+//        }
+//        return sizeDTOS;
+//    }
+public List<SizeDTO> getListSizeByIdProduct(long idProduct) {
+    List<SizeDTO> sizeDTOS = new ArrayList<>();
+    Set<Long> uniqueSizeIds = new HashSet<>(); // Track unique size IDs
 
-        List<ProductSizeColorEntity>productSizeColorEntities = productSizeColorRepository.findByProduct_Id(idProduct);
-        for (ProductSizeColorEntity p: productSizeColorEntities){
-            SizeEntity s = p.getSize();
+    List<ProductSizeColorEntity> productSizeColorEntities = productSizeColorRepository.findByProduct_Id(idProduct);
+    for (ProductSizeColorEntity p : productSizeColorEntities) {
+        SizeEntity s = p.getSize();
+        // Only add if the size ID hasn't been processed
+        if (s != null && uniqueSizeIds.add(s.getId())) {
             sizeDTOS.add(sizeConverter.toDTO(s));
         }
-        return sizeDTOS;
     }
+    return sizeDTOS;
+}
 
     public Long getProductSizeColorId(Long productId, Long colorId, Long sizeId) {
         ProductColorEntity productColorEntity = productColorRepository.findByColorIdAndProductId(colorId, productId);
