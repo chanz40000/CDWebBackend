@@ -601,5 +601,43 @@ public ResponseEntity<Map<String, Object>> getAllProducts(
         }
     }
 
+    @GetMapping("/getProductSizeColor/{id}")
+    public ResponseEntity<?> getProductSizeColorById(@PathVariable("id") Long id) {
+        try {
+            ProductSizeColorEntity productSizeColor = productSizeColorRepository.findById(id)
+                    .orElseThrow(() -> new DataNotFoundException("Không tìm thấy ProductSizeColor với ID: " + id));
+
+            // Tạo DTO để trả về
+            ProductSizeColorDTO dto = new ProductSizeColorDTO();
+            dto.setId(productSizeColor.getId());
+            dto.setProductId(productSizeColor.getProduct().getId());
+            dto.setColorCode(productSizeColor.getSize().getId());
+            dto.setSizeCode(productSizeColor.getSize().getId());
+
+            return ResponseEntity.ok(dto);
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi khi lấy chi tiết ProductSizeColor: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/getNameSizeColor/{id-product-size-color}")
+    public ResponseEntity<?>getNameSizeColor(@PathVariable("id-product-size-color") Long idProductSizeColor){
+        try {
+            Map<String, String>size_color = productSizeColorRepository.findSizeAndColorNamesById(idProductSizeColor).get();
+            System.out.println("colorName"+size_color.get("colorName"));
+            System.out.println("sizeName"+size_color.get("sizeName"));
+            return ResponseEntity.ok(size_color);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        }
+
+    }
+
 
 }

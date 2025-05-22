@@ -1,9 +1,9 @@
 package com.example.cdwebbackend.dto;
 
-public class ImportOrderProductDTO {
+public class ImportOrderProductDTO extends AbstractDTO<ImportOrderProductDTO>{
 
         private Long importOrderId;  // ID của ImportOrderEntity
-        private Long product_size_colorId;     // ID của ProductEntity
+        private Long product_size_colorId;     //
         private int quantity;       // Số lượng của sản phẩm
         private int price;
 

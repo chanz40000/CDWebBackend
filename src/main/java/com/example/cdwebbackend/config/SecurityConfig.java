@@ -350,6 +350,7 @@ public class SecurityConfig {
                                 apiPrefix + "/products/getColor/**",
                                 apiPrefix + "/products/getColorProduct/**",
                                 apiPrefix + "/products/getProductSizeColor/**",
+                                apiPrefix + "/products/getNameSizeColor/**",
                                 "/oauth2/**",
                                 "/login/oauth2/**",
                                 "/auth/social-login",
@@ -359,6 +360,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, apiPrefix + "/importOrder/**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.POST, apiPrefix + "/importOrder/insert").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/importOrder/list").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.GET, apiPrefix + "/importOrder/get-import-order/**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.POST, apiPrefix + "/importOrder/update").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.POST, apiPrefix + "/orders").hasRole(RoleEntity.USER)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/total-revenue-by_day").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/total-revenue-by_date_between").hasRole(RoleEntity.ADMIN)
@@ -386,6 +389,8 @@ public class SecurityConfig {
                         .requestMatchers(apiPrefix + "/products/upload-image").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
 
                         .requestMatchers(apiPrefix + "/products/add").hasRole(RoleEntity.ADMIN)
+                        //.requestMatchers(apiPrefix + "/products/getNameSizeColor/**").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
+
                         .requestMatchers(apiPrefix + "/users/details").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
 
                         .requestMatchers(apiPrefix + "/orders/prepare").hasRole(RoleEntity.USER)

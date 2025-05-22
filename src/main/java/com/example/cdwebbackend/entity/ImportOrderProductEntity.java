@@ -32,6 +32,14 @@ public class ImportOrderProductEntity extends BaseEntity{
         this.price = price;
     }
 
+    public ProductSizeColorEntity getProductSizeColor() {
+        return productSizeColor;
+    }
+
+    public void setProductSizeColor(ProductSizeColorEntity productSizeColor) {
+        this.productSizeColor = productSizeColor;
+    }
+
     public int getPrice() {
         return price;
     }

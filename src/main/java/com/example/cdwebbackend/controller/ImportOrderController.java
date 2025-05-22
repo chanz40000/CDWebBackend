@@ -5,13 +5,16 @@ import com.example.cdwebbackend.dto.ImportOrderProductDTO;
 import com.example.cdwebbackend.dto.ProductDTO;
 import com.example.cdwebbackend.dto.UserDTO;
 import com.example.cdwebbackend.entity.*;
+import com.example.cdwebbackend.exceptions.DataNotFoundException;
 import com.example.cdwebbackend.repository.ImportOrderProductRepository;
 import com.example.cdwebbackend.repository.ImportOrderRepository;
 import com.example.cdwebbackend.repository.ProductRepository;
 import com.example.cdwebbackend.repository.ProductSizeColorRepository;
 import com.example.cdwebbackend.responses.ProductResponse;
+import com.example.cdwebbackend.responses.UserResponse;
 import com.example.cdwebbackend.service.impl.ImportOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -33,6 +36,23 @@ public class ImportOrderController {
     @Autowired
     ImportOrderService importOrderService;
 
+
+    @GetMapping("/get-import-order/{import-order-id}")
+    public ResponseEntity<?> updateUserDetails(
+            @PathVariable("import-order-id") int importOrderId,
+            @RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            ImportOrderDTO importOrderDTO = importOrderService.selectById(importOrderId);
+            return ResponseEntity.ok(importOrderDTO);
+
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Đã xảy ra lỗi hệ thống: " + e.getMessage());
+        }
+    }
 
     @PostMapping("/insert")
     public ResponseEntity<?> createImportOrder(@Validated @RequestBody ImportOrderDTO importOrderDTO , BindingResult result){
