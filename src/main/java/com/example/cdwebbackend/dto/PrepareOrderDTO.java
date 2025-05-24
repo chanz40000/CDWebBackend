@@ -19,6 +19,51 @@ public class PrepareOrderDTO extends AbstractDTO<PrepareOrderDTO> {
     @JsonProperty("cart_items_choose")
     private List<CartItemResponse> cartItems;
 
+    @JsonProperty("discount_value")
+    private int discountVallue;
+
+    @JsonProperty("shipping_fee")
+    private int shippingFee;
+
+    @JsonProperty("final_price")
+    private int finalPrice;
+
+    @JsonProperty("coupon_code")
+    private String couponCode;
+
+
+    public int getDiscountVallue() {
+        return discountVallue;
+    }
+
+    public void setDiscountVallue(int discountVallue) {
+        this.discountVallue = discountVallue;
+    }
+
+    public int getShippingFee() {
+        return shippingFee;
+    }
+
+    public void setShippingFee(int shippingFee) {
+        this.shippingFee = shippingFee;
+    }
+
+    public int getFinalPrice() {
+        return finalPrice;
+    }
+
+    public void setFinalPrice(int finalPrice) {
+        this.finalPrice = finalPrice;
+    }
+
+    public String getCouponCode() {
+        return couponCode;
+    }
+
+    public void setCouponCode(String couponCode) {
+        this.couponCode = couponCode;
+    }
+
     public int getTotalQuantity() {
         return totalQuantity;
     }
