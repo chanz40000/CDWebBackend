@@ -2,6 +2,7 @@ package com.example.cdwebbackend.service;
 
 import com.example.cdwebbackend.dto.UserDTO;
 import com.example.cdwebbackend.dto.UserLoginDTO;
+import com.example.cdwebbackend.dto.UserUpdateDTO;
 import com.example.cdwebbackend.entity.UserEntity;
 import com.example.cdwebbackend.exceptions.DataNotFoundException;
 import org.springframework.boot.context.config.ConfigDataNotFoundException;
@@ -38,7 +39,7 @@ public interface IUserService {
     UserEntity updatePassword(String newPassword, String email) throws DataNotFoundException;
 
     @Transactional
-    UserEntity updateUser(UserDTO userDTO, long userId) throws DataNotFoundException;
+    UserEntity updateUser(UserUpdateDTO userDTO, long userId) throws DataNotFoundException;
     public UserEntity updateAvatar(long userId, String imageUrl) throws DataNotFoundException;
 
 }

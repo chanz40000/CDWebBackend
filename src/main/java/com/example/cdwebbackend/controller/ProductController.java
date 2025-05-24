@@ -543,7 +543,7 @@ public ResponseEntity<Map<String, Object>> getAllProducts(
             List<ColorDTO>response = productService.getListColorByIdProduct(productId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();git
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while retrieving the product.");
         }

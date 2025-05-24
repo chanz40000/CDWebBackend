@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(scanBasePackages = "com.example.cdwebbackend")
 @EnableJpaRepositories(basePackages = "com.example.cdwebbackend.repository")
-
 public class CdWebBackendApplication {
     @Autowired
     private EmailSenderService senderService;
