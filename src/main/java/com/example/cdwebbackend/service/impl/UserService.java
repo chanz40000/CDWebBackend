@@ -4,6 +4,7 @@ import com.example.cdwebbackend.components.JwtTokenUtil;
 import com.example.cdwebbackend.converter.UserConverter;
 import com.example.cdwebbackend.dto.UserDTO;
 import com.example.cdwebbackend.dto.UserLoginDTO;
+import com.example.cdwebbackend.dto.UserUpdateDTO;
 import com.example.cdwebbackend.entity.RoleEntity;
 import com.example.cdwebbackend.entity.UserEntity;
 import com.example.cdwebbackend.exceptions.DataNotFoundException;
@@ -271,7 +272,7 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public UserEntity updateUser(UserDTO userDTO, long userId) throws DataNotFoundException {
+    public UserEntity updateUser(UserUpdateDTO userDTO, long userId) throws DataNotFoundException {
         UserEntity existingUser = userRepository.findOneById(userId)
         .orElseThrow(()-> new DataNotFoundException("User not found"));
 

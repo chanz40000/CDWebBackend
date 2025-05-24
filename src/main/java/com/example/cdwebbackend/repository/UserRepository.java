@@ -14,6 +14,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     @EntityGraph(attributePaths = "roles")
     Optional<UserEntity> findByUsername(String username);
     public boolean existsByUsername(String username);
+    public boolean existsByEmail(String email);
     public Optional<UserEntity> findOneByGoogleAccountId(String googleAccountId);
     public Optional<UserEntity> findOneByFacebookAccountId(String facebookAccountId);
 

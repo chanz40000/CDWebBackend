@@ -2,33 +2,51 @@ package com.example.cdwebbackend.dto;
 
 import com.example.cdwebbackend.entity.UserEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-public class ShippingAddressDTO  extends AbstractDTO<ShippingAddressDTO>{
+public class ShippingAddressDTO extends AbstractDTO<ShippingAddressDTO> {
+
+    @NotNull(message = "ID người dùng không được để trống")
     @JsonProperty("user_id")
     private Long user;
 
+    @NotBlank(message = "Tên người nhận không được để trống")
+    @Size(max = 100, message = "Tên người nhận không được vượt quá 100 ký tự")
     @JsonProperty("receiver_name")
     private String receiverName;
 
+    @NotBlank(message = "Số điện thoại không được để trống")
+    @Pattern(regexp = "^\\d{10}$", message = "Số điện thoại phải có đúng 10 chữ số")
     @JsonProperty("receiver_phone")
     private String receiverPhone;
 
-    @JsonProperty("province")// Tỉnh, thành phố
+    @NotBlank(message = "Tỉnh/Thành phố không được để trống")
+    @Size(max = 100, message = "Tỉnh/Thành phố không được vượt quá 100 ký tự")
+    @JsonProperty("province")
     private String province;
 
-    @JsonProperty("district")//Huyện, quận
+    @NotBlank(message = "Quận/Huyện không được để trống")
+    @Size(max = 100, message = "Quận/Huyện không được vượt quá 100 ký tự")
+    @JsonProperty("district")
     private String district;
 
-    @JsonProperty("ward") // Phường, xã
+    @NotBlank(message = "Phường/Xã không được để trống")
+    @Size(max = 100, message = "Phường/Xã không được vượt quá 100 ký tự")
+    @JsonProperty("ward")
     private String ward;
 
+    @NotBlank(message = "Địa chỉ chi tiết không được để trống")
+    @Size(max = 255, message = "Địa chỉ chi tiết không được vượt quá 255 ký tự")
     @JsonProperty("address_detail")
     private String addressDetail;
 
     @JsonProperty("is_default")
     private boolean isDefault;
 
+    // Getters và Setters
     public Long getUser() {
         return user;
     }
@@ -89,7 +107,7 @@ public class ShippingAddressDTO  extends AbstractDTO<ShippingAddressDTO>{
         return isDefault;
     }
 
-    public void setDefault(boolean aDefault) {
-        isDefault = aDefault;
+    public void setDefault(boolean isDefault) {
+        this.isDefault = isDefault;
     }
 }
