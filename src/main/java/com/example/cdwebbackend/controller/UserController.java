@@ -340,6 +340,7 @@ public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
             @Valid @RequestBody UserUpdateDTO updateUserDTO,
             @RequestHeader("Authorization") String authorizationHeader) {
         try {
+            System.out.println("date: "+ updateUserDTO.getBirthday().toString());
             String extractedToken = authorizationHeader.substring(7);
             UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
 

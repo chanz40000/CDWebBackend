@@ -22,4 +22,8 @@ public interface ProductSizeColorRepository extends JpaRepository<ProductSizeCol
             "JOIN pc.color c " +
             "WHERE psc.id = :id")
     Optional<Map<String, String>> findSizeAndColorNamesById(@Param("id") Long id);
+
+    @Query("SELECT pc.image FROM ProductSizeColorEntity psc JOIN ProductColorEntity pc ON psc.productColor.id = pc.id WHERE psc.productColor.id = :id")
+    String getImage(@Param("id") Long id);
+
 }

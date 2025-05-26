@@ -2,6 +2,7 @@ package com.example.cdwebbackend.controller;
 
 import com.example.cdwebbackend.converter.ProductConverter;
 
+import com.example.cdwebbackend.converter.ProductSizeColorConverter;
 import com.example.cdwebbackend.dto.ColorDTO;
 import com.example.cdwebbackend.dto.ProductDTO;
 import com.example.cdwebbackend.dto.SizeDTO;
@@ -24,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Repository;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
@@ -73,6 +75,8 @@ public class ProductController {
 
     @Autowired
     private ProductSizeColorRepository productSizeColorRepository;
+    @Autowired
+    ProductSizeColorConverter productSizeColorConverter;
 
 
     @PostMapping("/upload-image")
@@ -638,6 +642,31 @@ public ResponseEntity<Map<String, Object>> getAllProducts(
                     .body(Map.of("error", e.getMessage()));
         }
 
+    }
+    @GetMapping("/getProductsWithZeroStock")
+    public ResponseEntity<?>getProductsWithZeroStock(){
+        try{
+            List<ProductSizeColorDTO>result = new ArrayList<>();
+            List<ProductSizeColorEntity> productEntityList = productService.getProductsWithZeroStockPurchasedInLastThreeMonths();
+            for (ProductSizeColorEntity p: productEntityList){
+                System.out.println(productSizeColorConverter.toDTO(p));
+                result.add(productSizeColorConverter.toDTO(p));
+            }
+
+            return ResponseEntity.ok(result);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/getImageByProductSizeColorId/{id}")
+    public ResponseEntity<?>getImageByProductSizeColorId(@PathVariable("id") Long idProductSizeColor){
+        try{
+            String image = productService.getImageByProductSizeColorId(idProductSizeColor);
+            return ResponseEntity.ok(image);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        }
     }
 
 

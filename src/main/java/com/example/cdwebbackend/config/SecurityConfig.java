@@ -343,8 +343,9 @@ public class SecurityConfig {
                                 apiPrefix + "/chat/send",
                                 apiPrefix + "/payments/ipn",
                                 apiPrefix + "/payments/return",
-                                // quyenf admin
                                 apiPrefix + "/products/getCategory/**",
+                                apiPrefix + "/products/getProductsWithZeroStock",
+                                apiPrefix + "/products/getImageByProductSizeColorId/**",
                                 apiPrefix + "/products/getBrand/**",
                                 apiPrefix + "/products/getSize/**",
                                 apiPrefix + "/products/getColor/**",
@@ -358,6 +359,7 @@ public class SecurityConfig {
                                 "/oauth2/authorization/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, apiPrefix + "/importOrder/**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.GET, apiPrefix + "/products/getProductsWithZeroStock").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.POST, apiPrefix + "/importOrder/insert").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/importOrder/list").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/importOrder/get-import-order/**").hasRole(RoleEntity.ADMIN)
