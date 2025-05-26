@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 
 import java.time.DateTimeException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -336,6 +337,14 @@ public List<SizeDTO> getListSizeByIdProduct(long idProduct) {
                 .map(product -> productConverter.toDTO(product));
     }
 
+    public List<ProductSizeColorEntity> getProductsWithZeroStockPurchasedInLastThreeMonths() {
+        // Lấy thời điểm 3 tháng trước
+        LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
+        return productRepository.findProductSizeColorsWithZeroStockPurchasedInLastThreeMonths(threeMonthsAgo);
+    }
+    public String getImageByProductSizeColorId(Long id){
+        return productSizeColorRepository.getImage(id);
+    }
 
 
 }
