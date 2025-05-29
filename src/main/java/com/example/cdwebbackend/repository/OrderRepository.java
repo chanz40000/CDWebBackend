@@ -15,4 +15,7 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     List<OrderEntity> findByUserId(long userId);
     OrderEntity findByUserIdAndId(long userId, long id);
     List<OrderEntity> findByUserIdAndStatusOrderId(long userId, long status);
+
+    // Phương thức tìm đơn hàng theo trạng thái và thời gian sửa đổi trước một ngày
+    List<OrderEntity> findByStatusOrderIdAndLastModifiedDateBefore(long statusOrderId, Date date);
 }

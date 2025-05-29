@@ -388,12 +388,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, apiPrefix + "/oder_detail/**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/oder_detail/**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(apiPrefix + "/users/upload-avatar").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
-                        .requestMatchers(apiPrefix + "/products/upload-image").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
+                        .requestMatchers(HttpMethod.GET,apiPrefix + "/products/upload-image").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
 
                         .requestMatchers(apiPrefix + "/products/add").hasRole(RoleEntity.ADMIN)
                         //.requestMatchers(apiPrefix + "/products/getNameSizeColor/**").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
 
                         .requestMatchers(apiPrefix + "/users/details").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
+                        .requestMatchers(apiPrefix + "/users/getAll").hasRole(RoleEntity.ADMIN)
 
                         .requestMatchers(apiPrefix + "/orders/prepare").hasRole(RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/orders/add-shipping-address").hasRole(RoleEntity.USER)
