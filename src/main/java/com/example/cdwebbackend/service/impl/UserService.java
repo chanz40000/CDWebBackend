@@ -339,6 +339,14 @@ public class UserService implements IUserService {
 
         return userRepository.save(existingUser);
     }
+    public List<UserDTO>getAll(){
+        List<UserDTO>result = new ArrayList<>();
+        List<UserEntity>userEntityList = userRepository.findAll();
+        for (UserEntity user: userEntityList){
+            result.add(userConverter.toDTO(user));
+        }
+        return result;
+    }
 
     public static void main(String[] args) {
         PasswordEncoder passwordEncoder = new PasswordEncoder() {
@@ -355,4 +363,5 @@ public class UserService implements IUserService {
         String encodedPassword = passwordEncoder.encode("123");
         System.out.println(encodedPassword);
     }
+
 }

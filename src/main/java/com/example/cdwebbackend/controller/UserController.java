@@ -512,5 +512,16 @@ public ResponseEntity<?> updatePassword(
         }
     }
 
+    @GetMapping("/getAll")
+    public ResponseEntity<?>getAllUser(){
+    try {
+        List<UserDTO>list = userService.getAll();
+        return ResponseEntity.ok(list);
+    }catch (Exception e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
+    }
+
+    }
+
 
 }

@@ -8,6 +8,7 @@ import com.example.cdwebbackend.converter.OrderConverter;
 import com.example.cdwebbackend.dto.OrderDTO;
 import com.example.cdwebbackend.entity.OrderEntity;
 import com.example.cdwebbackend.repository.OrderRepository;
+import com.example.cdwebbackend.repository.StatusOrderRepository;
 import com.example.cdwebbackend.service.IOrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ public class OrderService implements IOrderService{
     OrderRepository orderRepository;
     @Autowired
     OrderDetailRepository orderDetailRepository;
+    @Autowired
+    StatusOrderRepository statusOrderRepository;
     //tinh tong doanh thu theo ngay
     public double totalRevenueByDay(Date createDate){
 
@@ -167,6 +170,24 @@ public class OrderService implements IOrderService{
             orderDTOS.add(orderConverter.toDTO(orderEntity));
         }
         return orderDTOS;
+    }
+
+    //cap nhat lai status order khi sau 1 ngay khong thanh toan online
+    public void updateOverdueOrders() {
+        // Tính thời điểm cách đây 1 ngày
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, -1);
+        Date oneDayAgo = calendar.getTime();
+
+        // Tìm tất cả đơn hàng có status_order_id = 7 và sửa đổi trước 1 ngày
+        List<OrderEntity> overdueOrders = orderRepository.findByStatusOrderIdAndLastModifiedDateBefore(7L, oneDayAgo);
+
+        // Cập nhật trạng thái sang 12 cho các đơn hàng quá hạn
+        for (OrderEntity order : overdueOrders) {
+            order.setStatusOrder(statusOrderRepository.findOneById(12));
+            order.setModifiedDate(new Date()); // Cập nhật thời gian sửa đổi
+            orderRepository.save(order);
+        }
     }
 
 }
