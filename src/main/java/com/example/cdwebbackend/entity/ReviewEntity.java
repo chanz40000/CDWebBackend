@@ -18,11 +18,24 @@ public class ReviewEntity extends BaseEntity {
     @Column(name = "comment", columnDefinition = "TEXT")
     private String comment;
 
+    @Column(name = "image", columnDefinition = "TEXT")
+    private String image;
+
     @Column(name = "stars")
     private Integer stars; // từ 1 đến 5
 
 
     // Getters và Setters
+
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
     public UserEntity getUser() {
         return user;
     }

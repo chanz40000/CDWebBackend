@@ -13,10 +13,22 @@ public class ReviewDTO extends AbstractDTO<ReviewDTO> {
     @JsonProperty("comment")
     private String comment;
 
+    @JsonProperty("image")
+    private String image;
+
     @JsonProperty("stars")
     private Integer stars;
 
     // Getters và Setters
+
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
 
     public Long getUserId() {
         return userId;

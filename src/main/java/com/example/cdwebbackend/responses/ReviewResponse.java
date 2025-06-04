@@ -13,6 +13,7 @@ import java.util.Date;
 public class ReviewResponse {
     private Long id;
     private String comment;
+    private String image;
     private int stars;
     private Long userId;
     private String userFullName;
@@ -24,6 +25,7 @@ public class ReviewResponse {
         return ReviewResponse.builder()
                 .id(entity.getId())
                 .comment(entity.getComment())
+                .image(entity.getImage())
                 .stars(entity.getStars())
                 .userId(entity.getUser() != null ? entity.getUser().getId() : null)
                 .userFullName(entity.getUser() != null ? entity.getUser().getFullname() : null)
