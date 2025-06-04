@@ -1,6 +1,7 @@
 package com.example.cdwebbackend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 
 public class ReviewDTO extends AbstractDTO<ReviewDTO> {
 
@@ -19,8 +20,32 @@ public class ReviewDTO extends AbstractDTO<ReviewDTO> {
     @JsonProperty("stars")
     private Integer stars;
 
+    @JsonProperty("parent_review_id")
+    private Long parentReviewId;
+
+
+    @JsonProperty("likes")
+    private Integer likes = 0;  // mặc định 0
+
+
     // Getters và Setters
 
+
+    public Integer getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Integer likes) {
+        this.likes = likes;
+    }
+
+    public Long getParentReviewId() {
+        return parentReviewId;
+    }
+
+    public void setParentReviewId(Long parentReviewId) {
+        this.parentReviewId = parentReviewId;
+    }
 
     public String getImage() {
         return image;

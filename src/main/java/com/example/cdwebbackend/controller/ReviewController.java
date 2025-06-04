@@ -1,10 +1,13 @@
 package com.example.cdwebbackend.controller;
 
+import com.example.cdwebbackend.dto.ProductDTO;
 import com.example.cdwebbackend.entity.ProductEntity;
 import com.example.cdwebbackend.entity.ReviewEntity;
+import com.example.cdwebbackend.entity.ReviewLikeEntity;
 import com.example.cdwebbackend.entity.UserEntity;
 import com.example.cdwebbackend.exceptions.DataNotFoundException;
 import com.example.cdwebbackend.repository.ProductRepository;
+import com.example.cdwebbackend.repository.ReviewLikeRepository;
 import com.example.cdwebbackend.repository.ReviewRepository;
 import com.example.cdwebbackend.repository.UserRepository;
 import com.example.cdwebbackend.responses.ReviewListResponse;
@@ -14,14 +17,17 @@ import com.example.cdwebbackend.service.impl.ImageUploadService;
 import com.example.cdwebbackend.util.BannedWordsUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -39,28 +45,47 @@ public class ReviewController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("/product/{productId}")
-    public ResponseEntity<ReviewListResponse> getReviewsByProductId(@PathVariable("productId") Long productId) {
-        List<ReviewEntity> reviewEntities = reviewRepository.findByProductId(productId);
+    @Autowired
+    private ReviewLikeRepository reviewLikeRepository;
 
-        // Chuyển thành DTO đánh giá
-        List<ReviewResponse> reviewResponses = reviewEntities.stream()
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<?> getReviewsByProductId(
+            @PathVariable("productId") Long productId,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "3") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Lấy dữ liệu phân trang
+        Page<ReviewEntity> reviewPage = reviewRepository.findByProductId(productId, pageable);
+
+        List<ReviewResponse> reviewResponses = reviewPage.getContent().stream()
                 .map(ReviewResponse::fromEntity)
                 .collect(Collectors.toList());
 
-        // Thống kê theo số sao
-        List<ReviewStatsResponse> stats = reviewEntities.stream()
+        // Thống kê toàn bộ reviews theo sao (không phân trang)
+        List<ReviewStatsResponse> stats = reviewRepository.findByProductId(productId).stream()
+                .filter(r -> r.getStars() != null)
                 .collect(Collectors.groupingBy(
                         ReviewEntity::getStars,
-                        java.util.stream.Collectors.counting()
+                        Collectors.counting()
                 ))
                 .entrySet().stream()
                 .map(entry -> new ReviewStatsResponse(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
 
-        ReviewListResponse response = new ReviewListResponse(reviewResponses, stats);
+        // Đóng gói phản hồi
+        Map<String, Object> response = new HashMap<>();
+        response.put("reviews", reviewResponses);              // Danh sách đánh giá trong trang hiện tại
+        response.put("stats", stats);                          // Thống kê sao
+        response.put("currentPage", reviewPage.getNumber());   // Trang hiện tại
+        response.put("totalItems", reviewPage.getTotalElements()); // Tổng số đánh giá
+        response.put("totalPages", reviewPage.getTotalPages());    // Tổng số trang
+        response.put("pageSize", reviewPage.getSize());        // Kích thước mỗi trang
+
         return ResponseEntity.ok(response);
     }
+
 
     @PostMapping
     public ResponseEntity<?> createReview(
@@ -100,6 +125,222 @@ public class ReviewController {
         reviewRepository.save(review);
         return ResponseEntity.ok(ReviewResponse.fromEntity(review));
     }
+
+    @PostMapping("/reply")
+    public ResponseEntity<?> replyToReview(
+            @RequestParam("parentReviewId") Long parentReviewId,
+            @RequestParam("comment") String comment
+    ) throws DataNotFoundException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        UserEntity user = userRepository.findOneByUsername(username)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        ReviewEntity parentReview = reviewRepository.findById(parentReviewId)
+                .orElseThrow(() -> new DataNotFoundException("Parent review not found"));
+
+        if (BannedWordsUtil.containsBannedWords(comment)) {
+            return ResponseEntity.badRequest().body("Comment contains inappropriate language");
+        }
+
+        ReviewEntity reply = new ReviewEntity();
+        reply.setComment(comment);
+        reply.setUser(user);
+        reply.setProduct(parentReview.getProduct()); // lấy từ review cha
+        reply.setParentReview(parentReview);
+        reply.setStars(null); // trả lời không có đánh giá sao
+
+        reviewRepository.save(reply);
+
+        return ResponseEntity.ok(ReviewResponse.fromEntity(reply));
+    }
+
+    @GetMapping("/product/{productId}/with-likes")
+    public ResponseEntity<?> getReviewsWithLikes(
+            @PathVariable("productId") Long productId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "3") int size) throws DataNotFoundException {
+
+        // Lấy thông tin user đang đăng nhập
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        UserEntity user = userRepository.findOneByUsername(username)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        // Phân trang
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Lấy chỉ các bình luận top-level (parentReviewId = null)
+        Page<ReviewEntity> reviewPage = reviewRepository.findByProductIdAndParentReviewIdIsNull(productId, pageable);
+
+        // Lấy danh sách các review mà user đã like
+        List<Long> likedReviewIds = reviewLikeRepository.findByUser(user).stream()
+                .map(reviewLike -> reviewLike.getReview().getId())
+                .collect(Collectors.toList());
+
+        // Chuyển đổi dữ liệu để trả về
+        List<Map<String, Object>> reviewList = reviewPage.getContent().stream().map(review -> {
+            Map<String, Object> reviewMap = new HashMap<>();
+            reviewMap.put("id", review.getId());
+            reviewMap.put("username", review.getUser().getUsername());
+            reviewMap.put("userFullName", review.getUser().getFullname());
+            reviewMap.put("avatar", review.getUser().getAvatar());
+            reviewMap.put("stars", review.getStars());
+            reviewMap.put("comment", review.getComment());
+            reviewMap.put("image", review.getImage());
+            reviewMap.put("likes", review.getLikes());
+            reviewMap.put("createdDate", review.getCreatedDate());
+            reviewMap.put("liked", likedReviewIds.contains(review.getId()));
+
+            // Lấy danh sách replies (chỉ lấy các reply trực tiếp)
+            List<Map<String, Object>> replies = review.getReplies().stream().map(reply -> {
+                Map<String, Object> replyMap = new HashMap<>();
+                replyMap.put("id", reply.getId());
+                replyMap.put("username", reply.getUser().getUsername());
+                replyMap.put("userFullName", reply.getUser().getFullname());
+                replyMap.put("avatar", reply.getUser().getAvatar());
+                replyMap.put("createdDate", reply.getCreatedDate());
+                replyMap.put("likes", reply.getLikes());
+                replyMap.put("comment", reply.getComment());
+                return replyMap;
+            }).collect(Collectors.toList());
+            reviewMap.put("replies", replies);
+
+            return reviewMap;
+        }).collect(Collectors.toList());
+
+        // Trả về response
+        Map<String, Object> response = new HashMap<>();
+        response.put("reviews", reviewList);
+        response.put("currentPage", reviewPage.getNumber());
+        response.put("totalItems", reviewPage.getTotalElements());
+        response.put("totalPages", reviewPage.getTotalPages());
+
+        // Thêm thống kê ratings
+        List<Map<String, Integer>> stats = reviewRepository.getStatsByProductId(productId);
+        response.put("stats", stats);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/like")
+    public ResponseEntity<?> toggleLikeReview(@PathVariable("id") Long id) throws DataNotFoundException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        UserEntity user = userRepository.findOneByUsername(username)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        ReviewEntity review = reviewRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Review not found"));
+
+        // Kiểm tra user đã like chưa
+        var existingLike = reviewLikeRepository.findByUserAndReview(user, review);
+        if (existingLike.isPresent()) {
+            // Nếu đã like → unlike
+            reviewLikeRepository.delete(existingLike.get());
+
+            Integer currentLikes = review.getLikes();
+            if (currentLikes != null && currentLikes > 0) {
+                review.setLikes(currentLikes - 1);
+            } else {
+                review.setLikes(0);
+            }
+            reviewRepository.save(review);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Unliked successfully",
+                    "review", ReviewResponse.fromEntity(review),
+                    "liked", false
+            ));
+        } else {
+            // Nếu chưa like → like
+            ReviewLikeEntity reviewLike = new ReviewLikeEntity();
+            reviewLike.setUser(user);
+            reviewLike.setReview(review);
+            reviewLikeRepository.save(reviewLike);
+
+            Integer currentLikes = review.getLikes();
+            if (currentLikes == null) currentLikes = 0;
+            review.setLikes(currentLikes + 1);
+            reviewRepository.save(review);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Liked successfully",
+                    "review", ReviewResponse.fromEntity(review),
+                    "liked", true
+            ));
+        }
+    }
+
+
+//    @PostMapping("/{id}/like")
+//    public ResponseEntity<?> likeReview(@PathVariable("id") Long id) throws DataNotFoundException {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String username = authentication.getName();
+//
+//        UserEntity user = userRepository.findOneByUsername(username)
+//                .orElseThrow(() -> new DataNotFoundException("User not found"));
+//
+//        ReviewEntity review = reviewRepository.findById(id)
+//                .orElseThrow(() -> new DataNotFoundException("Review not found"));
+//
+//        // Kiểm tra user đã like review chưa
+//        boolean hasLiked = reviewLikeRepository.findByUserAndReview(user, review).isPresent();
+//        if (hasLiked) {
+//            return ResponseEntity.badRequest().body("User has already liked this review");
+//        }
+//
+//        // Tạo bản ghi like mới
+//        ReviewLikeEntity reviewLike = new ReviewLikeEntity();
+//        reviewLike.setUser(user);
+//        reviewLike.setReview(review);
+//        reviewLikeRepository.save(reviewLike);
+//
+//        // Tăng số like của review
+//        Integer currentLikes = review.getLikes();
+//        if (currentLikes == null) {
+//            currentLikes = 0;
+//        }
+//        review.setLikes(currentLikes + 1);
+//        reviewRepository.save(review);
+//
+//        return ResponseEntity.ok(ReviewResponse.fromEntity(review));
+//    }
+//    @DeleteMapping("/{id}/unlike")
+//    public ResponseEntity<?> unlikeReview(@PathVariable("id") Long id) throws DataNotFoundException {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String username = authentication.getName();
+//
+//        UserEntity user = userRepository.findOneByUsername(username)
+//                .orElseThrow(() -> new DataNotFoundException("User not found"));
+//
+//        ReviewEntity review = reviewRepository.findById(id)
+//                .orElseThrow(() -> new DataNotFoundException("Review not found"));
+//
+//        // Tìm like record
+//        var likeOpt = reviewLikeRepository.findByUserAndReview(user, review);
+//        if (likeOpt.isEmpty()) {
+//            return ResponseEntity.badRequest().body("User hasn't liked this review yet");
+//        }
+//
+//        reviewLikeRepository.delete(likeOpt.get());
+//
+//        // Giảm số like của review
+//        Integer currentLikes = review.getLikes();
+//        if (currentLikes == null || currentLikes == 0) {
+//            currentLikes = 0;
+//        } else {
+//            currentLikes = currentLikes - 1;
+//        }
+//        review.setLikes(currentLikes);
+//        reviewRepository.save(review);
+//
+//        return ResponseEntity.ok(ReviewResponse.fromEntity(review));
+//    }
+
+
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteReview(@PathVariable("id") Long id) throws DataNotFoundException {
@@ -115,6 +356,7 @@ public class ReviewController {
             return ResponseEntity.status(403).body("You are not allowed to delete this review");
         }
 
+        reviewLikeRepository.deleteByReviewId(id);
         reviewRepository.deleteByIdAndUserId(id, user.getId());
         return ResponseEntity.ok().build();
     }
@@ -126,6 +368,7 @@ public class ReviewController {
         if (!reviewRepository.existsById(id)) {
             return ResponseEntity.badRequest().body("Review not found");
         }
+        reviewLikeRepository.deleteByReviewId(id);
         reviewRepository.deleteById(id);
         return ResponseEntity.ok().build();
     }
@@ -135,7 +378,7 @@ public class ReviewController {
     public ResponseEntity<?> updateReview(
             @PathVariable("id") Long id,
             @RequestParam("comment") String comment,
-            @RequestParam("stars") int stars) throws DataNotFoundException {
+            @RequestParam(value = "stars", required = false) Integer stars) throws DataNotFoundException {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -145,21 +388,30 @@ public class ReviewController {
 
         ReviewEntity review = reviewRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Review not found"));
-        //Kiểm tra từ cấm
+
+        // Kiểm tra từ cấm
         if (BannedWordsUtil.containsBannedWords(comment)) {
             return ResponseEntity.badRequest().body("Comment contains inappropriate language");
         }
+
         // Chỉ chủ comment mới được sửa
         if (!review.getUser().getId().equals(user.getId())) {
             return ResponseEntity.status(403).body("You are not allowed to update this review");
         }
 
         review.setComment(comment);
-        review.setStars(stars);
+
+        // Chỉ cập nhật stars nếu người dùng truyền vào
+        if (stars != null) {
+            review.setStars(stars);
+        }
+        review.setCreatedDate(new Date());
+
 
         reviewRepository.save(review);
         return ResponseEntity.ok(ReviewResponse.fromEntity(review));
     }
+
 
 
 }

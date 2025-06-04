@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ReviewStatsResponse {
-    private int stars;
+    private Integer stars;
     private long count;
 }
