@@ -22,11 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -301,7 +297,7 @@ public ResponseEntity<?> addOrder(
             OrderDTO orderDTOS = orderService.getOrdersByIdAndUserId(user.getId(), orderId);
 
             OrderResponse response = OrderResponse.fromEntity(orderConverter.toEntity(orderDTOS));
-
+            System.out.println(response.toString()+ "/"+ response.getTotalPrice());
 
 
             return ResponseEntity.ok(Map.of(
@@ -641,6 +637,12 @@ public ResponseEntity<?> addOrder(
     public ResponseEntity<?> listTotalRevenueByYear(@RequestParam("year") int year) {
         List<Double> totalRevenue = orderService.listTotalRevenueByYear(year);
         return ResponseEntity.ok(totalRevenue);
+    }
+
+    @GetMapping("/list-total-revenue-by-month-in-year")
+    public ResponseEntity<?> totalRevenueByMonthInYear(@RequestParam("year") int year) {
+        Map<Integer, Double> revenueByMonth = orderService.totalRevenueByMonthInYear(year);
+        return ResponseEntity.ok(revenueByMonth);
     }
 
     @GetMapping("/daily-revenue-between")

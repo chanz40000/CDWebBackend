@@ -13,6 +13,8 @@ public class OrderStatusScheduler {
 
     // Chạy mỗi giờ (có thể điều chỉnh biểu thức cron)
     @Scheduled(cron = "0 0 * * * ?") // Chạy vào đầu mỗi giờ
+//    @Scheduled(cron = "*/10 * * * * ?") // Mỗi 10 giây
+
     public void checkAndUpdateOrderStatus() {
         orderService.updateOverdueOrders();
     }
