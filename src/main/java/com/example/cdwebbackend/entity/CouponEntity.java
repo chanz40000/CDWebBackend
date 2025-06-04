@@ -21,6 +21,9 @@ public class CouponEntity extends BaseEntity {
     @Column(name = "discount_value")
     private int discountValue;
 
+    @Column(name = "max_discount_amount", nullable = true)
+    private Integer  maxDiscountAmount;
+
     // @Column: Ngày bắt đầu hiệu lực
     @Column(name = "start_date")
     private LocalDateTime startDate;
@@ -45,7 +48,25 @@ public class CouponEntity extends BaseEntity {
     @Column(name = "min_product_quantity", nullable = true)
     private Integer minProductQuantity;
 
-    // Getters và Setters
+    // Bật tắt mã
+    @Column(name = "is_active")
+    private boolean isActive = true;
+
+    public Integer getMaxDiscountAmount() {
+        return maxDiscountAmount;
+    }
+
+    public void setMaxDiscountAmount(Integer maxDiscountAmount) {
+        this.maxDiscountAmount = maxDiscountAmount;
+    }
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+// Getters và Setters
 
     public String getCode() {
         return code;

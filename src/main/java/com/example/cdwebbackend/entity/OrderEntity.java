@@ -14,6 +14,12 @@ public class OrderEntity extends BaseEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    @Column(name = "coupon_code")
+    private String couponCode;
+
+    @Column(name = "discount_value")
+    private int discountValue;
+
     @Column(name = "total_price") // tổng tiền sản phẩm
     private int totalPrice;
 
@@ -65,6 +71,22 @@ public class OrderEntity extends BaseEntity {
 
     // Getters and Setters
 
+
+    public String getCouponCode() {
+        return couponCode;
+    }
+
+    public void setCouponCode(String couponCode) {
+        this.couponCode = couponCode;
+    }
+
+    public int getDiscountValue() {
+        return discountValue;
+    }
+
+    public void setDiscountValue(int discountValue) {
+        this.discountValue = discountValue;
+    }
 
     public String getReceiverName() {
         return receiverName;

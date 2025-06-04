@@ -10,6 +10,12 @@ public class OrderDTO extends AbstractDTO<OrderDTO> {
     @JsonProperty("user_id")
     private Long userId;
 
+    @JsonProperty("coupon_code")
+    private String couponCode;
+
+    @JsonProperty("discount_value")
+    private int discountValue;
+
     @JsonProperty("total_price")
     private int totalPrice;
 
@@ -58,6 +64,22 @@ public class OrderDTO extends AbstractDTO<OrderDTO> {
 
     // Getters and Setters
 
+
+    public String getCouponCode() {
+        return couponCode;
+    }
+
+    public void setCouponCode(String couponCode) {
+        this.couponCode = couponCode;
+    }
+
+    public int getDiscountValue() {
+        return discountValue;
+    }
+
+    public void setDiscountValue(int discountValue) {
+        this.discountValue = discountValue;
+    }
 
     public Date getCreateDate() {
         return createDate;
