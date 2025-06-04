@@ -343,8 +343,9 @@ public class SecurityConfig {
                                 apiPrefix + "/chat/send",
                                 apiPrefix + "/payments/ipn",
                                 apiPrefix + "/payments/return",
-                                // quyenf admin
                                 apiPrefix + "/products/getCategory/**",
+                                apiPrefix + "/products/getProductsWithZeroStock",
+                                apiPrefix + "/products/getImageByProductSizeColorId/**",
                                 apiPrefix + "/products/getBrand/**",
                                 apiPrefix + "/products/getSize/**",
                                 apiPrefix + "/products/getColor/**",
@@ -358,6 +359,7 @@ public class SecurityConfig {
                                 "/oauth2/authorization/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, apiPrefix + "/importOrder/**").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.GET, apiPrefix + "/products/getProductsWithZeroStock").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.POST, apiPrefix + "/importOrder/insert").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/importOrder/list").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/importOrder/get-import-order/**").hasRole(RoleEntity.ADMIN)
@@ -370,6 +372,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/daily-revenue-between").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/list-total-revenue-by-year").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/top-10-best-selling-products").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/list-total-revenue-by-month-in-year").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/orders").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
                         .requestMatchers(HttpMethod.DELETE, apiPrefix + "/orders").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/orders").hasRole(RoleEntity.ADMIN)
@@ -386,12 +389,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, apiPrefix + "/oder_detail/**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/oder_detail/**").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(apiPrefix + "/users/upload-avatar").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
-                        .requestMatchers(apiPrefix + "/products/upload-image").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
+                        .requestMatchers(HttpMethod.GET,apiPrefix + "/products/upload-image").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
 
                         .requestMatchers(apiPrefix + "/products/add").hasRole(RoleEntity.ADMIN)
                         //.requestMatchers(apiPrefix + "/products/getNameSizeColor/**").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
 
                         .requestMatchers(apiPrefix + "/users/details").hasAnyRole(RoleEntity.USER, RoleEntity.ADMIN)
+                        .requestMatchers(apiPrefix + "/users/getAll").hasRole(RoleEntity.ADMIN)
 
                         .requestMatchers(apiPrefix + "/orders/prepare").hasRole(RoleEntity.USER)
                         .requestMatchers(apiPrefix + "/orders/add-shipping-address").hasRole(RoleEntity.USER)

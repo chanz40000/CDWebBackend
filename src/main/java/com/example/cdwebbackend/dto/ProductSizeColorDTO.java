@@ -22,6 +22,7 @@ public class ProductSizeColorDTO extends AbstractDTO<ProductSizeColorDTO>{
         this.stock = stock;
     }
 
+
     public Long getProductId() {
         return productId;
     }

@@ -4,6 +4,7 @@ import com.example.cdwebbackend.components.JwtTokenUtil;
 import com.example.cdwebbackend.converter.UserConverter;
 import com.example.cdwebbackend.dto.UserDTO;
 import com.example.cdwebbackend.dto.UserLoginDTO;
+import com.example.cdwebbackend.dto.UserUpdateDTO;
 import com.example.cdwebbackend.entity.RoleEntity;
 import com.example.cdwebbackend.entity.UserEntity;
 import com.example.cdwebbackend.exceptions.DataNotFoundException;
@@ -271,7 +272,7 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public UserEntity updateUser(UserDTO userDTO, long userId) throws DataNotFoundException {
+    public UserEntity updateUser(UserUpdateDTO userDTO, long userId) throws DataNotFoundException {
         UserEntity existingUser = userRepository.findOneById(userId)
         .orElseThrow(()-> new DataNotFoundException("User not found"));
 
@@ -338,6 +339,14 @@ public class UserService implements IUserService {
 
         return userRepository.save(existingUser);
     }
+    public List<UserDTO>getAll(){
+        List<UserDTO>result = new ArrayList<>();
+        List<UserEntity>userEntityList = userRepository.findAll();
+        for (UserEntity user: userEntityList){
+            result.add(userConverter.toDTO(user));
+        }
+        return result;
+    }
 
     public static void main(String[] args) {
         PasswordEncoder passwordEncoder = new PasswordEncoder() {
@@ -354,4 +363,5 @@ public class UserService implements IUserService {
         String encodedPassword = passwordEncoder.encode("123");
         System.out.println(encodedPassword);
     }
+
 }

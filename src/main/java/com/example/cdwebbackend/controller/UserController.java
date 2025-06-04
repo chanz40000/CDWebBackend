@@ -2,9 +2,7 @@ package com.example.cdwebbackend.controller;
 
 import com.example.cdwebbackend.components.JwtTokenUtil;
 import com.example.cdwebbackend.converter.UserConverter;
-import com.example.cdwebbackend.dto.ForgotPasswordDTO;
-import com.example.cdwebbackend.dto.UserDTO;
-import com.example.cdwebbackend.dto.UserLoginDTO;
+import com.example.cdwebbackend.dto.*;
 import com.example.cdwebbackend.entity.RoleEntity;
 import com.example.cdwebbackend.entity.UserEntity;
 import com.example.cdwebbackend.exceptions.DataNotFoundException;
@@ -19,6 +17,7 @@ import com.example.cdwebbackend.service.impl.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,27 +62,48 @@ public class UserController {
     @Autowired
     EmailSenderService senderService;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> createUser(@Validated @RequestBody UserDTO userDTO ,BindingResult result){
+//    @PostMapping("/register")
+//    public ResponseEntity<?> createUser(@Valid @Validated @RequestBody UserDTO userDTO , BindingResult result){
+//
+//        try {
+//             if(result.hasErrors()){
+//                 List<String> errorMessages = new ArrayList<>();
+//                 for (FieldError fieldError : result.getFieldErrors()) {
+//                     String defaultMessage = fieldError.getDefaultMessage();
+//                     errorMessages.add(defaultMessage);
+//                 }
+//                 return ResponseEntity.badRequest().body(errorMessages);
+//             }
+//             if(!userDTO.getPassword().equals(userDTO.getRetypePassword())){
+//                 return ResponseEntity.badRequest().body("Password không khớp");
+//             }
+//            UserEntity user = userService.createUser(userDTO);
+//             return ResponseEntity.ok("Đăng ký thành công");
+//         }catch (Exception e){
+//             return ResponseEntity.badRequest().body(e.getMessage());
+//         }
+//    }
+@PostMapping("/register")
+public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
+    try {
+        // Kiểm tra trùng lặp username và email
+        if (userRepository.existsByUsername(userDTO.getUsername())) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("username", "Tên đăng nhập đã tồn tại"));
+        }
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("email", "Email đã tồn tại"));
+        }
 
-        try {
-             if(result.hasErrors()){
-                 List<String> errorMessages = new ArrayList<>();
-                 for (FieldError fieldError : result.getFieldErrors()) {
-                     String defaultMessage = fieldError.getDefaultMessage();
-                     errorMessages.add(defaultMessage);
-                 }
-                 return ResponseEntity.badRequest().body(errorMessages);
-             }
-             if(!userDTO.getPassword().equals(userDTO.getRetypePassword())){
-                 return ResponseEntity.badRequest().body("Password không khớp");
-             }
-            UserEntity user = userService.createUser(userDTO);
-             return ResponseEntity.ok("Đăng ký thành công");
-         }catch (Exception e){
-             return ResponseEntity.badRequest().body(e.getMessage());
-         }
+        // Lưu người dùng
+        UserEntity user = userService.createUser(userDTO);
+        return new ResponseEntity<>(userConverter.toDTO(user), HttpStatus.CREATED);
+    } catch (Exception e) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", e.getMessage()));
     }
+}
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Validated @RequestBody UserLoginDTO userLoginDTO) {
@@ -175,30 +195,75 @@ public class UserController {
                     .body("Đã xảy ra lỗi: " + e.getMessage());
         }
     }
+    //response
+//    @PutMapping("/newPassword")
+//    public ResponseEntity<?> newPassword(@Validated @RequestBody Map<String, String> request,
+//                                         @CookieValue(value = "email", required = false) String emailFromCookie,
+//                                         HttpServletResponse response) {
+//        System.out.println("Cập nhật mật khẩu mới");
+//
+//        try {
+//            String email = request.get("email");
+//            String newPassword = request.get("newPassword");
+//
+//            // Kiểm tra email từ cookie và body
+//            if (emailFromCookie == null || !emailFromCookie.equals(email)) {
+//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                        .body("Phiên xác thực không hợp lệ hoặc đã hết hạn.");
+//            }
+//
+//            // Kiểm tra dữ liệu đầu vào
+//            if (newPassword == null || newPassword.isEmpty()) {
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                        .body("Mật khẩu mới không được để trống.");
+//            }
+//
+//            // Cập nhật mật khẩu
+//            UserEntity user = userService.updatePassword(newPassword, email);
+//
+//            // Xóa cookie sau khi cập nhật thành công
+//            Cookie emailCookie = new Cookie("email", null);
+//            emailCookie.setHttpOnly(true);
+//            emailCookie.setSecure(true);
+//            emailCookie.setPath("/");
+//            emailCookie.setMaxAge(0); // Xóa cookie
+//            response.addCookie(emailCookie);
+//
+//            Cookie otpCookie = new Cookie("otp", null);
+//            otpCookie.setHttpOnly(true);
+//            otpCookie.setSecure(true);
+//            otpCookie.setPath("/");
+//            otpCookie.setMaxAge(0); // Xóa cookie
+//            response.addCookie(otpCookie);
+//
+//            return ResponseEntity.ok(userConverter.toDTO(user));
+//
+//        } catch (DataNotFoundException e) {
+//            System.out.println("Lỗi: " + e.getMessage());
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                    .body("Người dùng không tồn tại: " + e.getMessage());
+//        } catch (Exception e) {
+//            System.out.println("Lỗi: " + e.getMessage());
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body("Lỗi khi cập nhật mật khẩu: " + e.getMessage());
+//        }
+//    }
     @PutMapping("/newPassword")
-    public ResponseEntity<?> newPassword(@Validated @RequestBody Map<String, String> request,
-                                         @CookieValue(value = "email", required = false) String emailFromCookie,
-                                         HttpServletResponse response) {
+    public ResponseEntity<?> newPassword(
+            @Valid @RequestBody NewPasswordDTO newPasswordDTO,
+            @CookieValue(value = "email", required = false) String emailFromCookie,
+            HttpServletResponse response) {
         System.out.println("Cập nhật mật khẩu mới");
 
         try {
-            String email = request.get("email");
-            String newPassword = request.get("newPassword");
-
             // Kiểm tra email từ cookie và body
-            if (emailFromCookie == null || !emailFromCookie.equals(email)) {
+            if (emailFromCookie == null || !emailFromCookie.equals(newPasswordDTO.getEmail())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body("Phiên xác thực không hợp lệ hoặc đã hết hạn.");
             }
 
-            // Kiểm tra dữ liệu đầu vào
-            if (newPassword == null || newPassword.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Mật khẩu mới không được để trống.");
-            }
-
             // Cập nhật mật khẩu
-            UserEntity user = userService.updatePassword(newPassword, email);
+            UserEntity user = userService.updatePassword(newPasswordDTO.getNewPassword(), newPasswordDTO.getEmail());
 
             // Xóa cookie sau khi cập nhật thành công
             Cookie emailCookie = new Cookie("email", null);
@@ -215,7 +280,7 @@ public class UserController {
             otpCookie.setMaxAge(0); // Xóa cookie
             response.addCookie(otpCookie);
 
-            return ResponseEntity.ok(UserResponse.fromUser(user));
+            return ResponseEntity.ok(userConverter.toDTO(user));
 
         } catch (DataNotFoundException e) {
             System.out.println("Lỗi: " + e.getMessage());
@@ -227,14 +292,15 @@ public class UserController {
                     .body("Lỗi khi cập nhật mật khẩu: " + e.getMessage());
         }
     }
+    //response user
     @PostMapping("/details")
-    public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("Authorization") String authorizationHeader){
+    public ResponseEntity<UserDTO> getUserDetails(@RequestHeader("Authorization") String authorizationHeader){
         System.out.println("thong tin user: ");
         try{
             String extractedToken = authorizationHeader.substring(7); //Loai bo "Bearer " tu chuoi token
             UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
             System.out.println("thong tin user: "+ userEntity.toString());
-            return ResponseEntity.ok(UserResponse.fromUser(userEntity));
+            return ResponseEntity.ok(userConverter.toDTO(userEntity));
         }catch (Exception e){
             System.out.println("Lỗi: " + e.getMessage()); // In lỗi ra console
             e.printStackTrace(); // In stacktrace đầy đủ
@@ -242,64 +308,125 @@ public class UserController {
         }
     }
 
-@PutMapping("/details/{userId}")
-public ResponseEntity<?> updateUserDetails(
+    //response user
+//@PutMapping("/details/{userId}")
+//public ResponseEntity<?> updateUserDetails(
+//        @PathVariable("userId") int userId,
+//        @Valid @RequestBody UserDTO updateUserDTO,
+//        @RequestHeader("Authorization") String authorizationHeader) {
+//    try {
+//        String extractedToken = authorizationHeader.substring(7);
+//        UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
+//
+//        if (userEntity.getId() != userId) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//                    .body("Bạn không có quyền cập nhật thông tin người dùng này.");
+//        }
+//
+//        UserEntity updatedUser = userService.updateUser(updateUserDTO, userId);
+//        return ResponseEntity.ok(userConverter.toDTO(updatedUser));
+//
+//    } catch (DataNotFoundException | DataIntegrityViolationException e) {
+//        return ResponseEntity.badRequest().body(e.getMessage());
+//    } catch (Exception e) {
+//        e.printStackTrace();
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                .body("Đã xảy ra lỗi hệ thống: " + e.getMessage());
+//    }
+//}
+    @PutMapping("/details/{userId}")
+    public ResponseEntity<?> updateUserDetails(
+            @PathVariable("userId") int userId,
+            @Valid @RequestBody UserUpdateDTO updateUserDTO,
+            @RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            System.out.println("date: "+ updateUserDTO.getBirthday().toString());
+            String extractedToken = authorizationHeader.substring(7);
+            UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
+
+            if (userEntity.getId() != userId) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Bạn không có quyền cập nhật thông tin người dùng này.");
+            }
+
+            UserEntity updatedUser = userService.updateUser(updateUserDTO, userId);
+            return ResponseEntity.ok(userConverter.toDTO(updatedUser));
+
+        } catch (DataNotFoundException | DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Đã xảy ra lỗi hệ thống: " + e.getMessage());
+        }
+    }
+
+
+//doi userresponse
+//    @PutMapping("/changePassword/{userId}")
+//    public ResponseEntity<UserDTO> updatePassword(
+//            @PathVariable("userId") int userId,
+//            @RequestBody Map<String, String> passwords,
+//            @RequestHeader("Authorization") String authorizationHeader) {
+//        System.out.println("sua mat khau");
+//
+//        try {
+//            String extractedToken = authorizationHeader.substring(7); // "Bearer " bỏ đi
+//            UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
+//
+//            if (userEntity.getId() != userId) {
+//                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//            }
+//
+//            String oldPassword = passwords.get("password");
+//            String newPassword = passwords.get("newPassword");
+//
+//
+//            if (!userService.checkPassword(oldPassword, userEntity.getPassword())) {
+//                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//            }
+//
+//            UserEntity user = userService.updatePassword(newPassword, userId);
+//            userRepository.save(user);
+//            return ResponseEntity.ok(userConverter.toDTO(user));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.badRequest().build();
+//        }
+//    }
+@PutMapping("/changePassword/{userId}")
+public ResponseEntity<?> updatePassword(
         @PathVariable("userId") int userId,
-        @RequestBody UserDTO updateUserDTO,
+        @Valid @RequestBody UserUpdatePassDTO userDTO,
         @RequestHeader("Authorization") String authorizationHeader) {
+    System.out.println("sua mat khau");
+
     try {
         String extractedToken = authorizationHeader.substring(7);
         UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
 
         if (userEntity.getId() != userId) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Bạn không có quyền cập nhật thông tin người dùng này.");
+                    .body("Bạn không có quyền cập nhật mật khẩu cho ID này.");
         }
 
-        UserEntity updatedUser = userService.updateUser(updateUserDTO, userId);
-        return ResponseEntity.ok(UserResponse.fromUser(updatedUser));
+        String oldPassword = userDTO.getPassword();
+        String newPassword = userDTO.getNewPassword();
 
-    } catch (DataNotFoundException | DataIntegrityViolationException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+        if (!userService.checkPassword(oldPassword, userEntity.getPassword())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Mật khẩu cũ không đúng.");
+        }
+
+        UserEntity user = userService.updatePassword(newPassword, userId);
+        userRepository.save(user);
+        return ResponseEntity.ok(userConverter.toDTO(user));
     } catch (Exception e) {
         e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Đã xảy ra lỗi hệ thống: " + e.getMessage());
+        return ResponseEntity.badRequest()
+                .body("Đã xảy ra lỗi khi cập nhật mật khẩu: " + e.getMessage());
     }
 }
-
-
-    @PutMapping("/changePassword/{userId}")
-    public ResponseEntity<UserResponse> updatePassword(
-            @PathVariable("userId") int userId,
-            @RequestBody Map<String, String> passwords,
-            @RequestHeader("Authorization") String authorizationHeader) {
-        System.out.println("sua mat khau");
-
-        try {
-            String extractedToken = authorizationHeader.substring(7); // "Bearer " bỏ đi
-            UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
-
-            if (userEntity.getId() != userId) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-
-            String oldPassword = passwords.get("password");
-            String newPassword = passwords.get("newPassword");
-
-
-            if (!userService.checkPassword(oldPassword, userEntity.getPassword())) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-
-            UserEntity user = userService.updatePassword(newPassword, userId);
-            userRepository.save(user);
-            return ResponseEntity.ok(UserResponse.fromUser(user));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
-    }
 
 
     //bam dang nhap google, redirect den trang dang nhap google, dang nhap xong co code
@@ -383,6 +510,17 @@ public ResponseEntity<?> updateUserDetails(
             );
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
+    }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<?>getAllUser(){
+    try {
+        List<UserDTO>list = userService.getAll();
+        return ResponseEntity.ok(list);
+    }catch (Exception e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
+    }
+
     }
 
 

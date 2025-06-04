@@ -16,6 +16,7 @@ public class UserConverter {
     // Convert từ DTO -> Entity
     public UserEntity toEntity(UserDTO dto) {
         UserEntity entity = new UserEntity();
+        entity.setId(dto.getId());
         entity.setUsername(dto.getUsername());
         entity.setFullname(dto.getFullname());
         entity.setPassword(dto.getPassword());
@@ -68,6 +69,7 @@ public class UserConverter {
     // Convert từ Entity -> DTO
     public UserDTO toDTO(UserEntity entity) {
         UserDTO dto = new UserDTO();
+        dto.setId(entity.getId());
         dto.setUsername(entity.getUsername());
         dto.setFullname(entity.getFullname());
         dto.setPassword(entity.getPassword());
@@ -93,6 +95,7 @@ public class UserConverter {
 
     // Convert từ DTO -> Entity (cập nhật dữ liệu)
     public UserEntity toEntity(UserDTO dto, UserEntity entity) {
+        entity.setId(dto.getId());
         entity.setUsername(dto.getUsername());
         entity.setFullname(dto.getFullname());
         entity.setPassword(dto.getPassword());
