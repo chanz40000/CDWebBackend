@@ -372,6 +372,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/daily-revenue-between").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/list-total-revenue-by-year").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/top-10-best-selling-products").hasRole(RoleEntity.ADMIN)
+                        .requestMatchers(HttpMethod.GET, apiPrefix + "/orders/list-total-revenue-by-month-in-year").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.GET, apiPrefix + "/orders").hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
                         .requestMatchers(HttpMethod.DELETE, apiPrefix + "/orders").hasRole(RoleEntity.ADMIN)
                         .requestMatchers(HttpMethod.PUT, apiPrefix + "/orders").hasRole(RoleEntity.ADMIN)
