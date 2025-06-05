@@ -1,0 +1,43 @@
+
+<!--maxEntriesLocalHeap="1000": Giới hạn số lượng mục (entries) tối đa mà cache có thể lưu trữ trong bộ nhớ heap của JVM.-->
+<!--        Nếu số lượng mục vượt quá giới hạn, EhCache sẽ áp dụng chính sách xóa-->
+<!--        để loại bỏ các mục ít được sử dụng nhất.-->
+<!--timeToLiveSeconds="3600": Thời gian sống (TTL - Time To Live) của mỗi mục trong cache, tính bằng giây-->
+<!--        Ở đây, mỗi mục trong cache sẽ tồn tại tối đa 3600 giây (tương đương 1 giờ) kể từ khi được thêm vào hoặc cập nhật.-->
+<!--        Sau thời gian này, mục sẽ tự động bị xóa khỏi cache.-->
+
+<ehcache>
+    <!-- Cache cho thông tin người dùng -->
+    <cache name="users"
+           maxEntriesLocalHeap="1000"
+           timeToLiveSeconds="3600"
+           timeToIdleSeconds="1800"
+           overflowToDisk="false"/>
+
+    <!-- Cache cho thông tin sản phẩm -->
+    <cache name="products"
+           maxEntriesLocalHeap="500"
+           timeToLiveSeconds="7200"
+           timeToIdleSeconds="3600"
+           overflowToDisk="false"/>
+
+    <!-- Cache cho chi tiết sản phẩm (màu sắc, kích thước) -->
+    <cache name="productDetails"
+           maxEntriesLocalHeap="2000"
+           timeToLiveSeconds="7200"
+           timeToIdleSeconds="3600"
+           overflowToDisk="false"/>
+
+    <!-- Cache cho thông tin đơn hàng -->
+    <cache name="orders"
+           maxEntriesLocalHeap="1000"
+           timeToLiveSeconds="1800"
+           timeToIdleSeconds="900"
+           overflowToDisk="false"/>
+
+    <!-- Giữ lại cache myCache để sử dụng cho các mục đích khác nếu cần -->
+    <cache name="myCache"
+           maxEntriesLocalHeap="1000"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false"/>
+</ehcache>

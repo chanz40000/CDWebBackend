@@ -5,13 +5,15 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name="size")
-public class SizeEntity extends BaseEntity{
+@Table(name = "size", indexes = {
+        @Index(name = "idx_size_name", columnList = "name")
+})
+public class SizeEntity extends BaseEntity {
     @Column(name = "name")
     private String size;
 
     @OneToMany(mappedBy = "size")
-    List<ProductSizeColorEntity>productSizeColorEntities;
+    List<ProductSizeColorEntity> productSizeColorEntities;
 
     public String getSize() {
         return size;
