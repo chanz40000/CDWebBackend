@@ -10,23 +10,31 @@ import com.example.cdwebbackend.service.IOnlinePaymentService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
-@Getter
 public class OnlinePaymentService implements IOnlinePaymentService {
 
-    @Autowired
+    @Getter
     private final OnlinePaymentRepository onlinePaymentRepository;
-    @Autowired
+    @Getter
     private final StatusOrderRepository statusOrderRepository;
-    @Autowired
+    @Getter
     private final OrderRepository orderRepository;
 
+    public OnlinePaymentService(OnlinePaymentRepository onlinePaymentRepository, StatusOrderRepository statusOrderRepository, OrderRepository orderRepository) {
+        this.onlinePaymentRepository = onlinePaymentRepository;
+        this.statusOrderRepository = statusOrderRepository;
+        this.orderRepository = orderRepository;
+    }
+
     @Override
+    @Transactional
+    @CachePut(value = "orders", key = "#id", condition = "#id != null && #id_status != null")
     public void updatePaymentStatus(String id, Long id_status) {
         Optional<OrderEntity> optionalOrder = orderRepository.findById(Long.parseLong(id));
         if (optionalOrder.isEmpty()) {
@@ -43,6 +51,4 @@ public class OnlinePaymentService implements IOnlinePaymentService {
         order.setStatusOrder(statusOrder);
         orderRepository.save(order);
     }
-
 }
-

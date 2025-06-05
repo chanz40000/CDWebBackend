@@ -3,7 +3,12 @@ package com.example.cdwebbackend.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "online_payment")
+@Table(name = "online_payment", indexes = {
+        @Index(name = "idx_online_payment_order_id", columnList = "order_id", unique = true),
+        @Index(name = "idx_online_payment_payment_method_id", columnList = "payment_method_id"),
+        @Index(name = "idx_online_payment_total_amount", columnList = "total_amount"),
+        @Index(name = "idx_online_payment_bank_code", columnList = "bank_code")
+})
 public class OnlinePaymentEntity extends BaseEntity {
 
     @OneToOne(optional = false)

@@ -3,8 +3,14 @@ package com.example.cdwebbackend.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "product_size_color")
-public class ProductSizeColorEntity extends BaseEntity{
+@Table(name = "product_size_color", indexes = {
+        @Index(name = "idx_psc_product_id", columnList = "product_id"),
+        @Index(name = "idx_psc_size_id", columnList = "size_id"),
+        @Index(name = "idx_psc_product_color_id", columnList = "product_color_id"),
+        @Index(name = "idx_psc_stock", columnList = "stock"),
+        @Index(name = "idx_psc_composite", columnList = "product_id,size_id,product_color_id", unique = true)
+})
+public class ProductSizeColorEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "product_id")
@@ -13,23 +19,15 @@ public class ProductSizeColorEntity extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "size_id")
     private SizeEntity size;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "color_id")
-//    private ColorEntity color;
 
     @ManyToOne
     @JoinColumn(name = "product_color_id")
     private ProductColorEntity productColor;
 
-
     @Column(name = "stock")
     private Integer stock;
 
-
-
     public ProductSizeColorEntity() {
-
     }
 
     public ProductSizeColorEntity(ProductEntity product, SizeEntity size, ProductColorEntity productColor, int stock) {
@@ -47,8 +45,6 @@ public class ProductSizeColorEntity extends BaseEntity{
         this.productColor = productColor;
     }
 
-    // Getters, Setters
-
     public ProductEntity getProduct() {
         return product;
     }
@@ -65,16 +61,8 @@ public class ProductSizeColorEntity extends BaseEntity{
         this.size = size;
     }
 
-//    public ColorEntity getColor() {
-//        return color;
-//    }
-//
-//    public void setColor(ColorEntity color) {
-//        this.color = color;
-//    }
-
     public int getStock() {
-        if(stock==null)return 0;;
+        if (stock == null) return 0;
         return stock;
     }
 
@@ -82,12 +70,6 @@ public class ProductSizeColorEntity extends BaseEntity{
         this.stock = stock;
     }
 
-//    public ProductSizeColorEntity(ProductEntity product, SizeEntity size, ColorEntity color, int stock) {
-//        this.product = product;
-//        this.size = size;
-//        this.color = color;
-//        this.stock = stock;
-//    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -100,5 +82,4 @@ public class ProductSizeColorEntity extends BaseEntity{
     public int hashCode() {
         return getClass().hashCode();
     }
-
 }

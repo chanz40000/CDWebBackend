@@ -195,6 +195,22 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>2.15.2</version> <!-- Thay bằng phiên bản phù hợp -->
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-cache -->
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-cache -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+            <version>2.6.7</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.ehcache/ehcache -->
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>CDWebBackend</finalName>
