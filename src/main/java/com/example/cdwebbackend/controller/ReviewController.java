@@ -210,11 +210,25 @@ public class ReviewController {
             return reviewMap;
         }).collect(Collectors.toList());
 
+        // Tính trung bình số sao
+        double averageRating = reviewRepository.findByProductIdAndParentReviewIdIsNull(productId).stream()
+                .filter(r -> r.getStars() != null)
+                .mapToDouble(ReviewEntity::getStars)
+                .average()
+                .orElse(0.0);
+
+        // Tính tổng số đánh giá (chỉ đếm các bình luận có sao)
+        long totalReviews = reviewRepository.findByProductIdAndParentReviewIdIsNull(productId).stream()
+                .filter(r -> r.getStars() != null)
+                .count();
+
         // Trả về response
         Map<String, Object> response = new HashMap<>();
         response.put("reviews", reviewList);
+        response.put("averageRating", averageRating);
         response.put("currentPage", reviewPage.getNumber());
         response.put("totalItems", reviewPage.getTotalElements());
+        response.put("totalReviews", totalReviews);
         response.put("totalPages", reviewPage.getTotalPages());
 
         // Thêm thống kê ratings
@@ -273,73 +287,6 @@ public class ReviewController {
             ));
         }
     }
-
-
-//    @PostMapping("/{id}/like")
-//    public ResponseEntity<?> likeReview(@PathVariable("id") Long id) throws DataNotFoundException {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String username = authentication.getName();
-//
-//        UserEntity user = userRepository.findOneByUsername(username)
-//                .orElseThrow(() -> new DataNotFoundException("User not found"));
-//
-//        ReviewEntity review = reviewRepository.findById(id)
-//                .orElseThrow(() -> new DataNotFoundException("Review not found"));
-//
-//        // Kiểm tra user đã like review chưa
-//        boolean hasLiked = reviewLikeRepository.findByUserAndReview(user, review).isPresent();
-//        if (hasLiked) {
-//            return ResponseEntity.badRequest().body("User has already liked this review");
-//        }
-//
-//        // Tạo bản ghi like mới
-//        ReviewLikeEntity reviewLike = new ReviewLikeEntity();
-//        reviewLike.setUser(user);
-//        reviewLike.setReview(review);
-//        reviewLikeRepository.save(reviewLike);
-//
-//        // Tăng số like của review
-//        Integer currentLikes = review.getLikes();
-//        if (currentLikes == null) {
-//            currentLikes = 0;
-//        }
-//        review.setLikes(currentLikes + 1);
-//        reviewRepository.save(review);
-//
-//        return ResponseEntity.ok(ReviewResponse.fromEntity(review));
-//    }
-//    @DeleteMapping("/{id}/unlike")
-//    public ResponseEntity<?> unlikeReview(@PathVariable("id") Long id) throws DataNotFoundException {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String username = authentication.getName();
-//
-//        UserEntity user = userRepository.findOneByUsername(username)
-//                .orElseThrow(() -> new DataNotFoundException("User not found"));
-//
-//        ReviewEntity review = reviewRepository.findById(id)
-//                .orElseThrow(() -> new DataNotFoundException("Review not found"));
-//
-//        // Tìm like record
-//        var likeOpt = reviewLikeRepository.findByUserAndReview(user, review);
-//        if (likeOpt.isEmpty()) {
-//            return ResponseEntity.badRequest().body("User hasn't liked this review yet");
-//        }
-//
-//        reviewLikeRepository.delete(likeOpt.get());
-//
-//        // Giảm số like của review
-//        Integer currentLikes = review.getLikes();
-//        if (currentLikes == null || currentLikes == 0) {
-//            currentLikes = 0;
-//        } else {
-//            currentLikes = currentLikes - 1;
-//        }
-//        review.setLikes(currentLikes);
-//        reviewRepository.save(review);
-//
-//        return ResponseEntity.ok(ReviewResponse.fromEntity(review));
-//    }
-
 
     @Transactional
     @DeleteMapping("/{id}")

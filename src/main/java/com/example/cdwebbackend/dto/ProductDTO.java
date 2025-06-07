@@ -1,6 +1,7 @@
 package com.example.cdwebbackend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
 
 import java.util.List;
@@ -43,6 +44,16 @@ public class ProductDTO extends AbstractDTO<ProductDTO> {
     @JsonProperty("image_urls")
     private List<String> imageUrls;
 
+    @JsonProperty("is_active")
+    private Boolean isActive;
+
+    public Boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
 
     public List<ProductColorDTO> getProductColorDTOS() {
         return productColorDTOS;

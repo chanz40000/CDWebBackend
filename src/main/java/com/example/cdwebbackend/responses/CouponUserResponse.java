@@ -1,6 +1,7 @@
 package com.example.cdwebbackend.responses;
 
 import com.example.cdwebbackend.entity.CouponUserEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,13 +15,16 @@ public class CouponUserResponse {
     private String code;
     private String couponType;      // từ CouponEntity.couponType.couponType
     private int discountValue;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private LocalDateTime startDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private LocalDateTime endDate;
     private Integer minOrderValue;
     private int quantity;
     private int maxUsesPerUser;
     private Integer minProductQuantity;
     private boolean isActive;
+    private int usageCount; // số lượt đã sử dụng
 
     private boolean isUsed;         // từ CouponUserEntity
 
@@ -33,6 +37,7 @@ public class CouponUserResponse {
                 .discountValue(entity.getCoupon().getDiscountValue())
                 .startDate(entity.getCoupon().getStartDate())
                 .endDate(entity.getCoupon().getEndDate())
+                .usageCount(entity.getUsageCount())
                 .minOrderValue(entity.getCoupon().getMinOrderValue())
                 .quantity(entity.getCoupon().getQuantity())
                 .maxUsesPerUser(entity.getCoupon().getMaxUsesPerUser())

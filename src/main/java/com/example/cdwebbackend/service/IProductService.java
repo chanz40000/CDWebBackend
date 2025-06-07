@@ -21,6 +21,6 @@ public interface IProductService {
     public ProductSizeColorEntity addSizeByColor(Long productColorId, Long productId, Long sizeId, int stock);
     public ProductColorEntity addColorProduct(Long productId, Long colorId, String url);
     public ProductEntity updateProduct(ProductDTO productDTO, Long productId) throws DataNotFoundException;
-    public void deleteProduct(Long productId) throws DataNotFoundException;
-    public void deleteProductSizeColor(Long productSizeColorId) throws DataNotFoundException;
+    public void changeActiveProduct(Long productId, Boolean active) throws DataNotFoundException;
+    public void changeActiveProductSizeColor(Long productSizeColorId, Boolean active) throws DataNotFoundException;
 }

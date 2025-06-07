@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface ProductSizeColorRepository extends JpaRepository<ProductSizeColorEntity, Long> {
     public ProductSizeColorEntity findOneById(long id);
     List<ProductSizeColorEntity> findByProduct_Id(Long productId);
+    List<ProductSizeColorEntity> findByProduct_IdAndIsActiveTrue(long productId);
+
     public ProductSizeColorEntity findByProductIdAndSizeIdAndProductColorId(long productId,long sizeId ,long colorId);
     @Query("SELECT new map(s.size as sizeName, c.name as colorName) " +
             "FROM ProductSizeColorEntity psc " +

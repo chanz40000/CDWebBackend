@@ -12,4 +12,12 @@ import java.util.Optional;
 public interface CouponRepository extends JpaRepository<CouponEntity, Long> {
     CouponEntity findOneById(long id);
     public Optional<CouponEntity> findByCode(String code);
+    // Lọc theo 1 coupon_type_id và is_active = true
+    List<CouponEntity> findByCouponTypeIdAndIsActiveTrue(Long couponTypeId);
+    List<CouponEntity> findByIsActiveTrue();
+
+    // Lọc theo danh sách coupon_type_id và is_active = true
+    List<CouponEntity> findByCouponTypeIdInAndIsActiveTrue(List<Long> couponTypeIds);
+
+
 }

@@ -52,6 +52,8 @@ public class CouponEntity extends BaseEntity {
     @Column(name = "is_active")
     private boolean isActive = true;
 
+
+
     public Integer getMaxDiscountAmount() {
         return maxDiscountAmount;
     }

@@ -37,6 +37,9 @@ public class ProductEntity extends BaseEntity{
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductSizeColorEntity> productSizeColors;
+    @Column(name = "is_active", columnDefinition = "BIT")
+    private Boolean isActive;
+
 
 
 //    public ProductEntity(String nameProduct, String description, CategoryEntity category, int stock, int price, int import_price, String image, BrandEntity brand, List<ProductSizeColorEntity> productSizeColors) {
@@ -66,6 +69,18 @@ public class ProductEntity extends BaseEntity{
 
     public ProductEntity() {
 
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     public List<ProductColorEntity> getProductColors() {

@@ -26,7 +26,21 @@ public class ProductSizeColorEntity extends BaseEntity{
     @Column(name = "stock")
     private Integer stock;
 
+    @Column(name = "is_active", columnDefinition = "BIT")
+    private Boolean isActive;
 
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+
+    public Boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
 
     public ProductSizeColorEntity() {
 

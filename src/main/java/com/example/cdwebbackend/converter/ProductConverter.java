@@ -35,6 +35,7 @@ public class ProductConverter {
         entity.setDescription(dto.getDescription());
         entity.setStock(dto.getStock());
         entity.setPrice(dto.getPrice());
+        entity.setActive(dto.isActive());
 //        entity.setImage(dto.getImageUrl());
         entity.setImport_price(dto.getImport_price());
 
@@ -80,6 +81,7 @@ public class ProductConverter {
                 scEntity.setSize(size);
                 scEntity.setStock(item.getStock());
                 scEntity.setProduct(entity); // thiết lập quan hệ hai chiều nếu cần
+                scEntity.setActive(item.isActive());
 
                 sizeColorEntities.add(scEntity);
             }
@@ -110,6 +112,7 @@ public class ProductConverter {
         if(entity.getStock()==null)entity.setStock(0);
         dto.setStock(entity.getStock());
         dto.setPrice(entity.getPrice());
+        dto.setActive(entity.isActive());
 //        dto.setImageUrl(entity.getImage());
 
         // Gán category và brand
@@ -130,7 +133,7 @@ public class ProductConverter {
                 scDTO.setSizeCode(scEntity.getSize().getId());
                 scDTO.setColorCode(scEntity.getProductColor().getId());
                 scDTO.setStock(scEntity.getStock());
-
+                scDTO.setActive(scEntity.isActive());
                 sizeColorDTOs.add(scDTO);
             }
         }

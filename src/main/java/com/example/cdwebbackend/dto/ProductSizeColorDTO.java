@@ -1,6 +1,7 @@
 package com.example.cdwebbackend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 
 public class ProductSizeColorDTO extends AbstractDTO<ProductSizeColorDTO>{
     @JsonProperty("productId")
@@ -11,7 +12,16 @@ public class ProductSizeColorDTO extends AbstractDTO<ProductSizeColorDTO>{
     private Long colorId;
     @JsonProperty("stock")
     private int stock; // Số lượng sản phẩm có size & color cụ thể
+    @JsonProperty("is_active")
+    private Boolean isActive;
 
+    public Boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
     public ProductSizeColorDTO() {
     }
 
@@ -20,6 +30,22 @@ public class ProductSizeColorDTO extends AbstractDTO<ProductSizeColorDTO>{
         this.sizeId = sizeId;
         this.colorId = colorId;
         this.stock = stock;
+    }
+
+    public Long getSizeId() {
+        return sizeId;
+    }
+
+    public void setSizeId(Long sizeId) {
+        this.sizeId = sizeId;
+    }
+
+    public Long getColorId() {
+        return colorId;
+    }
+
+    public void setColorId(Long colorId) {
+        this.colorId = colorId;
     }
 
 
