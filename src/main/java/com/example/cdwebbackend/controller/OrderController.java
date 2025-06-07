@@ -77,6 +77,9 @@ public class OrderController {
     @Autowired
     CouponRepository couponRepository;
 
+    @Autowired
+    CouponUserRepository couponUserRepository;
+
 //    @Autowired
 //    priva
 
@@ -200,10 +203,12 @@ public class OrderController {
             int shippingFee = 15000; // Phí vận chuyển mặc định
             int finalPrice = totalPrice + shippingFee;
             CouponEntity coupon = null;
+            CouponUserEntity couponUserEntity = null;
             if (couponCode != null && !couponCode.isEmpty()) {
                 coupon = couponRepository.findByCode(couponCode)
                         .orElseThrow(() -> new DataNotFoundException("Mã giảm giá không tồn tại"));
-
+                couponUserEntity = couponUserRepository.findByUserIdAndCouponId(user.getId(), coupon.getId())
+                        .orElseThrow(() -> new DataNotFoundException("Không tìm thấy coupon phù hợp: " ));
                 // Kiểm tra điều kiện áp dụng mã giảm giá
                 if (!coupon.isActive()) {
                     throw new IllegalArgumentException("Mã giảm giá không hoạt động");
@@ -219,6 +224,9 @@ public class OrderController {
                 }
                 if (coupon.getMinProductQuantity() != null && totalQuantity < coupon.getMinProductQuantity()) {
                     throw new IllegalArgumentException("Số lượng sản phẩm chưa đạt yêu cầu để áp dụng mã giảm giá");
+                }
+                if (couponUserEntity.getUsageCount() >= coupon.getMaxUsesPerUser()){
+                    throw new IllegalArgumentException("Số lượt sử dụng đã hết ");
                 }
 
 //                // Kiểm tra số lần sử dụng mã của người dùng
@@ -284,256 +292,265 @@ public class OrderController {
         }
     }
 
-@Transactional
-@PostMapping("/add-order")
-public ResponseEntity<?> addOrder(
-        @RequestParam("cartItemIds") List<Long> cartItemIds,
-        @RequestParam("shippingAddressId") Long shippingAddressId,
-        @RequestParam("paymentId") Long paymentId,
-        @RequestParam("shippingFee") int shippingFee,
-        @RequestParam("finalPrice") int finalPrice,
-        @RequestParam("totalPrice") int totalPrice,
-        @RequestParam(value = "couponCode", required = false) String couponCode,
-        @RequestParam(value = "discountValue", required = false, defaultValue = "0") int discountValue,
-        @RequestParam("note") String note
-) {
-    try {
-        // Log dữ liệu đầu vào để debug
-        System.out.println("Received request for /add-order:");
-        System.out.println("cartItemIds: " + cartItemIds);
-        System.out.println("shippingAddressId: " + shippingAddressId);
-        System.out.println("paymentId: " + paymentId);
-        System.out.println("shippingFee: " + shippingFee);
-        System.out.println("finalPrice: " + finalPrice);
-        System.out.println("totalPrice: " + totalPrice);
-        System.out.println("couponCode: " + couponCode);
-        System.out.println("discountValue: " + discountValue);
-        System.out.println("note: " + note);
+    @Transactional
+    @PostMapping("/add-order")
+    public ResponseEntity<?> addOrder(
+            @RequestParam("cartItemIds") List<Long> cartItemIds,
+            @RequestParam("shippingAddressId") Long shippingAddressId,
+            @RequestParam("paymentId") Long paymentId,
+            @RequestParam("shippingFee") int shippingFee,
+            @RequestParam("finalPrice") int finalPrice,
+            @RequestParam("totalPrice") int totalPrice,
+            @RequestParam(value = "couponCode", required = false) String couponCode,
+            @RequestParam(value = "discountValue", required = false, defaultValue = "0") int discountValue,
+            @RequestParam("note") String note
+    ) {
+        try {
+            // Log dữ liệu đầu vào để debug
+            System.out.println("Received request for /add-order:");
+            System.out.println("cartItemIds: " + cartItemIds);
+            System.out.println("shippingAddressId: " + shippingAddressId);
+            System.out.println("paymentId: " + paymentId);
+            System.out.println("shippingFee: " + shippingFee);
+            System.out.println("finalPrice: " + finalPrice);
+            System.out.println("totalPrice: " + totalPrice);
+            System.out.println("couponCode: " + couponCode);
+            System.out.println("discountValue: " + discountValue);
+            System.out.println("note: " + note);
 
-        // Kiểm tra dữ liệu đầu vào
-        if (cartItemIds == null || cartItemIds.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                    "status", "failed",
-                    "message", "Danh sách cartItemIds không được rỗng"
-            ));
-        }
-        if (shippingAddressId == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                    "status", "failed",
-                    "message", "shippingAddressId không được rỗng"
-            ));
-        }
-        if (paymentId == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                    "status", "failed",
-                    "message", "paymentId không được rỗng"
-            ));
-        }
-        if (finalPrice <= 0 || totalPrice <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                    "status", "failed",
-                    "message", "finalPrice và totalPrice phải lớn hơn 0"
-            ));
-        }
-
-        // Lấy user từ authentication context
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        UserEntity user = userRepository.findOneByUsername(username)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
-
-//        // Lấy địa chỉ giao hàng từ shippingAddressId
-//        ShippingAddressEntity shippingAddress = shippingAddressRePository.findById(shippingAddressId)
-//                .orElseThrow(() -> new DataNotFoundException("Địa chỉ giao hàng không hợp lệ với ID: " + shippingAddressId));
-
-
-        ShippingAddressEntity shippingAddressEntity = shippingAddressRePository.findByIdAndUserId(shippingAddressId, user.getId())
-                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy địa chỉ"));
-
-
-        // Kiểm tra cart items
-        List<CartItemEntity> selectedItems = cartItemService.getCartItemsByIds(cartItemIds, user.getId());
-        if (selectedItems.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                    "status", "failed",
-                    "message", "Không tìm thấy các sản phẩm trong giỏ hàng"
-            ));
-        }
-
-        //tính lại tổng tiền sản phẩm
-        int calculatedTotalPrice = selectedItems.stream()
-                .mapToInt(item -> item.getQuantity() * item.getProductSizeColor().getProduct().getPrice())
-                .sum();
-
-        // Kiểm tra totalPrice từ request có khớp không
-        if (calculatedTotalPrice != totalPrice) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                    "status", "failed",
-                    "message", "totalPrice không khớp với giỏ hàng"
-            ));
-        }
-
-        // tính tổng số lượng
-        int totalQuantity = selectedItems.stream()
-                .mapToInt(CartItemEntity::getQuantity)
-                .sum();
-
-        int calculatedDiscountValue = 0;
-        int calculatedShippingFee = 15000;
-        int calculatedFinalPrice = totalPrice + calculatedShippingFee;
-        CouponEntity coupon = null;
-        if (couponCode != null && !couponCode.isEmpty()) {
-            coupon = couponRepository.findByCode(couponCode)
-                    .orElseThrow(() -> new DataNotFoundException("Mã giảm giá không tồn tại"));
-
-            // Kiểm tra điều kiện áp dụng mã giảm giá
-            if (!coupon.isActive()) {
-                throw new IllegalArgumentException("Mã giảm giá không hoạt động");
+            // Kiểm tra dữ liệu đầu vào
+            if (cartItemIds == null || cartItemIds.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                        "status", "failed",
+                        "message", "Danh sách cartItemIds không được rỗng"
+                ));
             }
-            if (LocalDateTime.now().isBefore(coupon.getStartDate()) || LocalDateTime.now().isAfter(coupon.getEndDate())) {
-                throw new IllegalArgumentException("Mã giảm giá đã hết hạn");
+            if (shippingAddressId == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                        "status", "failed",
+                        "message", "shippingAddressId không được rỗng"
+                ));
             }
-            if (coupon.getQuantity() <= 0) {
-                throw new IllegalArgumentException("Mã giảm giá đã hết số lượng");
+            if (paymentId == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                        "status", "failed",
+                        "message", "paymentId không được rỗng"
+                ));
             }
-            if (coupon.getMinOrderValue() != null && totalPrice < coupon.getMinOrderValue()) {
-                throw new IllegalArgumentException("Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã giảm giá");
-            }
-            if (coupon.getMinProductQuantity() != null && totalQuantity < coupon.getMinProductQuantity()) {
-                throw new IllegalArgumentException("Số lượng sản phẩm chưa đạt yêu cầu để áp dụng mã giảm giá");
+            if (finalPrice <= 0 || totalPrice <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                        "status", "failed",
+                        "message", "finalPrice và totalPrice phải lớn hơn 0"
+                ));
             }
 
-            Long couponId = coupon.getCouponType().getId();
+            // Lấy user từ authentication context
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            UserEntity user = userRepository.findOneByUsername(username)
+                    .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+    //        // Lấy địa chỉ giao hàng từ shippingAddressId
+    //        ShippingAddressEntity shippingAddress = shippingAddressRePository.findById(shippingAddressId)
+    //                .orElseThrow(() -> new DataNotFoundException("Địa chỉ giao hàng không hợp lệ với ID: " + shippingAddressId));
 
 
-            if (couponId == 2L){
-                calculatedDiscountValue = (totalPrice * coupon.getDiscountValue()) / 100;
-                if (coupon.getMaxDiscountAmount() != null && calculatedDiscountValue > coupon.getMaxDiscountAmount()) {
-                    calculatedDiscountValue = coupon.getMaxDiscountAmount();
+            ShippingAddressEntity shippingAddressEntity = shippingAddressRePository.findByIdAndUserId(shippingAddressId, user.getId())
+                    .orElseThrow(() -> new DataNotFoundException("Không tìm thấy địa chỉ"));
+
+
+            // Kiểm tra cart items
+            List<CartItemEntity> selectedItems = cartItemService.getCartItemsByIds(cartItemIds, user.getId());
+            if (selectedItems.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                        "status", "failed",
+                        "message", "Không tìm thấy các sản phẩm trong giỏ hàng"
+                ));
+            }
+
+            //tính lại tổng tiền sản phẩm
+            int calculatedTotalPrice = selectedItems.stream()
+                    .mapToInt(item -> item.getQuantity() * item.getProductSizeColor().getProduct().getPrice())
+                    .sum();
+
+            // Kiểm tra totalPrice từ request có khớp không
+            if (calculatedTotalPrice != totalPrice) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                        "status", "failed",
+                        "message", "totalPrice không khớp với giỏ hàng"
+                ));
+            }
+
+            // tính tổng số lượng
+            int totalQuantity = selectedItems.stream()
+                    .mapToInt(CartItemEntity::getQuantity)
+                    .sum();
+
+            int calculatedDiscountValue = 0;
+            int calculatedShippingFee = 15000;
+            int calculatedFinalPrice = totalPrice + calculatedShippingFee;
+            CouponEntity coupon = null;
+            CouponUserEntity couponUserEntity = null;
+            if (couponCode != null && !couponCode.isEmpty()) {
+                coupon = couponRepository.findByCode(couponCode)
+                        .orElseThrow(() -> new DataNotFoundException("Mã giảm giá không tồn tại"));
+                couponUserEntity = couponUserRepository.findByUserIdAndCouponId(user.getId(), coupon.getId())
+                        .orElseThrow(() -> new DataNotFoundException("Không tìm thấy coupon phù hợp: " ));
+                // Kiểm tra điều kiện áp dụng mã giảm giá
+                if (!coupon.isActive()) {
+                    throw new IllegalArgumentException("Mã giảm giá không hoạt động");
+                }
+                if (LocalDateTime.now().isBefore(coupon.getStartDate()) || LocalDateTime.now().isAfter(coupon.getEndDate())) {
+                    throw new IllegalArgumentException("Mã giảm giá đã hết hạn");
+                }
+                if (coupon.getQuantity() <= 0) {
+                    throw new IllegalArgumentException("Mã giảm giá đã hết số lượng");
+                }
+                if (coupon.getMinOrderValue() != null && totalPrice < coupon.getMinOrderValue()) {
+                    throw new IllegalArgumentException("Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã giảm giá");
+                }
+                if (coupon.getMinProductQuantity() != null && totalQuantity < coupon.getMinProductQuantity()) {
+                    throw new IllegalArgumentException("Số lượng sản phẩm chưa đạt yêu cầu để áp dụng mã giảm giá");
+                }
+                if (couponUserEntity.getUsageCount() >= coupon.getMaxUsesPerUser()){
+                    throw new IllegalArgumentException("Số lượt sử dụng đã hết ");
+                }
+
+                Long couponId = coupon.getCouponType().getId();
+
+
+                if (couponId == 2L){
+                    calculatedDiscountValue = (totalPrice * coupon.getDiscountValue()) / 100;
+                    if (coupon.getMaxDiscountAmount() != null && calculatedDiscountValue > coupon.getMaxDiscountAmount()) {
+                        calculatedDiscountValue = coupon.getMaxDiscountAmount();
+                    }
+                }
+                else if (couponId == 1L){
+                    calculatedDiscountValue = coupon.getDiscountValue();
+                } else if (couponId == 3L){
+                    calculatedDiscountValue = Math.min(calculatedShippingFee, coupon.getDiscountValue());
+//                    calculatedShippingFee = 0;
+    //                calculatedDiscountValue = 15000;
+                }
+
+
+                // Tính tổng tiền cuối cùng
+                calculatedFinalPrice = Math.max(0, totalPrice + calculatedShippingFee - calculatedDiscountValue);
+
+                // Kiểm tra discountValue và finalPrice từ request
+                if (calculatedDiscountValue != discountValue || calculatedFinalPrice != finalPrice) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                            "status", "failed",
+                            "message", "discountValue hoặc finalPrice không khớp với mã giảm giá"
+                    ));
+                }
+            } else {
+                // Không có mã giảm giá
+                calculatedFinalPrice = totalPrice + calculatedShippingFee;
+                if (discountValue != 0 || finalPrice != calculatedFinalPrice) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                            "status", "failed",
+                            "message", "discountValue hoặc finalPrice không hợp lệ khi không sử dụng mã giảm giá"
+                    ));
                 }
             }
-            else if (couponId == 1L){
-                calculatedDiscountValue = coupon.getDiscountValue();
-            } else if (couponId == 3L){
-                calculatedShippingFee = 0;
-//                calculatedDiscountValue = 15000;
-            }
-
-
-            // Tính tổng tiền cuối cùng
-            calculatedFinalPrice = Math.max(0, totalPrice + calculatedShippingFee - calculatedDiscountValue);
-
-            // Kiểm tra discountValue và finalPrice từ request
-            if (calculatedDiscountValue != discountValue || calculatedFinalPrice != finalPrice) {
+            // Kiểm tra shippingFee
+            if (shippingFee != calculatedShippingFee) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                         "status", "failed",
-                        "message", "discountValue hoặc finalPrice không khớp với mã giảm giá"
+                        "message", "shippingFee không khớp với mã giảm giá"
                 ));
             }
-        } else {
-            // Không có mã giảm giá
-            calculatedFinalPrice = totalPrice + calculatedShippingFee;
-            if (discountValue != 0 || finalPrice != calculatedFinalPrice) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                        "status", "failed",
-                        "message", "discountValue hoặc finalPrice không hợp lệ khi không sử dụng mã giảm giá"
-                ));
+
+            // Tạo đơn hàng
+            OrderEntity order = new OrderEntity();
+            order.setUser(user);
+            order.setReceiverName(shippingAddressEntity.getReceiverName());
+            order.setReceiverPhone(shippingAddressEntity.getReceiverPhone());
+            order.setProvince(shippingAddressEntity.getProvince());
+            order.setDistrict(shippingAddressEntity.getDistrict());
+            order.setWard(shippingAddressEntity.getWard());
+            order.setAddressDetail(shippingAddressEntity.getAddressDetail());
+            order.setShippingFee(shippingFee);
+            order.setFinalPrice(finalPrice);
+            order.setTotalPrice(totalPrice);
+            order.setCouponCode(couponCode);
+            order.setDiscountValue(discountValue);
+            order.setNote(note);
+
+            // Thiết lập trạng thái đơn hàng dựa trên paymentId
+            Long statusOrderId = (paymentId == 3) ? 7L : 1L; // 2: Chờ thanh toán (VNPay), 1: Chờ xác nhận (COD, Momo)
+            StatusOrderEntity statusOrder = statusOrderRepository.findById(statusOrderId)
+                    .orElseThrow(() -> new DataNotFoundException("Trạng thái đơn hàng không hợp lệ với ID: " + statusOrderId));
+            order.setStatusOrder(statusOrder);
+
+            // Lấy phương thức thanh toán
+            PaymentEntity payment = paymentRepository.findById(paymentId)
+                    .orElseThrow(() -> new DataNotFoundException("Phương thức thanh toán không hợp lệ với ID: " + paymentId));
+            order.setPayment(payment);
+
+            // Lưu đơn hàng
+            order = orderRepository.save(order);
+
+            // Lưu OrderDetail
+            List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
+            for (Long cartItemId : cartItemIds) {
+                CartItemEntity cartItem = cartItemRepository.findByIdAndUserId(cartItemId, user.getId());
+                if (cartItem == null) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                            "status", "failed",
+                            "message", "Cart item ID " + cartItemId + " không tồn tại hoặc không thuộc về user"
+                    ));
+                }
+
+                OrderDetailEntity orderDetail = new OrderDetailEntity();
+                orderDetail.setOrder(order);
+                orderDetail.setProduct(cartItem.getProduct());
+                orderDetail.setQuantity(cartItem.getQuantity());
+                orderDetail.setProductSizeColor(cartItem.getProductSizeColor());
+                orderDetail.setPriceUnit(cartItem.getProductSizeColor().getProduct().getPrice());
+                orderDetail.setSubtotal(cartItem.getQuantity() * cartItem.getProductSizeColor().getProduct().getPrice());
+                orderDetailEntities.add(orderDetail);
             }
-        }
-        // Kiểm tra shippingFee
-        if (shippingFee != calculatedShippingFee) {
+            order.setOrderDetails(orderDetailEntities);
+            orderRepository.save(order);
+
+            // giảm số lượng mã giảm giá
+            if (coupon!= null){
+                coupon.setQuantity(coupon.getQuantity() - 1);
+                couponRepository.save(coupon);
+
+                // lưu vào bảng coupon_user đánh dấu user đã xài
+                CouponUserEntity couponUserEntit = couponUserRepository.findByUserIdAndCouponId(user.getId(), coupon.getId())
+                        .orElseThrow(() -> new DataNotFoundException("Không tìm thấy coupon phù hợp: " ));
+                couponUserEntit.setUsageCount(couponUserEntit.getUsageCount() + 1);
+                couponUserRepository.save(couponUserEntit);
+
+            }
+
+            // Chỉ xóa cartItem nếu không phải VNPay (paymentId != 3)
+    //        if (paymentId != 3) {
+    //
+    //        }
+            cartItemRepository.deleteByIdInAndUserId(cartItemIds, user.getId());
+
+            // Convert sang OrderResponse
+            OrderResponse orderResponse = OrderResponse.fromEntity(order);
+
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", "Đơn hàng đã được tạo thành công",
+                    "data", orderResponse
+            ));
+
+        } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "status", "failed",
-                    "message", "shippingFee không khớp với mã giảm giá"
+                    "message", "Lỗi khi tạo đơn hàng: " + e.getMessage()
             ));
         }
-
-        // Tạo đơn hàng
-        OrderEntity order = new OrderEntity();
-        order.setUser(user);
-        order.setReceiverName(shippingAddressEntity.getReceiverName());
-        order.setReceiverPhone(shippingAddressEntity.getReceiverPhone());
-        order.setProvince(shippingAddressEntity.getProvince());
-        order.setDistrict(shippingAddressEntity.getDistrict());
-        order.setWard(shippingAddressEntity.getWard());
-        order.setAddressDetail(shippingAddressEntity.getAddressDetail());
-        order.setShippingFee(shippingFee);
-        order.setFinalPrice(finalPrice);
-        order.setTotalPrice(totalPrice);
-        order.setCouponCode(couponCode);
-        order.setDiscountValue(discountValue);
-        order.setNote(note);
-
-        // Thiết lập trạng thái đơn hàng dựa trên paymentId
-        Long statusOrderId = (paymentId == 3) ? 7L : 1L; // 2: Chờ thanh toán (VNPay), 1: Chờ xác nhận (COD, Momo)
-        StatusOrderEntity statusOrder = statusOrderRepository.findById(statusOrderId)
-                .orElseThrow(() -> new DataNotFoundException("Trạng thái đơn hàng không hợp lệ với ID: " + statusOrderId));
-        order.setStatusOrder(statusOrder);
-
-        // Lấy phương thức thanh toán
-        PaymentEntity payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new DataNotFoundException("Phương thức thanh toán không hợp lệ với ID: " + paymentId));
-        order.setPayment(payment);
-
-        // Lưu đơn hàng
-        order = orderRepository.save(order);
-
-        // Lưu OrderDetail
-        List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
-        for (Long cartItemId : cartItemIds) {
-            CartItemEntity cartItem = cartItemRepository.findByIdAndUserId(cartItemId, user.getId());
-            if (cartItem == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                        "status", "failed",
-                        "message", "Cart item ID " + cartItemId + " không tồn tại hoặc không thuộc về user"
-                ));
-            }
-
-            OrderDetailEntity orderDetail = new OrderDetailEntity();
-            orderDetail.setOrder(order);
-            orderDetail.setProduct(cartItem.getProduct());
-            orderDetail.setQuantity(cartItem.getQuantity());
-            orderDetail.setProductSizeColor(cartItem.getProductSizeColor());
-            orderDetail.setPriceUnit(cartItem.getProductSizeColor().getProduct().getPrice());
-            orderDetail.setSubtotal(cartItem.getQuantity() * cartItem.getProductSizeColor().getProduct().getPrice());
-            orderDetailEntities.add(orderDetail);
-        }
-        order.setOrderDetails(orderDetailEntities);
-        orderRepository.save(order);
-
-        // giảm số lượng mã giảm giá
-        if (coupon!= null){
-            coupon.setQuantity(coupon.getQuantity() - 1);
-            couponRepository.save(coupon);
-
-            // lưu vào bảng coupon_user đánh dấu user đã xài
-
-
-        }
-
-        // Chỉ xóa cartItem nếu không phải VNPay (paymentId != 3)
-//        if (paymentId != 3) {
-//
-//        }
-        cartItemRepository.deleteByIdInAndUserId(cartItemIds, user.getId());
-
-        // Convert sang OrderResponse
-        OrderResponse orderResponse = OrderResponse.fromEntity(order);
-
-        return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "message", "Đơn hàng đã được tạo thành công",
-                "data", orderResponse
-        ));
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                "status", "failed",
-                "message", "Lỗi khi tạo đơn hàng: " + e.getMessage()
-        ));
     }
-}
     @GetMapping("/getOrder")
     public ResponseEntity<?> getOrderByUserId(
             @RequestParam("orderId") Long orderId

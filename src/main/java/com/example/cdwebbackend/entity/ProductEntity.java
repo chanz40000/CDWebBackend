@@ -42,6 +42,9 @@ public class ProductEntity extends BaseEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductSizeColorEntity> productSizeColors;
+    @Column(name = "is_active", columnDefinition = "BIT")
+    private Boolean isActive;
+
 
     public ProductEntity() {
     }
@@ -56,6 +59,18 @@ public class ProductEntity extends BaseEntity {
         this.brand = brand;
         this.productColors = productColors;
         this.productSizeColors = productSizeColors;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     public List<ProductColorEntity> getProductColors() {

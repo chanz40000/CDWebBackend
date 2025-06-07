@@ -1,6 +1,5 @@
 package com.example.cdwebbackend.repository;
 
-import com.example.cdwebbackend.entity.RatingEntity;
 import com.example.cdwebbackend.entity.ReviewEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,4 +21,5 @@ public interface ReviewRepository  extends JpaRepository<ReviewEntity, Long> {
     List<Map<String, Integer>> getStatsByProductId(@Param("productId") Long productId);
 
     Page<ReviewEntity> findByProductIdAndParentReviewIdIsNull(Long productId, Pageable pageable);
+    List<ReviewEntity> findByProductIdAndParentReviewIdIsNull(Long productId);
 }

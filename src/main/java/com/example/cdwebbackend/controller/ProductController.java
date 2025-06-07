@@ -185,6 +185,50 @@ public class ProductController {
             ));
         }
     }
+//    @PutMapping( "/update-active-product/{productId}")
+//    public ResponseEntity<?> updateActiveProduct(
+//            @PathVariable("productId") Long productId,
+//            @RequestParam("active") Boolean active
+//    ) {
+//        try {
+//
+//            ProductEntity entity = productRepository.findOneById(productId);
+//            entity.setActive(active);
+//
+//            // Gán productId cho DTO nếu cần
+//            productDTO.setId(productId);
+//
+//            ProductEntity updated = productService.updateProduct(productDTO, productId);
+//            ProductResponse response = ProductResponse.fromEntity(updated);
+//
+//            return ResponseEntity.ok(Map.of(
+//                    "message", "Cập nhật sản phẩm thành công",
+//                    "productId", updated.getId(),
+//                    "data", response
+//            ));
+//        } catch (NumberFormatException e) {
+//            return ResponseEntity.badRequest().body(Map.of(
+//                    "error", "Dữ liệu không hợp lệ",
+//                    "details", "Trường ID (categoryCode, brandCode, ...) phải là số"
+//            ));
+//        } catch (DataNotFoundException e) {
+//            return ResponseEntity.badRequest().body(Map.of(
+//                    "error", "Không tìm thấy dữ liệu",
+//                    "details", e.getMessage()
+//            ));
+//        } catch (JsonProcessingException e) {
+//            return ResponseEntity.badRequest().body(Map.of(
+//                    "error", "Lỗi parse JSON",
+//                    "details", e.getOriginalMessage()
+//            ));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+//                    "error", "Lỗi server",
+//                    "details", e.getMessage()
+//            ));
+//        }
+//    }
     @PostMapping("/update_information")
     public ResponseEntity<?> updateProductInformation(
             @RequestParam("productId") Long productId,
@@ -213,52 +257,50 @@ public class ProductController {
         }
     }
 
-    @DeleteMapping("/delete_product") public ResponseEntity<?> deleteProductById(
-            @RequestParam("productId") Long productId
+    @PutMapping("/change_active_product") public ResponseEntity<?> deleteProductById(
+            @RequestParam("productId") Long productId,
+            @RequestParam("active") Boolean active
     ){
         try {
 
-
-
             // Cập nhật thông tin sản phẩm với ảnh mới
-            productService.deleteProduct(productId);
-
-
+            productService.changeActiveProduct(productId, active);
             // Trả về phản hồi thành công
             return ResponseEntity.ok(Map.of(
-                    "message", "Xóa thành công",
+                    "message", "cập nhât thành công",
                     "productId", productId
             ));
         } catch (Exception e) {
             e.printStackTrace(); // Log lỗi chi tiết hơn
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "error", "Đã xảy ra lỗi khi xóa sản phẩm: " + e.getMessage()
+                    "error", "Đã xảy ra lỗi khi cập nhật trạng thái sản phẩm: " + e.getMessage()
             ));
         }
 
 
     }
 
-    @DeleteMapping("/delete_product_size_color") public ResponseEntity<?> deleteProductSizeColorById(
-            @RequestParam("productSizeColorId") Long productSizeColorId
+    @PutMapping("/change_active_product_size_color") public ResponseEntity<?> deleteProductSizeColorById(
+            @RequestParam("productSizeColorId") Long productSizeColorId,
+            @RequestParam("active") Boolean active
     ){
         try {
 
 
 
             // Cập nhật thông tin sản phẩm với ảnh mới
-            productService.deleteProductSizeColor(productSizeColorId);
+            productService.changeActiveProductSizeColor(productSizeColorId, active);
 
 
             // Trả về phản hồi thành công
             return ResponseEntity.ok(Map.of(
-                    "message", "Xóa thành công ",
+                    "message", "cập nhât thành công ",
                     "productId", productSizeColorId
             ));
         } catch (Exception e) {
             e.printStackTrace(); // Log lỗi chi tiết hơn
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "error", "Đã xảy ra lỗi khi xóa sản phẩm: " + e.getMessage()
+                    "error", "Đã xảy ra lỗi khi cập nhật trạng thái sản phẩm: " + e.getMessage()
             ));
         }
 
@@ -499,36 +541,51 @@ public ResponseEntity<List<ProductResponse>> getAllProducts() {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 }
-@GetMapping("/list_page")
-public ResponseEntity<Map<String, Object>> getAllProducts(
-        @RequestParam(name = "page", defaultValue = "0") int page,
-        @RequestParam(name = "size", defaultValue = "3") int size
-) {
-    try {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ProductDTO> productPage = productService.getAllProductsPaginated(pageable);
+    @GetMapping("/list_page")
+    public ResponseEntity<Map<String, Object>> getAllProducts(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "3") int size,
+            @RequestParam(value = "isActive", required = false) Boolean isActive
+    ) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<ProductDTO> productPage;
 
-        List<ProductResponse> responseList = productPage.getContent().stream()
-                .map(dto -> ProductResponse.fromEntity(productConverter.toEntity(dto)))
-                .collect(Collectors.toList());
+            // ✅ Kiểm tra null (client không truyền isActive)
+            if (isActive == null) {
+                productPage = productService.getAllProductsPaginated(null, pageable); // lấy tất cả
+            } else {
+                productPage = productService.getAllProductsPaginated(isActive, pageable); // true hoặc false
+            }
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("products", responseList);
-        response.put("currentPage", productPage.getNumber());
-        response.put("totalItems", productPage.getTotalElements());
-        response.put("totalPages", productPage.getTotalPages());
-        response.put("pageSize", size);
-        return ResponseEntity.ok(response);
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            List<ProductResponse> responseList = productPage.getContent().stream()
+                    .map(dto -> ProductResponse.fromEntity(productConverter.toEntity(dto)))
+                    .collect(Collectors.toList());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("products", responseList);
+            response.put("currentPage", productPage.getNumber());
+            response.put("totalItems", productPage.getTotalElements());
+            response.put("totalPages", productPage.getTotalPages());
+            response.put("pageSize", size);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
-}
 
     @GetMapping("/getProduct/{productId}")
-    public ResponseEntity<?> getProductById(@PathVariable("productId") Long productId) {
+    public ResponseEntity<?> getProductById(@PathVariable("productId") Long productId,
+                                            @RequestParam(value = "isActive", required = false) Boolean isActive) {
         try {
-            ProductDTO productDTO = productService.getProductById(productId);
+            ProductDTO productDTO;
+
+            if (isActive != null && isActive) {
+                productDTO = productService.getProductByIdTrue(productId);
+            } else {
+                productDTO = productService.getProductById(productId); // lấy không quan tâm isActive
+            }
             if (productDTO == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("No product found with id = " + productId);

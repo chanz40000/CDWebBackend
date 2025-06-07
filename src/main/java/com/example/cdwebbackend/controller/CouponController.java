@@ -42,17 +42,83 @@ public class CouponController {
 
     @GetMapping
     public ResponseEntity<List<CouponResponse>> getAllCoupons() {
-        List<CouponEntity> couponEntities = couponRepository.findAll();
+        List<CouponEntity> couponEntities = couponRepository.findByIsActiveTrue();
         List<CouponResponse> responses = couponEntities.stream()
                 .map(CouponResponse::fromEntity)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
     }
 
+    // GET: Lấy danh sách coupon theo coupon_type_id = 3 và is_active = true
+    @GetMapping("/type/3")
+    public ResponseEntity<List<CouponResponse>> getCouponsType3() {
+        List<CouponEntity> coupons = couponRepository.findByCouponTypeIdAndIsActiveTrue(3L);
+        List<CouponResponse> responses = coupons.stream()
+                .map(CouponResponse::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
+    }
+
+    // GET: Lấy danh sách coupon theo coupon_type_id = 1 hoặc 2 và is_active = true
+    @GetMapping("/type/1-2")
+    public ResponseEntity<List<CouponResponse>> getCouponsType1And2() {
+        List<Long> typeIds = List.of(1L, 2L);
+        List<CouponEntity> coupons = couponRepository.findByCouponTypeIdInAndIsActiveTrue(typeIds);
+        List<CouponResponse> responses = coupons.stream()
+                .map(CouponResponse::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
+    }
+    @GetMapping("/code/{couponCode}")
+    public ResponseEntity<CouponResponse> getCouponByCode(@PathVariable("couponCode") String couponCode) {
+        return couponRepository.findByCode(couponCode)
+                .map(coupon -> ResponseEntity.ok(CouponResponse.fromEntity(coupon)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+    @GetMapping("/user/type/1-2")
+    public ResponseEntity<List<CouponUserResponse>> getAllCouponsByUserIdInType1And2
+            () throws DataNotFoundException {
+        List<Long> typeIds = List.of(1L, 2L);
+        // Lấy thông tin người dùng từ SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        UserEntity user = userRepository.findOneByUsername(username)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+
+        List<CouponUserEntity> couponUsers = couponUserRepository.findActiveCouponsByUserIdAndCouponTypeIds(user.getId(), typeIds);
+
+        List<CouponUserResponse> couponUserResponses = couponUsers.stream()
+                .map(CouponUserResponse::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(couponUserResponses);
+    }
+
+    @GetMapping("/user/get")
+    public ResponseEntity<List<CouponUserResponse>> getAllCouponsByUserIdInType3
+            () throws DataNotFoundException {
+        List<Long> typeIds = List.of(1L, 2L, 3L);
+        // Lấy thông tin người dùng từ SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        UserEntity user = userRepository.findOneByUsername(username)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+
+        List<CouponUserEntity> couponUsers = couponUserRepository.findActiveCouponsByUserIdAndCouponTypeIds(user.getId(), typeIds);
+
+        List<CouponUserResponse> couponUserResponses = couponUsers.stream()
+                .map(CouponUserResponse::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(couponUserResponses);
+    }
+
     @GetMapping("/user")
     public ResponseEntity<List<CouponUserResponse>> getAllCouponsByUserId
             () throws DataNotFoundException {
-
+        List<Long> typeIds = List.of(1L, 2L);
         // Lấy thông tin người dùng từ SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -68,9 +134,68 @@ public class CouponController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(couponUserResponses);
     }
+
+    // Thêm phương thức lưu mã giảm giá cho người dùng
+    @PostMapping("/user/save")
+    public ResponseEntity<?> saveCouponForUser(@RequestParam("couponCode") String couponCode) throws DataNotFoundException {
+        // Lấy thông tin người dùng từ SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        UserEntity user = userRepository.findOneByUsername(username)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        // Tìm mã giảm giá theo couponCode
+        CouponEntity coupon = couponRepository.findByCode(couponCode)
+                .orElseThrow(() -> new DataNotFoundException("Coupon not found"));
+
+        // Kiểm tra mã giảm giá có hợp lệ không
+        LocalDateTime now = LocalDateTime.now();
+        if (!coupon.isActive()) {
+            throw new DataNotFoundException("Coupon is not active");
+        }
+        if (coupon.getStartDate().isAfter(now) || coupon.getEndDate().isBefore(now)) {
+            throw new DataNotFoundException("Coupon is not valid at this time");
+        }
+        if (coupon.getQuantity() <= 0) {
+            throw new DataNotFoundException("Coupon is out of stock");
+        }
+
+        // Kiểm tra xem người dùng đã lưu mã này chưa
+        CouponUserEntity couponUser = couponUserRepository.findByUserIdAndCouponId(user.getId(), coupon.getId())
+                .orElse(null);
+
+        if (couponUser != null) {
+            // Kiểm tra số lần sử dụng
+            if (couponUser.getUsageCount() >= coupon.getMaxUsesPerUser()) {
+                throw new DataNotFoundException("User has reached the maximum usage limit for this coupon");
+            }
+            // Tăng usageCount
+            couponUser.setUsageCount(couponUser.getUsageCount() + 1);
+            if (couponUser.getUsageCount() >= coupon.getMaxUsesPerUser()) {
+                couponUser.setUsed(true);
+            }
+        } else {
+            // Tạo mới CouponUserEntity
+            couponUser = new CouponUserEntity();
+            couponUser.setUser(user);
+            couponUser.setCoupon(coupon);
+            couponUser.setUsageCount(0);
+            couponUser.setUsed(coupon.getMaxUsesPerUser() == 1);
+        }
+
+        // Lưu bản ghi CouponUserEntity
+        couponUser = couponUserRepository.save(couponUser);
+
+        // Giảm số lượng mã giảm giá
+        coupon.setQuantity(coupon.getQuantity() - 1);
+        couponRepository.save(coupon);
+
+        return ResponseEntity.ok(CouponUserResponse.fromEntity(couponUser));
+    }
+
     // Lấy chi tiết coupon theo ID
     @GetMapping("/{id}")
-    public ResponseEntity<CouponResponse> getCouponById(@PathVariable Long id) {
+    public ResponseEntity<CouponResponse> getCouponById(@PathVariable("id")  Long id) {
         return couponRepository.findById(id)
                 .map(coupon -> ResponseEntity.ok(CouponResponse.fromEntity(coupon)))
                 .orElse(ResponseEntity.notFound().build());
@@ -145,5 +270,25 @@ public class CouponController {
         couponRepository.save(coupon);
         return ResponseEntity.ok(CouponResponse.fromEntity(coupon));
     }
+
+    @GetMapping("/user/has")
+    public ResponseEntity<Boolean> checkIfUserHasCoupon(@RequestParam("couponCode") String couponCode) throws DataNotFoundException {
+        // Lấy thông tin người dùng hiện tại từ SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        UserEntity user = userRepository.findOneByUsername(username)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        // Tìm mã giảm giá theo couponCode
+        CouponEntity coupon = couponRepository.findByCode(couponCode)
+                .orElseThrow(() -> new DataNotFoundException("Coupon not found"));
+
+        // Kiểm tra xem người dùng đã có mã giảm giá này chưa
+        boolean hasCoupon = couponUserRepository.existsByUserIdAndCouponId(user.getId(), coupon.getId());
+
+        return ResponseEntity.ok(hasCoupon);
+    }
+
 
 }
