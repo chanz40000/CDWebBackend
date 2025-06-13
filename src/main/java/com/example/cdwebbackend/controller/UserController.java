@@ -62,27 +62,6 @@ public class UserController {
     @Autowired
     EmailSenderService senderService;
 
-//    @PostMapping("/register")
-//    public ResponseEntity<?> createUser(@Valid @Validated @RequestBody UserDTO userDTO , BindingResult result){
-//
-//        try {
-//             if(result.hasErrors()){
-//                 List<String> errorMessages = new ArrayList<>();
-//                 for (FieldError fieldError : result.getFieldErrors()) {
-//                     String defaultMessage = fieldError.getDefaultMessage();
-//                     errorMessages.add(defaultMessage);
-//                 }
-//                 return ResponseEntity.badRequest().body(errorMessages);
-//             }
-//             if(!userDTO.getPassword().equals(userDTO.getRetypePassword())){
-//                 return ResponseEntity.badRequest().body("Password không khớp");
-//             }
-//            UserEntity user = userService.createUser(userDTO);
-//             return ResponseEntity.ok("Đăng ký thành công");
-//         }catch (Exception e){
-//             return ResponseEntity.badRequest().body(e.getMessage());
-//         }
-//    }
 @PostMapping("/register")
 public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
     try {
@@ -340,24 +319,26 @@ public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
             @Valid @RequestBody UserUpdateDTO updateUserDTO,
             @RequestHeader("Authorization") String authorizationHeader) {
         try {
-            System.out.println("date: "+ updateUserDTO.getBirthday().toString());
-            String extractedToken = authorizationHeader.substring(7);
+            String extractedToken = authorizationHeader.substring(7); // Loại bỏ "Bearer "
             UserEntity userEntity = userService.getUserDetailsFromToken(extractedToken);
 
             if (userEntity.getId() != userId) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Bạn không có quyền cập nhật thông tin người dùng này.");
+                        .body("user.error_forbidden_update");
             }
+            System.out.println(updateUserDTO.toString());
 
             UserEntity updatedUser = userService.updateUser(updateUserDTO, userId);
             return ResponseEntity.ok(userConverter.toDTO(updatedUser));
 
-        } catch (DataNotFoundException | DataIntegrityViolationException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.badRequest().body("user.error_data_not_found");
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body("user.error_data_integrity");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Đã xảy ra lỗi hệ thống: " + e.getMessage());
+                    .body("system.error_internal");
         }
     }
 

@@ -13,13 +13,13 @@ import lombok.Setter;
 public class NewPasswordDTO {
 
     @JsonProperty("email")
-    @NotBlank(message = "Email là bắt buộc")
-    @Email(message = "Email không hợp lệ")
+    @NotBlank(message = "{validation.email_notBlank}")
+    @Email(message = "{validation.email_invalid}")
     private String email;
 
     @JsonProperty("newPassword")
-    @NotBlank(message = "Mật khẩu mới là bắt buộc")
-    @Size(min = 7, message = "Mật khẩu phải có ít nhất 7 ký tự")
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$", message = "Mật khẩu phải chứa ít nhất một chữ cái và một số")
+    @NotBlank(message = "{validation.newPassword_notBlank}")
+    @Size(min = 7, message = "{validation.newPassword_size}")
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$", message = "{validation.newPassword_pattern}")
     private String newPassword;
 }

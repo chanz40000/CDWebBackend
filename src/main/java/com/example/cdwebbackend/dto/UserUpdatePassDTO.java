@@ -1,5 +1,6 @@
 package com.example.cdwebbackend.dto;
 import com.example.cdwebbackend.validation.PasswordMatch;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -12,15 +13,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserUpdatePassDTO {
-    @NotBlank(message = "Mật khẩu cũ không được để trống")
+    @NotBlank(message = "{validation.password_notBlank}")
     private String password; // Mật khẩu cũ
 
-    @NotBlank(message = "Mật khẩu mới không được để trống")
-    @Size(min = 7, message = "Mật khẩu mới phải ít nhất 7 ký tự")
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$", message = "Mật khẩu phải chứa ít nhất một chữ cái và một số")
+    @NotBlank(message = "{validation.newPassword_notBlank}")
+    @Size(min = 7, message = "{validation.newPassword_size}")
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$", message = "{validation.newPassword_pattern}")
     private String newPassword; // Mật khẩu mới
 
-    @NotBlank(message = "Nhập lại mật khẩu không được để trống")
+    @NotBlank(message = "{validation.retypePassword_notBlank}")
+    @JsonProperty("reNewPassword")
     private String retypePassword; // Nhập lại mật khẩu mới
 
     // Getters và Setters
