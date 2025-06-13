@@ -9,37 +9,37 @@ import jakarta.validation.constraints.Size;
 
 public class ShippingAddressDTO extends AbstractDTO<ShippingAddressDTO> {
 
-    @NotNull(message = "ID người dùng không được để trống")
+    @NotNull(message = "{validation.user_id_notNull}")
     @JsonProperty("user_id")
     private Long user;
 
-    @NotBlank(message = "Tên người nhận không được để trống")
-    @Size(max = 100, message = "Tên người nhận không được vượt quá 100 ký tự")
+    @NotBlank(message = "{validation.receiver_name_notBlank}")
+    @Size(max = 100, message = "{validation.receiver_name_size}")
     @JsonProperty("receiver_name")
     private String receiverName;
 
-    @NotBlank(message = "Số điện thoại không được để trống")
-    @Pattern(regexp = "^\\d{10}$", message = "Số điện thoại phải có đúng 10 chữ số")
+    @NotBlank(message = "{validation.receiver_phone_notBlank}")
+    @Pattern(regexp = "^\\d{10}$", message = "{validation.receiver_phone_pattern}")
     @JsonProperty("receiver_phone")
     private String receiverPhone;
 
-    @NotBlank(message = "Tỉnh/Thành phố không được để trống")
-    @Size(max = 100, message = "Tỉnh/Thành phố không được vượt quá 100 ký tự")
+    @NotBlank(message = "{validation.province_notBlank}")
+    @Size(max = 100, message = "{validation.province_size}")
     @JsonProperty("province")
     private String province;
 
-    @NotBlank(message = "Quận/Huyện không được để trống")
-    @Size(max = 100, message = "Quận/Huyện không được vượt quá 100 ký tự")
+    @NotBlank(message = "{validation.district_notBlank}")
+    @Size(max = 100, message = "{validation.district_size}")
     @JsonProperty("district")
     private String district;
 
-    @NotBlank(message = "Phường/Xã không được để trống")
-    @Size(max = 100, message = "Phường/Xã không được vượt quá 100 ký tự")
+    @NotBlank(message = "{validation.ward_notBlank}")
+    @Size(max = 100, message = "{validation.ward_size}")
     @JsonProperty("ward")
     private String ward;
 
-    @NotBlank(message = "Địa chỉ chi tiết không được để trống")
-    @Size(max = 255, message = "Địa chỉ chi tiết không được vượt quá 255 ký tự")
+    @NotBlank(message = "{validation.address_detail_notBlank}")
+    @Size(max = 255, message = "{validation.address_detail_size}")
     @JsonProperty("address_detail")
     private String addressDetail;
 
