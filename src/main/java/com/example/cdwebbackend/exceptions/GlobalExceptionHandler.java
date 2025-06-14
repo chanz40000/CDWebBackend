@@ -54,9 +54,9 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = new HashMap<>();
         String message = ex.getMessage();
         if (message.contains("LocalDate")) {
-            errors.put("birthday", "Ngày sinh phải có định dạng yyyy-MM-dd (ví dụ: 2025-05-24)");
+            errors.put("birthday", "validation.invalid_date_format");
         } else {
-            errors.put("error", "Dữ liệu không hợp lệ: " + message);
+            errors.put("error", "validation.birthday_invalid" + message);
         }
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }

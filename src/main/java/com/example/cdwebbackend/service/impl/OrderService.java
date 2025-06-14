@@ -2,14 +2,13 @@ package com.example.cdwebbackend.service.impl;
 
 import com.example.cdwebbackend.dto.BestSellingProductDTO;
 import com.example.cdwebbackend.entity.OrderEntity;
+import com.example.cdwebbackend.entity.OrderReasonEntity;
 import com.example.cdwebbackend.exceptions.DataNotFoundException;
-import com.example.cdwebbackend.repository.OrderDetailRepository;
-import com.example.cdwebbackend.repository.OrderRepository;
+import com.example.cdwebbackend.repository.*;
 import com.example.cdwebbackend.converter.OrderConverter;
 import com.example.cdwebbackend.dto.OrderDTO;
 import com.example.cdwebbackend.entity.OrderEntity;
 import com.example.cdwebbackend.repository.OrderRepository;
-import com.example.cdwebbackend.repository.StatusOrderRepository;
 import com.example.cdwebbackend.service.IOrderService;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Transaction;
@@ -31,6 +30,8 @@ public class OrderService implements IOrderService{
     OrderDetailRepository orderDetailRepository;
     @Autowired
     StatusOrderRepository statusOrderRepository;
+    @Autowired
+    OrderReasonRepository orderReasonRepository;
 
     private List<Transaction> transactions; // Danh sách giao dịch
     //tinh tong doanh thu theo ngay
@@ -226,9 +227,12 @@ public class OrderService implements IOrderService{
         // Tìm tất cả đơn hàng có status_order_id = 7 và sửa đổi trước 1 ngày
         List<OrderEntity> overdueOrders = orderRepository.findByStatusOrderIdAndModifiedDateBefore(7L, oneDayAgo);
 
-        // Cập nhật trạng thái sang 12 cho các đơn hàng quá hạn
+        // Cập nhật trạng thái sang 6 đã hủy cho các đơn hàng quá hạn + lý do hủy
         for (OrderEntity order : overdueOrders) {
-            order.setStatusOrder(statusOrderRepository.findOneById(12));
+            OrderReasonEntity reason = orderReasonRepository.findOneById(24);
+            String reason_order = reason.getReasonGroup()+": "+reason.getReason();
+            order.setCancelReason(reason_order);
+            order.setStatusOrder(statusOrderRepository.findOneById(6));
             order.setModifiedDate(new Date()); // Cập nhật thời gian sửa đổi
             orderRepository.save(order);
         }
