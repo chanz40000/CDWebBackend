@@ -9,8 +9,6 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -18,46 +16,46 @@ import java.util.List;
 public class UserUpdateDTO {
 
     @JsonProperty("username")
-    @NotBlank(message = "Tên đăng nhập không được để trống")
-    @Size(min = 3, max = 50, message = "Tên đăng nhập phải từ 3 đến 50 ký tự")
+    @NotBlank(message = "validation.username_notBlank")
+    @Size(min = 3, max = 50, message = "validation.username_size")
     private String username;
 
     @JsonProperty("fullname")
-    @NotBlank(message = "Họ và tên không được để trống")
-    @Size(min = 2, max = 100, message = "Họ và tên phải từ 2 đến 100 ký tự")
+    @NotBlank(message = "validation.fullname_notBlank")
+    @Size(min = 2, max = 100, message = "validation.fullname_size")
     private String fullname;
 
     @JsonProperty("email")
-    @NotBlank(message = "Email không được để trống")
-    @Email(message = "Email không hợp lệ")
-    @Size(max = 100, message = "Email không được vượt quá 100 ký tự")
+    @NotBlank(message = "validation.email_notBlank")
+    @Email(message = "validation.email_invalid")
+    @Size(max = 100, message = "validation.email_size")
     private String email;
 
     @JsonProperty("phone")
-    @Size(max = 10, message = "Số điện thoại không được vượt quá 10 ký tự")
+    @Size(max = 10, message = "validation.phone_size")
     private String phone;
 
     @JsonProperty("address")
-    @Size(max = 255, message = "Địa chỉ không được vượt quá 255 ký tự")
+    @Size(max = 255, message = "validation.address_size")
     private String address;
 
     @JsonProperty("gender")
-    @Size(max = 20, message = "Giới tính không được vượt quá 20 ký tự")
+    @Size(max = 20, message = "validation.gender_size")
     private String gender;
 
     @JsonProperty("birthday")
     private LocalDate birthday;
 
     @JsonProperty("avatar")
-    @Size(max = 255, message = "URL ảnh đại diện không được vượt quá 255 ký tự")
+    @Size(max = 255, message = "validation.avatar_size")
     private String avatar;
 
     @JsonProperty("facebook_account_id")
-    @Size(max = 100, message = "ID tài khoản Facebook không được vượt quá 100 ký tự")
+    @Size(max = 100, message = "validation.facebookAccountId_size")
     private String facebookAccountId;
 
     @JsonProperty("google_account_id")
-    @Size(max = 100, message = "ID tài khoản Google không được vượt quá 100 ký tự")
+    @Size(max = 100, message = "validation.googleAccountId_size")
     private String googleAccountId;
 
     // Getters and Setters
