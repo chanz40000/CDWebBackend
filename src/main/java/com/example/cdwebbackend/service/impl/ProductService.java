@@ -322,6 +322,7 @@ public class ProductService implements IProductService {
     }
 
 
+
     @Cacheable(value = "products", key = "'zeroStockLastThreeMonths'")
     public List<ProductSizeColorEntity> getProductsWithZeroStockPurchasedInLastThreeMonths() {
         LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
