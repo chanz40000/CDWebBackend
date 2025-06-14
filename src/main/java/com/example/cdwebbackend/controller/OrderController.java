@@ -14,12 +14,18 @@ import com.example.cdwebbackend.service.IShippingAddressService;
 import com.example.cdwebbackend.service.impl.OrderService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -79,6 +85,9 @@ public class OrderController {
 
     @Autowired
     CouponUserRepository couponUserRepository;
+
+    @Autowired
+    OrderReasonRepository orderReasonRepository;
 
 //    @Autowired
 //    priva
@@ -580,6 +589,26 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/getOrderAdmin")
+    public ResponseEntity<?> getOrderDetailAdmin(
+            @RequestParam("orderId") Long orderId
+    ) {
+        try {
+
+            OrderDTO orderDTOS = orderService.getOrdersById(orderId);
+
+            OrderResponse response = OrderResponse.fromEntity(orderConverter.toEntity(orderDTOS));
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", response
+            ));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 
     @GetMapping("/getOrder_byUser")
     public ResponseEntity<?> getOrderByUserId() {
@@ -646,6 +675,36 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/getOrder/status/admin")
+    public ResponseEntity<?> getOrderByStatusAdmin(
+            @RequestParam("statusId") Long statusId,
+            @RequestParam(value = "page",defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+            Page<OrderEntity> orderPage = orderRepository.findByStatusOrderId(statusId, pageable);
+            List<OrderResponse> responses = orderPage.getContent().stream()
+                    .map(OrderResponse::fromEntity)
+                    .collect(Collectors.toList());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("orders", responses);
+            response.put("currentPage", orderPage.getNumber());
+            response.put("totalItems", orderPage.getTotalElements());
+            response.put("totalPages", orderPage.getTotalPages());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 
     @PostMapping("/add-shipping-address")
     public ResponseEntity<?> addShippingAddress(@RequestParam("receiver_name") String receiver_name,
@@ -952,6 +1011,125 @@ public class OrderController {
     }
     }
 
+    @GetMapping("/get_all_OrderReason")
+    public ResponseEntity<List<OrderReasonDTO>> getOrderReasonAll() {
+        try {
+            List<OrderReasonEntity> orderReasonEntities = orderReasonRepository.findAll();
+
+            List<OrderReasonDTO> orderReasonDTOS = orderReasonEntities.stream()
+                    .map(entity -> {
+                        OrderReasonDTO dto = new OrderReasonDTO();
+                        dto.setId(entity.getId());
+                        dto.setReasonGroup(entity.getReasonGroup());
+                        dto.setReason(entity.getReason());
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(orderReasonDTOS);
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/getOrderReason_byGroup")
+    public ResponseEntity<List<OrderReasonDTO>> getOrderReasonAdmin(
+            @RequestParam("group") List<String> group
+    ) {
+        try {
+            List<OrderReasonEntity> orderReasonEntities = orderReasonRepository.findByReasonGroupIn(group);
+            List<OrderReasonDTO> orderReasonDTOS = orderReasonEntities.stream()
+                    .map(entity -> {
+                        OrderReasonDTO dto = new OrderReasonDTO();
+                        dto.setId(entity.getId());
+                        dto.setReasonGroup(entity.getReasonGroup());
+                        dto.setReason(entity.getReason());
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(orderReasonDTOS);
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/getOrderReason_user")
+    public ResponseEntity<List<OrderReasonDTO>> getOrderReasonUser() {
+        try {
+            List<OrderReasonEntity> orderReasonEntities = orderReasonRepository.findAll();
+
+            List<OrderReasonDTO> orderReasonDTOS = orderReasonEntities.stream()
+                    .map(entity -> {
+                        OrderReasonDTO dto = new OrderReasonDTO();
+                        dto.setId(entity.getId());
+                        dto.setReasonGroup(entity.getReasonGroup());
+                        dto.setReason(entity.getReason());
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(orderReasonDTOS);
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/update_status")
+    public ResponseEntity<?> updateStatus(
+            @RequestParam("statusId") Long statusId,
+            @RequestParam("orderId") Long orderId
+    ) {
+        try {
+            OrderEntity order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new DataNotFoundException("Order not found"));
+            StatusOrderEntity statusOrder = statusOrderRepository.findOneById(statusId);
+            order.setStatusOrder(statusOrder);
+            orderRepository.save(order);
+            OrderResponse response = OrderResponse.fromEntity(order);
+            return ResponseEntity.ok(response);
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/update_order_reason")
+    public ResponseEntity<?> updateOrderReason(
+            @RequestParam("orderId") Long orderId,
+            @RequestParam("reasonId") Long reasonId
+    ) {
+        try {
+            OrderEntity order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new DataNotFoundException("Order not found"));
+            OrderReasonEntity reason = orderReasonRepository.findOneById(reasonId);
+            String reason_order = reason.getReasonGroup()+": "+reason.getReason();
+            order.setCancelReason(reason_order);
+            orderRepository.save(order);
+            OrderResponse response = OrderResponse.fromEntity(order);
+            return ResponseEntity.ok(response);
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/delete_order_reason")
+    public ResponseEntity<?> deleteOrderReason(
+            @RequestParam("orderId") Long orderId
+    ) {
+        try {
+            OrderEntity order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new DataNotFoundException("Order not found"));
+            order.setCancelReason(null);
+            orderRepository.save(order);
+            OrderResponse response = OrderResponse.fromEntity(order);
+            return ResponseEntity.ok(response);
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 
 

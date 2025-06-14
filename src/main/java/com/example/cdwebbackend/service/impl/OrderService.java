@@ -2,6 +2,7 @@ package com.example.cdwebbackend.service.impl;
 
 import com.example.cdwebbackend.dto.BestSellingProductDTO;
 import com.example.cdwebbackend.entity.OrderEntity;
+import com.example.cdwebbackend.exceptions.DataNotFoundException;
 import com.example.cdwebbackend.repository.OrderDetailRepository;
 import com.example.cdwebbackend.repository.OrderRepository;
 import com.example.cdwebbackend.converter.OrderConverter;
@@ -196,6 +197,12 @@ public class OrderService implements IOrderService{
     @Override
     public OrderDTO getOrdersByIdAndUserId(Long userId, Long orderId) {
         OrderEntity orderEntity = orderRepository.findByUserIdAndId(userId, orderId);
+        return orderConverter.toDTO(orderEntity);
+    }
+
+    public OrderDTO getOrdersById(Long orderId) throws DataNotFoundException {
+        OrderEntity orderEntity = orderRepository.findById(orderId)
+                .orElseThrow(() -> new DataNotFoundException("Order not found"));;
         return orderConverter.toDTO(orderEntity);
     }
 
