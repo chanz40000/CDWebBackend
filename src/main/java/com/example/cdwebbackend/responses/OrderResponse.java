@@ -17,6 +17,8 @@ public class OrderResponse {
     private int totalPrice;
     private int shippingFee;
     private int finalPrice;
+    private String codeCoupon;
+    private int discountValue;
     private Long statusOrderId;
     private String statusOrderStatus;
     private Long paymentId;
@@ -27,6 +29,7 @@ public class OrderResponse {
     private String ward;
     private String addressDetails;
     private String note;
+    private String orderReason;
     private List<OrderDetailResponse> orderDetails;
     private ShippingAddressResponse shippingAddresses;
 
@@ -48,7 +51,10 @@ public class OrderResponse {
                 .statusOrderId(entity.getStatusOrder().getId())
                 .totalPrice(entity.getTotalPrice())
                 .shippingFee(entity.getShippingFee())
+                .orderReason(entity.getCancelReason() != null ? entity.getCancelReason() : null)
                 .finalPrice(entity.getFinalPrice())
+                .discountValue(entity.getDiscountValue())
+                .codeCoupon(entity.getCouponCode())
 //                .statusOrderStatus(entity.getStatusOrder().getName())
                 .paymentId(entity.getPayment().getId())
                 .orderDetails(orderDetailResponses)

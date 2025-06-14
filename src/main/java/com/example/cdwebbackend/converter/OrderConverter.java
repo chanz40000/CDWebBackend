@@ -49,6 +49,9 @@ public class OrderConverter {
         entity.setCreatedDate(dto.getCreateDate());
         entity.setTotalPrice(dto.getTotalPrice());
         entity.setFinalPrice(dto.getFinalPrice());
+        entity.setShippingFee(dto.getShippingFee());
+        entity.setCouponCode(dto.getCouponCode());
+        entity.setDiscountValue(dto.getDiscountValue());
         entity.setNote(dto.getNote());
         entity.setReceiverName(dto.getReceiverName());
         entity.setReceiverPhone(dto.getReceiverPhone());
@@ -56,6 +59,7 @@ public class OrderConverter {
         entity.setProvince(dto.getProvince());
         entity.setWard(dto.getWard());
         entity.setAddressDetail(dto.getAddressDetail());
+        entity.setCancelReason(dto.getCancelReason());
 
 
         if (dto.getPayment() != null) {
@@ -96,6 +100,9 @@ public class OrderConverter {
         dto.setTotalPrice(entity.getTotalPrice());
         dto.setCreateDate(entity.getCreatedDate());
         dto.setFinalPrice(entity.getFinalPrice());
+        dto.setShippingFee(entity.getShippingFee());
+        dto.setCouponCode(entity.getCouponCode());
+        dto.setDiscountValue(entity.getDiscountValue());
         dto.setNote(entity.getNote());
         dto.setReceiverName(entity.getReceiverName());
         dto.setReceiverPhone(entity.getReceiverPhone());
@@ -103,6 +110,7 @@ public class OrderConverter {
         dto.setProvince(entity.getProvince());
         dto.setWard(entity.getWard());
         dto.setAddressDetail(entity.getAddressDetail());
+        dto.setCancelReason(entity.getCancelReason());
         if (entity.getPayment() != null) {
             dto.setPayment(entity.getPayment().getId());
         }

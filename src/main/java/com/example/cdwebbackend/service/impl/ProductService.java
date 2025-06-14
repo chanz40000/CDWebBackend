@@ -126,6 +126,7 @@ public class ProductService implements IProductService {
         productSizeColorEntity.setProductColor(productColorEntity);
         productSizeColorEntity.setStock(stock);
         productSizeColorEntity.setProduct(product);
+        productSizeColorEntity.setActive(true);
 
         return productSizeColorRepository.save(productSizeColorEntity);
     }
@@ -186,7 +187,9 @@ public class ProductService implements IProductService {
             throw new DataNotFoundException("Brand not found with code: " + productDTO.getBrandCode());
         }
         ProductEntity productEntity = productConverter.toEntity(productDTO);
-        productEntity.setCategory(category);
+                productEntity.setCategory(category);
+                productEntity.setActive(true);
+
         productEntity.setBrand(brandEntity);
         return productRepository.save(productEntity);
     }
@@ -236,6 +239,19 @@ public class ProductService implements IProductService {
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy sản phẩm với id = " + id));
         return productConverter.toDTO(productEntity);
     }
+
+    public ProductDTO getProductByIdTrue(Long id) throws DataNotFoundException {
+        ProductEntity productEntity = productRepository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy sản phẩm với id = " + id));
+        // Lọc productSizeColors chỉ lấy cái nào isActive = true
+        List<ProductSizeColorEntity> activeSizeColors = productEntity.getProductSizeColors().stream()
+                .filter(psc -> Boolean.TRUE.equals(psc.isActive()))
+                .collect(Collectors.toList());
+
+        productEntity.setProductSizeColors(activeSizeColors);
+        return productConverter.toDTO(productEntity);
+    }
+
 
 
     @Cacheable(value = "products", key = "#productName", condition = "#productName != null")
@@ -291,27 +307,27 @@ public class ProductService implements IProductService {
     public ColorEntity getDefaultColor() {
         return null;
     }
-
+//    @CacheEvict(value = {"products", "productDetails"}, key = "#productId", condition = "#productId != null")
     @Override
-    @Transactional
-    @CacheEvict(value = {"products", "productDetails"}, key = "#productId", condition = "#productId != null")
-    public void deleteProduct(Long productId) throws DataNotFoundException {
+    public void changeActiveProduct(Long productId, Boolean active) throws DataNotFoundException {
+
         ProductEntity productEntity = productRepository.findOneById(productId);
         if (productEntity == null) {
             throw new DataNotFoundException("Không tìm thấy sản phẩm với ID: " + productId);
         }
-        productRepository.delete(productEntity);
+        productEntity.setActive(active);
+        productRepository.save(productEntity);
     }
-
+//    @CacheEvict(value = "productDetails", key = "#productSizeColorId", condition = "#productSizeColorId != null")
     @Override
-    @Transactional
-    @CacheEvict(value = "productDetails", key = "#productSizeColorId", condition = "#productSizeColorId != null")
-    public void deleteProductSizeColor(Long productSizeColorId) throws DataNotFoundException {
+    public void changeActiveProductSizeColor(Long productSizeColorId, Boolean active) throws DataNotFoundException {
+
         ProductSizeColorEntity productSizeColorEntity = productSizeColorRepository.findOneById(productSizeColorId);
         if (productSizeColorEntity == null) {
             throw new DataNotFoundException("Không tìm thấy sản phẩm với ID: " + productSizeColorId);
         }
-        productSizeColorRepository.delete(productSizeColorEntity);
+        productSizeColorEntity.setActive(active);
+        productSizeColorRepository.save(productSizeColorEntity);
     }
 
 
@@ -320,6 +336,20 @@ public class ProductService implements IProductService {
         return productRepository.findAll(pageable)
                 .map(product -> productConverter.toDTO(product));
     }
+    public Page<ProductDTO> getAllProductsPaginated(Boolean isActive, Pageable pageable) {
+        Page<ProductEntity> products;
+
+        if (isActive == null) {
+            // Nếu không truyền hoặc null thì lấy tất cả
+            products = productRepository.findAll(pageable);
+        } else {
+            // Lọc theo isActive = true / false
+            products = productRepository.findAllByIsActive(isActive, pageable);
+        }
+
+        return products.map(product -> productConverter.toDTO(product));
+    }
+
 
 
 

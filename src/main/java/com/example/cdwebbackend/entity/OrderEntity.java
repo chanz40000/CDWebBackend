@@ -14,6 +14,12 @@ public class OrderEntity extends BaseEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    @Column(name = "coupon_code")
+    private String couponCode;
+
+    @Column(name = "discount_value")
+    private int discountValue;
+
     @Column(name = "total_price") // tổng tiền sản phẩm
     private int totalPrice;
 
@@ -46,6 +52,9 @@ public class OrderEntity extends BaseEntity {
     @Column(name = "address_detail")
     private String addressDetail;
 
+    @JoinColumn(name = "order_reason")
+    private String cancelReason;
+
     // @ManyToOne: Quan hệ nhiều - một với StatusOrderEntity
     // 1 đơn hàng chỉ có 1 trạng thái, nhưng 1 trạng thái có thể áp dụng cho nhiều đơn hàng
     @ManyToOne
@@ -65,6 +74,30 @@ public class OrderEntity extends BaseEntity {
 
     // Getters and Setters
 
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
+
+    public String getCouponCode() {
+        return couponCode;
+    }
+
+    public void setCouponCode(String couponCode) {
+        this.couponCode = couponCode;
+    }
+
+    public int getDiscountValue() {
+        return discountValue;
+    }
+
+    public void setDiscountValue(int discountValue) {
+        this.discountValue = discountValue;
+    }
 
     public String getReceiverName() {
         return receiverName;
