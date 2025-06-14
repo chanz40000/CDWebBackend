@@ -52,6 +52,9 @@ public class OrderEntity extends BaseEntity {
     @Column(name = "address_detail")
     private String addressDetail;
 
+    @JoinColumn(name = "order_reason")
+    private String cancelReason;
+
     // @ManyToOne: Quan hệ nhiều - một với StatusOrderEntity
     // 1 đơn hàng chỉ có 1 trạng thái, nhưng 1 trạng thái có thể áp dụng cho nhiều đơn hàng
     @ManyToOne
@@ -71,6 +74,14 @@ public class OrderEntity extends BaseEntity {
 
     // Getters and Setters
 
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
 
     public String getCouponCode() {
         return couponCode;

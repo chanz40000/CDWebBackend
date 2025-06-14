@@ -29,6 +29,7 @@ public class OrderResponse {
     private String ward;
     private String addressDetails;
     private String note;
+    private String orderReason;
     private List<OrderDetailResponse> orderDetails;
     private ShippingAddressResponse shippingAddresses;
 
@@ -50,6 +51,7 @@ public class OrderResponse {
                 .statusOrderId(entity.getStatusOrder().getId())
                 .totalPrice(entity.getTotalPrice())
                 .shippingFee(entity.getShippingFee())
+                .orderReason(entity.getCancelReason() != null ? entity.getCancelReason() : null)
                 .finalPrice(entity.getFinalPrice())
                 .discountValue(entity.getDiscountValue())
                 .codeCoupon(entity.getCouponCode())

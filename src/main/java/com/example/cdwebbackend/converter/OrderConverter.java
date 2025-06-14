@@ -59,6 +59,7 @@ public class OrderConverter {
         entity.setProvince(dto.getProvince());
         entity.setWard(dto.getWard());
         entity.setAddressDetail(dto.getAddressDetail());
+        entity.setCancelReason(dto.getCancelReason());
 
 
         if (dto.getPayment() != null) {
@@ -109,6 +110,7 @@ public class OrderConverter {
         dto.setProvince(entity.getProvince());
         dto.setWard(entity.getWard());
         dto.setAddressDetail(entity.getAddressDetail());
+        dto.setCancelReason(entity.getCancelReason());
         if (entity.getPayment() != null) {
             dto.setPayment(entity.getPayment().getId());
         }

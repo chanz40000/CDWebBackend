@@ -52,6 +52,10 @@ public class OrderDTO extends AbstractDTO<OrderDTO> {
     @JsonProperty("address_detail")
     private String addressDetail;
 
+    @JsonProperty("order_reason")
+    private String cancelReason;
+
+
 //    @JsonProperty("shipping_address_id")
 //    private Long shippingAddress;
 
@@ -64,6 +68,14 @@ public class OrderDTO extends AbstractDTO<OrderDTO> {
 
     // Getters and Setters
 
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
 
     public String getCouponCode() {
         return couponCode;
