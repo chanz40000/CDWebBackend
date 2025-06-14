@@ -1,6 +1,8 @@
 package com.example.cdwebbackend.controller;
 
 import com.example.cdwebbackend.dto.CouponDTO;
+import com.example.cdwebbackend.dto.CouponTypeDTO;
+import com.example.cdwebbackend.dto.StatusOrderDTO;
 import com.example.cdwebbackend.entity.CouponEntity;
 import com.example.cdwebbackend.entity.CouponTypeEntity;
 import com.example.cdwebbackend.entity.CouponUserEntity;
@@ -14,6 +16,10 @@ import com.example.cdwebbackend.responses.CouponResponse;
 import com.example.cdwebbackend.responses.CouponUserResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,14 +46,27 @@ public class CouponController {
     @Autowired
     private UserRepository userRepository;
 
+//    @GetMapping
+//    public ResponseEntity<List<CouponResponse>> getAllCoupons() {
+//        List<CouponEntity> couponEntities = couponRepository.findByIsActiveTrue();
+//        List<CouponResponse> responses = couponEntities.stream()
+//                .map(CouponResponse::fromEntity)
+//                .collect(Collectors.toList());
+//        return ResponseEntity.ok(responses);
+//    }
+
     @GetMapping
-    public ResponseEntity<List<CouponResponse>> getAllCoupons() {
-        List<CouponEntity> couponEntities = couponRepository.findByIsActiveTrue();
-        List<CouponResponse> responses = couponEntities.stream()
-                .map(CouponResponse::fromEntity)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(responses);
+    public ResponseEntity<Page<CouponResponse>> getAllCoupons(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+        Page<CouponEntity> pageResult = couponRepository.findAll(pageable);
+
+        Page<CouponResponse> responsePage = pageResult.map(CouponResponse::fromEntity);
+        return ResponseEntity.ok(responsePage);
     }
+
 
     // GET: Lấy danh sách coupon theo coupon_type_id = 3 và is_active = true
     @GetMapping("/type/3")
@@ -68,6 +87,21 @@ public class CouponController {
                 .map(CouponResponse::fromEntity)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/get_couponType")
+    public ResponseEntity<List<CouponTypeDTO>> getCouponsTypeAll() {
+
+        List<CouponTypeEntity> couponTypeEntities = couponTypeRepository.findAll();
+        List<CouponTypeDTO> couponTypeDTOs = couponTypeEntities.stream()
+                .map(entity ->{
+                    CouponTypeDTO couponTypeDTO = new CouponTypeDTO();
+                    couponTypeDTO.setId(entity.getId());
+                    couponTypeDTO.setCouponType(entity.getCouponType());
+                    return couponTypeDTO;
+                })
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(couponTypeDTOs);
     }
     @GetMapping("/code/{couponCode}")
     public ResponseEntity<CouponResponse> getCouponByCode(@PathVariable("couponCode") String couponCode) {

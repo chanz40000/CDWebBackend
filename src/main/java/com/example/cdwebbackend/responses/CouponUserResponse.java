@@ -23,6 +23,7 @@ public class CouponUserResponse {
     private int quantity;
     private int maxUsesPerUser;
     private Integer minProductQuantity;
+    private Integer maxDiscountAmount;
     private boolean isActive;
     private int usageCount; // số lượt đã sử dụng
 
@@ -39,6 +40,7 @@ public class CouponUserResponse {
                 .endDate(entity.getCoupon().getEndDate())
                 .usageCount(entity.getUsageCount())
                 .minOrderValue(entity.getCoupon().getMinOrderValue())
+                .maxDiscountAmount(entity.getCoupon().getMaxDiscountAmount())
                 .quantity(entity.getCoupon().getQuantity())
                 .maxUsesPerUser(entity.getCoupon().getMaxUsesPerUser())
                 .minProductQuantity(entity.getCoupon().getMinProductQuantity())
