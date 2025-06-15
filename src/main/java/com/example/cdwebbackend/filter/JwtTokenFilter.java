@@ -123,7 +123,8 @@ private boolean isByPassToken(@NonNull HttpServletRequest request) {
             Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
             Pair.of(String.format("%s/users/forgotPass", apiPrefix), "POST"),
             Pair.of(String.format("%s/users/newPassword", apiPrefix), "PUT"),
-            Pair.of(String.format("%s/users/validateOtp", apiPrefix), "POST")
+            Pair.of(String.format("%s/users/validateOtp", apiPrefix), "POST"),
+            Pair.of(String.format("%s/reviews/rating-summary", apiPrefix), "GET")
 
 
     );

@@ -237,6 +237,34 @@ public class ReviewController {
 
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/rating-summary/{productId}")
+    public ResponseEntity<?> getRatingSummary(@PathVariable("productId") Long productId) {
+        // Lấy tất cả review cấp cao nhất của sản phẩm
+        List<ReviewEntity> topLevelReviews = reviewRepository.findByProductIdAndParentReviewIdIsNull(productId);
+
+        // Tính trung bình số sao (chỉ tính các review có sao)
+        double averageRating = topLevelReviews.stream()
+                .filter(r -> r.getStars() != null)
+                .mapToDouble(ReviewEntity::getStars)
+                .average()
+                .orElse(0.0);
+
+        // Đếm số review có số sao
+        long totalReviews = topLevelReviews.stream()
+                .filter(r -> r.getStars() != null)
+                .count();
+
+        // Thống kê chi tiết số lượng từng loại sao (nếu bạn có phương thức thống kê trong repository)
+        List<Map<String, Integer>> stats = reviewRepository.getStatsByProductId(productId);
+
+        // Trả về response
+        Map<String, Object> response = new HashMap<>();
+        response.put("averageRating", averageRating);
+        response.put("totalReviews", totalReviews);
+        response.put("stats", stats);
+
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/{id}/like")
     public ResponseEntity<?> toggleLikeReview(@PathVariable("id") Long id) throws DataNotFoundException {
