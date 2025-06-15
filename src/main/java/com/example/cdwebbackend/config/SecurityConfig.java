@@ -332,6 +332,7 @@ public class SecurityConfig {
                                 apiPrefix + "/users/forgotPass",
                                 apiPrefix + "/users/newPassword/**",
                                 apiPrefix + "/users/validateOtp",
+                                apiPrefix + "/reviews/rating-summary/**",
                                 apiPrefix + "/products/getProduct/**",
                                 apiPrefix + "/products/getProductName/**",
                                 apiPrefix + "/products/getListColor/**",
