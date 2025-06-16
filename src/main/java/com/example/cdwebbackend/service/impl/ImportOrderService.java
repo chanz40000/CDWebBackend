@@ -46,6 +46,9 @@ public class ImportOrderService implements IImportOrderService {
 
     @Override
     public ImportOrderDTO selectById(int id) {
+        ImportOrderEntity entity = importOrderRepository.findOneById(id).get();
+        ImportOrderDTO converter = importOrderConverter.toDTO(entity);
+        System.out.println("Gia nhap"+converter.getImportPrice());
         return importOrderConverter.toDTO(importOrderRepository.findOneById(id).get());
     }
 
