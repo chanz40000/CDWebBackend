@@ -113,6 +113,7 @@ public class ProductConverter {
         dto.setStock(entity.getStock());
         dto.setPrice(entity.getPrice());
         dto.setActive(entity.isActive());
+        dto.setImport_price(entity.getImport_price());
 //        dto.setImageUrl(entity.getImage());
 
         // Gán category và brand
