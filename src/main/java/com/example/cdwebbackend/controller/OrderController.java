@@ -188,6 +188,18 @@ public class OrderController {
 
             //Lay thong tin cartItems được chọn
             List<CartItemEntity> selectedItems = cartItemService.getCartItemsByIds(cartItemIds, user.getId());
+            // Kiểm tra nếu có sản phẩm không còn hoạt động
+            for (CartItemEntity item : selectedItems) {
+                if (!item.getProductSizeColor().getProduct().isActive() || !item.getProductSizeColor().isActive()) {
+                    return ResponseEntity.badRequest().body(
+                            Map.of(
+                                    "status", "product unActive",
+                                    "message", "Sản phẩm '" + item.getProductSizeColor().getProduct().getNameProduct() + "' hiện không còn hoạt động"
+                            )
+                    );
+                }
+            }
+
             // Kiểm tra nếu không có cart item nào hợp lệ
             if (selectedItems.isEmpty()) {
                 return ResponseEntity.ok().body(
@@ -370,9 +382,20 @@ public class OrderController {
 
             // Kiểm tra cart items
             List<CartItemEntity> selectedItems = cartItemService.getCartItemsByIds(cartItemIds, user.getId());
+            // Kiểm tra nếu có sản phẩm không còn hoạt động
+            for (CartItemEntity item : selectedItems) {
+                if (!item.getProductSizeColor().getProduct().isActive() || !item.getProductSizeColor().isActive()) {
+                    return ResponseEntity.badRequest().body(
+                            Map.of(
+                                    "status", "failed",
+                                    "message", "Sản phẩm '" + item.getProductSizeColor().getProduct().getNameProduct() + "' hiện không còn hoạt động"
+                            )
+                    );
+                }
+            }
             if (selectedItems.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                        "status", "failed",
+                        "status", "product unActive",
                         "message", "Không tìm thấy các sản phẩm trong giỏ hàng"
                 ));
             }
