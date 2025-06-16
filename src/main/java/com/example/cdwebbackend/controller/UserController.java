@@ -92,8 +92,16 @@ public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
             if (token == null || token.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
             }
+            UserEntity user = userRepository.findOneByUsername(userLoginDTO.getUsername()).get();
             Map<String, String> response = new HashMap<>();
             response.put("accessToken", token);
+            String role = "";
+            for (RoleEntity roleEntity: user.getRoles()){
+                role+=", "+ roleEntity.getName();
+            }
+            response.put("role", role);
+
+
             return ResponseEntity.ok(response);  // Trả về token nếu đăng nhập thành công
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());

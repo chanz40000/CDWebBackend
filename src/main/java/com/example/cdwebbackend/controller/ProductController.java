@@ -111,7 +111,7 @@ public class ProductController {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class); // Parse tay
-
+            productDTO.setActive(false);
             ProductEntity saved = productService.createProduct(productDTO);
             ProductResponse response = ProductResponse.fromEntity(saved);
             return ResponseEntity.ok(Map.of(

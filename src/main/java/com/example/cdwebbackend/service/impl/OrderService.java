@@ -223,6 +223,10 @@ public class OrderService implements IOrderService{
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_MONTH, -1);
         Date oneDayAgo = calendar.getTime();
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.add(Calendar.MINUTE, -1);
+//        Date oneMinuteAgo = calendar.getTime();
+
 
         // Tìm tất cả đơn hàng có status_order_id = 7 và sửa đổi trước 1 ngày
         List<OrderEntity> overdueOrders = orderRepository.findByStatusOrderIdAndModifiedDateBefore(7L, oneDayAgo);

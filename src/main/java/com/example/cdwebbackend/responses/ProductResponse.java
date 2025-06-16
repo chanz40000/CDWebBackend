@@ -37,6 +37,7 @@ public class ProductResponse {
                 .nameProduct(product.getNameProduct())
                 .description(product.getDescription())
                 .stock(product.getStock())
+                .import_price(product.getImport_price())
                 .price(product.getPrice())
                 .image(image)
                 .isActive(product.isActive())
